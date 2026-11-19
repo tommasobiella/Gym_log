@@ -930,42 +930,54 @@
       flex-direction: column;
       gap: 2px;
     }
-    .today-set-title {
+    .today-set-title,
+    .today-set-name {
       font-size: 0.92rem;
       font-weight: 700;
       color: var(--text);
     }
     .today-set-meta {
-      font-size: 0.8rem;
+      font-size: 0.78rem;
       color: var(--text-muted);
+      display: flex;
+      gap: 6px;
+      flex-wrap: wrap;
     }
     .today-set-actions {
       display: flex;
       align-items: center;
       gap: 8px;
+      flex-shrink: 0;
     }
     .set-action-btn {
       background: rgba(255, 255, 255, 0.06);
       border: 1px solid var(--card-border);
-      color: var(--text);
+      color: var(--text-muted);
       width: 34px;
       height: 34px;
-      border-radius: 8px;
+      border-radius: 10px;
       display: inline-flex;
       align-items: center;
       justify-content: center;
       cursor: pointer;
-      transition: all 0.2s ease;
+      transition: all 0.15s ease;
       padding: 0;
+      flex-shrink: 0;
     }
-    .set-action-btn:hover {
-      background: rgba(255, 255, 255, 0.15);
+    .set-action-btn:hover,
+    .set-action-btn:active {
+      background: rgba(255, 255, 255, 0.14);
       border-color: var(--accent);
+      color: #fff;
     }
-    .set-action-btn.delete:hover {
-      background: rgba(229, 57, 53, 0.2);
+    .set-action-btn.danger {
+      color: rgba(255, 69, 58, 0.85);
+    }
+    .set-action-btn.danger:hover,
+    .set-action-btn.danger:active {
+      background: rgba(255, 69, 58, 0.18);
       border-color: var(--danger);
-      color: #ff6b6b;
+      color: var(--danger);
     }
     .today-empty-state {
       text-align: center;
@@ -1501,8 +1513,8 @@
       transform: rotate(90deg);
     }
   </style>
-  <script src="db.js?v=8"></script>
-  <script src="backup.js?v=8"></script>
+  <script src="db.js?v=9"></script>
+  <script src="backup.js?v=9"></script>
 </head>
 <body>
 
@@ -2073,6 +2085,27 @@
       activeHistoryDetail = null;
     }
 
+    function renderSetRowActionsHtml(setId) {
+      return `
+        <div class="today-set-actions">
+          <button type="button" class="set-action-btn" onclick="openEditSetModal('${setId}')" title="Modifica serie" aria-label="Modifica">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path>
+            </svg>
+          </button>
+          <button type="button" class="set-action-btn danger" onclick="deleteSetById('${setId}')" title="Elimina serie" aria-label="Elimina">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+              <polyline points="3 6 5 6 21 6"></polyline>
+              <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path>
+              <path d="M10 11v6"></path>
+              <path d="M14 11v6"></path>
+              <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"></path>
+            </svg>
+          </button>
+        </div>
+      `;
+    }
+
     function renderHistoryDetailModal() {
       if (!activeHistoryDetail) return;
       const { dateStr, exKey } = activeHistoryDetail;
@@ -2100,22 +2133,7 @@
                 ${s.notes ? `<span>${timeStr ? '&bull; ' : ''}${escapeHtml(s.notes)}</span>` : ''}
               </div>
             </div>
-            <div class="today-set-actions">
-              <button type="button" class="btn-icon-action" onclick="openEditSetModal('${s.id}')" title="Modifica serie" aria-label="Modifica">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-                  <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
-                </svg>
-              </button>
-              <button type="button" class="btn-icon-action danger" onclick="deleteSetById('${s.id}')" title="Elimina serie" aria-label="Elimina">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <polyline points="3 6 5 6 21 6"></polyline>
-                  <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                  <line x1="10" y1="11" x2="10" y2="17"></line>
-                  <line x1="14" y1="11" x2="14" y2="17"></line>
-                </svg>
-              </button>
-            </div>
+            ${renderSetRowActionsHtml(s.id)}
           </div>
         `;
       }).join('');
@@ -2649,22 +2667,7 @@
                 ${log.notes ? `<span>&bull; ${escapeHtml(log.notes)}</span>` : ''}
               </div>
             </div>
-            <div class="today-set-actions">
-              <button type="button" class="btn-icon-action" onclick="openEditSetModal('${log.id}')" title="Modifica serie" aria-label="Modifica">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-                  <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
-                </svg>
-              </button>
-              <button type="button" class="btn-icon-action danger" onclick="deleteSetById('${log.id}')" title="Elimina serie" aria-label="Elimina">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                  <polyline points="3 6 5 6 21 6"></polyline>
-                  <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
-                  <line x1="10" y1="11" x2="10" y2="17"></line>
-                  <line x1="14" y1="11" x2="14" y2="17"></line>
-                </svg>
-              </button>
-            </div>
+            ${renderSetRowActionsHtml(log.id)}
           </div>
         `;
       }).reverse().join('');
@@ -3058,7 +3061,7 @@
     }
 
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('sw.js?v=8', {scope: './'}).then(reg => {
+      navigator.serviceWorker.register('sw.js?v=9', {scope: './'}).then(reg => {
         reg.update();
       }).catch(() => {});
     }
@@ -3170,9 +3173,8 @@
     <div class="modal-card">
       <div class="modal-header">
         <h3>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
-            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path>
           </svg>
           Modifica Serie
         </h3>
