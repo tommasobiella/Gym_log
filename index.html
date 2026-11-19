@@ -66,7 +66,7 @@
       backdrop-filter: blur(20px);
       -webkit-backdrop-filter: blur(20px);
       border-bottom: 1px solid var(--card-border);
-      padding: max(20px, calc(env(safe-area-inset-top, 0px) + 8px)) 16px 10px;
+      padding: max(18px, calc(env(safe-area-inset-top, 0px) + 18px)) 16px 10px;
     }
 
     .header-top {
@@ -1278,9 +1278,84 @@
       gap: 8px;
       flex-shrink: 0;
     }
+    .sheet-more-wrap {
+      position: relative;
+      flex-shrink: 0;
+    }
+    .sheet-dropdown-menu {
+      position: absolute;
+      top: 44px;
+      right: 0;
+      min-width: 175px;
+      background: #2C2C2E;
+      border: 1px solid rgba(255, 255, 255, 0.14);
+      border-radius: 14px;
+      padding: 6px;
+      box-shadow: 0 12px 32px rgba(0, 0, 0, 0.65);
+      display: none;
+      flex-direction: column;
+      gap: 2px;
+      z-index: 3000;
+    }
+    .sheet-dropdown-menu.open {
+      display: flex;
+    }
+    .sheet-dropdown-item {
+      width: 100%;
+      background: transparent;
+      border: none;
+      color: #fff;
+      font-size: 0.9rem;
+      font-weight: 600;
+      padding: 10px 12px;
+      border-radius: 9px;
+      text-align: left;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .sheet-dropdown-item:hover,
+    .sheet-dropdown-item:active {
+      background: rgba(255, 255, 255, 0.1);
+    }
+    .sheet-dropdown-item.danger {
+      color: var(--danger);
+    }
+    .sheet-dropdown-divider {
+      height: 1px;
+      background: rgba(255, 255, 255, 0.1);
+      margin: 3px 6px;
+    }
+    .history-collapse-header {
+      cursor: pointer;
+      margin-bottom: 0;
+      padding-bottom: 0;
+      border-bottom: none;
+      user-select: none;
+    }
+    .history-session-card.expanded .history-collapse-header {
+      margin-bottom: 10px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--card-border);
+    }
+    .history-collapse-body {
+      display: none;
+    }
+    .history-session-card.expanded .history-collapse-body {
+      display: block;
+    }
+    .history-chevron {
+      color: var(--text-muted);
+      transition: transform 0.2s ease;
+      flex-shrink: 0;
+    }
+    .history-session-card.expanded .history-chevron {
+      transform: rotate(90deg);
+    }
   </style>
-  <script src="db.js?v=4"></script>
-  <script src="backup.js?v=4"></script>
+  <script src="db.js?v=5"></script>
+  <script src="backup.js?v=5"></script>
 </head>
 <body>
 
@@ -1495,6 +1570,8 @@
     let currentAppMode = 'log'; // 'log' | 'history'
     let historySubMode = 'exercise'; // 'exercise' | 'date'
     let historyGroupFilter = 'Tutti';
+    let expandedHistoryExKeys = new Set();
+    let expandedHistoryDates = new Set();
     let currentValues = {};
 
     function getTodayStr() {
@@ -1589,6 +1666,26 @@
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
+    function toggleHistoryExCard(key) {
+      haptic();
+      if (expandedHistoryExKeys.has(key)) {
+        expandedHistoryExKeys.delete(key);
+      } else {
+        expandedHistoryExKeys.add(key);
+      }
+      renderHistoryView();
+    }
+
+    function toggleHistoryDateCard(dateStr) {
+      haptic();
+      if (expandedHistoryDates.has(dateStr)) {
+        expandedHistoryDates.delete(dateStr);
+      } else {
+        expandedHistoryDates.add(dateStr);
+      }
+      renderHistoryView();
+    }
+
     function setHistorySubMode(subMode) {
       haptic();
       historySubMode = subMode;
@@ -1622,13 +1719,14 @@
       }
 
       if (historySubMode === 'exercise') {
-        // VISTA STILE NOTION: Raggruppato per Esercizio -> Tutte le date in ordine cronologico inverso
+        // VISTA STILE NOTION: Raggruppato per Esercizio -> Collassabile di default
         const byEx = {};
         for (const s of filteredSets) {
           const key = s.exerciseId || s.exerciseName;
           if (!byEx[key]) {
             const exMeta = exercises.find(e => e.id === s.exerciseId);
             byEx[key] = {
+              key: key,
               id: s.exerciseId,
               name: exMeta ? exMeta.name : s.exerciseName,
               group: exMeta ? exMeta.group : s.group,
@@ -1643,6 +1741,7 @@
         const exList = Object.values(byEx).sort((a, b) => a.name.localeCompare(b.name));
         container.innerHTML = exList.map(exObj => {
           const dates = Object.keys(exObj.byDate).sort((a, b) => b.localeCompare(a));
+          const isExpanded = expandedHistoryExKeys.has(exObj.key);
           const rowsHtml = dates.map(dateStr => {
             const daySets = exObj.byDate[dateStr].sort((a, b) => (a.timestamp || '').localeCompare(b.timestamp || ''));
             const [y, m, d] = dateStr.split('-');
@@ -1667,24 +1766,31 @@
             `;
           }).join('');
 
-          const prLabel = exObj.pr !== null ? `PR: ${exObj.pr} kg` : '';
+          const prLabel = exObj.pr !== null ? `PR: ${exObj.pr} kg · ` : '';
           return `
-            <div class="history-session-card">
-              <div class="history-date-header">
+            <div class="history-session-card ${isExpanded ? 'expanded' : ''}" data-hist-ex="${escapeHtml(exObj.key)}">
+              <div class="history-date-header history-collapse-header" onclick="toggleHistoryExCard('${escapeHtml(exObj.key)}')">
                 <div>
                   <div class="history-date-title">${escapeHtml(exObj.name)}</div>
                   <div class="history-ex-group">${escapeHtml(exObj.group)}</div>
                 </div>
-                <span class="history-date-meta">${prLabel}</span>
+                <div style="display:flex; align-items:center; gap:8px;">
+                  <span class="history-date-meta">${prLabel}${dates.length} sedute</span>
+                  <svg class="history-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="9 18 15 12 9 6"></polyline>
+                  </svg>
+                </div>
               </div>
-              ${rowsHtml}
+              <div class="history-collapse-body">
+                ${rowsHtml}
+              </div>
             </div>
           `;
         }).join('');
         return;
       }
 
-      // VISTA PER DATA (Diario seduta per seduta)
+      // VISTA PER DATA (Diario seduta per seduta, collassabile)
       const byDate = {};
       for (const s of filteredSets) {
         if (!byDate[s.date]) byDate[s.date] = [];
@@ -1697,6 +1803,7 @@
         const daySets = byDate[dateStr].sort((a, b) => (a.timestamp || '').localeCompare(b.timestamp || ''));
         const [y, m, d] = dateStr.split('-');
         const dateLabel = `${d}/${m}/${y}`;
+        const isExpanded = expandedHistoryDates.has(dateStr);
 
         const byEx = {};
         for (const s of daySets) {
@@ -1729,12 +1836,19 @@
         }).join('');
 
         return `
-          <div class="history-session-card">
-            <div class="history-date-header">
+          <div class="history-session-card ${isExpanded ? 'expanded' : ''}" data-hist-date="${dateStr}">
+            <div class="history-date-header history-collapse-header" onclick="toggleHistoryDateCard('${dateStr}')">
               <span class="history-date-title">${dateLabel}</span>
-              <span class="history-date-meta">${daySets.length} serie</span>
+              <div style="display:flex; align-items:center; gap:8px;">
+                <span class="history-date-meta">${Object.keys(byEx).length} es. · ${daySets.length} serie</span>
+                <svg class="history-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="9 18 15 12 9 6"></polyline>
+                </svg>
+              </div>
             </div>
-            ${exHtml}
+            <div class="history-collapse-body">
+              ${exHtml}
+            </div>
           </div>
         `;
       }).join('');
@@ -1839,6 +1953,7 @@
       document.getElementById('sheetWeightVal').innerText = val.weight + ' kg';
       document.getElementById('sheetNoteInput').value = '';
 
+      closeSheetMoreMenu();
       const sheet = document.getElementById('exerciseBottomSheet');
       const backdrop = document.getElementById('sheetBackdrop');
       backdrop.style.display = 'block';
@@ -1851,6 +1966,7 @@
     }
 
     function closeExerciseSheet() {
+      closeSheetMoreMenu();
       const sheet = document.getElementById('exerciseBottomSheet');
       const backdrop = document.getElementById('sheetBackdrop');
       if (!sheet) return;
@@ -2260,18 +2376,56 @@
     }
 
     // =========================================================================
-    // MODIFICA / ELIMINA ESERCIZIO
+    // MODIFICA / ELIMINA ESERCIZIO + MENU A TENDINA (...)
     // =========================================================================
     let editingExerciseId = null;
 
-    function openEditExerciseModal() {
+    function toggleSheetMoreMenu(event) {
+      if (event) event.stopPropagation();
+      haptic();
+      const menu = document.getElementById('sheetDropdownMenu');
+      if (menu) menu.classList.toggle('open');
+    }
+
+    function closeSheetMoreMenu() {
+      const menu = document.getElementById('sheetDropdownMenu');
+      if (menu) menu.classList.remove('open');
+    }
+
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('.sheet-more-wrap')) {
+        closeSheetMoreMenu();
+      }
+    });
+
+    function openEditExerciseModal(mode = 'rename') {
+      closeSheetMoreMenu();
       if (!activeSheetExId) return;
       const ex = exercises.find(e => e.id === activeSheetExId);
       if (!ex) return;
       editingExerciseId = ex.id;
+
+      const titleEl = document.getElementById('editExModalTitle');
+      const nameWrap = document.getElementById('editExNameField');
+      const groupWrap = document.getElementById('editExGroupField');
+
       document.getElementById('editExNameInput').value = ex.name;
       document.getElementById('editExGroupSelect').value = ex.group;
+
+      if (mode === 'rename') {
+        if (titleEl) titleEl.innerText = 'Rinomina Esercizio';
+        if (nameWrap) nameWrap.style.display = 'flex';
+        if (groupWrap) groupWrap.style.display = 'none';
+      } else {
+        if (titleEl) titleEl.innerText = 'Cambia Gruppo';
+        if (nameWrap) nameWrap.style.display = 'none';
+        if (groupWrap) groupWrap.style.display = 'flex';
+      }
+
       document.getElementById('editExerciseModal').style.display = 'flex';
+      if (mode === 'rename') {
+        setTimeout(() => document.getElementById('editExNameInput').focus(), 100);
+      }
     }
 
     function closeEditExerciseModal() {
@@ -2298,9 +2452,10 @@
       showToast('Esercizio aggiornato!');
     }
 
-    async function deleteCurrentExercise() {
-      if (!editingExerciseId) return;
-      const ex = exercises.find(e => e.id === editingExerciseId);
+    async function deleteActiveExercise() {
+      closeSheetMoreMenu();
+      if (!activeSheetExId) return;
+      const ex = exercises.find(e => e.id === activeSheetExId);
       if (!ex) return;
       const exSetsCount = allSets.filter(s => s.exerciseId === ex.id).length;
       const msg = exSetsCount > 0
@@ -2310,7 +2465,6 @@
 
       await GymDB.deleteExerciseAndSets(ex.id);
       delete currentValues[ex.id];
-      closeEditExerciseModal();
       closeExerciseSheet();
       await refreshStateFromDB();
       showToast(`Eliminato: ${ex.name}`);
@@ -2359,7 +2513,7 @@
     }
 
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('sw.js?v=4', {scope: './'}).then(reg => {
+      navigator.serviceWorker.register('sw.js?v=5', {scope: './'}).then(reg => {
         reg.update();
       }).catch(() => {});
     }
@@ -2556,16 +2710,28 @@
     </div>
 
     <div class="sheet-header-row">
-      <div class="sheet-title-info">
-        <div class="sheet-title-name" id="sheetExTitle">Esercizio</div>
-        <div class="sheet-title-stats">
+      <button type="button" class="sheet-close-x" onclick="closeExerciseSheet()" title="Chiudi scheda" aria-label="Chiudi" style="flex-shrink:0;">&times;</button>
+      <div class="sheet-title-info" style="flex:1; min-width:0; text-align:center;">
+        <div class="sheet-title-name" id="sheetExTitle" style="word-break:break-word;">Esercizio</div>
+        <div class="sheet-title-stats" style="justify-content:center;">
           <span>Ultima: <strong id="sheetStatsUltima">-</strong></span>
           <span>PR: <strong id="sheetStatsPR">-</strong></span>
         </div>
       </div>
-      <div class="sheet-header-actions">
-        <button type="button" class="sheet-close-x" onclick="openEditExerciseModal()" title="Modifica o elimina esercizio" aria-label="Modifica esercizio" style="font-size:0.95rem;">✎</button>
-        <button type="button" class="sheet-close-x" onclick="closeExerciseSheet()" title="Chiudi scheda" aria-label="Chiudi">&times;</button>
+      <div class="sheet-more-wrap">
+        <button type="button" class="sheet-close-x" id="sheetMoreBtn" onclick="toggleSheetMoreMenu(event)" title="Opzioni esercizio" aria-label="Opzioni esercizio" style="font-size:1.15rem; font-weight:800;">&hellip;</button>
+        <div class="sheet-dropdown-menu" id="sheetDropdownMenu">
+          <button type="button" class="sheet-dropdown-item" onclick="openEditExerciseModal('rename')">
+            <span>Rinomina</span>
+          </button>
+          <button type="button" class="sheet-dropdown-item" onclick="openEditExerciseModal('group')">
+            <span>Cambia gruppo</span>
+          </button>
+          <div class="sheet-dropdown-divider"></div>
+          <button type="button" class="sheet-dropdown-item danger" onclick="deleteActiveExercise()">
+            <span>Elimina</span>
+          </button>
+        </div>
       </div>
     </div>
 
@@ -2673,20 +2839,20 @@
   </div>
 
 
-  <!-- Modale Modifica / Elimina Esercizio -->
+  <!-- Modale Rinomina / Cambia Gruppo Esercizio -->
   <div class="modal-overlay" id="editExerciseModal" onclick="if(event.target===this) closeEditExerciseModal()">
     <div class="modal-card">
       <div class="modal-header">
-        <h3>Modifica Esercizio</h3>
+        <h3 id="editExModalTitle">Modifica Esercizio</h3>
         <button type="button" class="modal-close-btn" onclick="closeEditExerciseModal()">&times;</button>
       </div>
 
-      <div class="modal-field">
+      <div class="modal-field" id="editExNameField">
         <label for="editExNameInput">Nome Esercizio</label>
         <input type="text" id="editExNameInput" autocomplete="off">
       </div>
 
-      <div class="modal-field">
+      <div class="modal-field" id="editExGroupField">
         <label for="editExGroupSelect">Gruppo Muscolare</label>
         <select id="editExGroupSelect">
           <option value="Petto">Petto</option>
@@ -2700,7 +2866,6 @@
       </div>
 
       <div class="modal-actions">
-        <button type="button" class="modal-btn-cancel" style="color:var(--danger); border-color:rgba(255,69,58,0.35);" onclick="deleteCurrentExercise()">Elimina</button>
         <button type="button" class="modal-btn-cancel" onclick="closeEditExerciseModal()">Annulla</button>
         <button type="button" class="modal-btn-confirm" onclick="saveEditedExercise()">Salva</button>
       </div>
