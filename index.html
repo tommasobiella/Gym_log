@@ -1313,6 +1313,7 @@
       cursor: pointer;
       display: flex;
       align-items: center;
+      justify-content: space-between;
       gap: 10px;
     }
     .sheet-dropdown-item:hover,
@@ -1322,10 +1323,38 @@
     .sheet-dropdown-item.danger {
       color: var(--danger);
     }
+    .sheet-dropdown-item.is-selected {
+      color: var(--accent);
+    }
+    .sheet-dropdown-subview {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .sheet-dropdown-back {
+      color: var(--text-muted);
+      font-size: 0.85rem;
+      justify-content: flex-start;
+    }
     .sheet-dropdown-divider {
       height: 1px;
       background: rgba(255, 255, 255, 0.1);
       margin: 3px 6px;
+    }
+    .sheet-title-input {
+      width: 100%;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1.5px solid var(--accent);
+      border-radius: 10px;
+      color: #fff;
+      font-size: 1.15rem;
+      font-weight: 800;
+      letter-spacing: -0.3px;
+      text-align: center;
+      padding: 4px 8px;
+      outline: none;
+      font-family: inherit;
+      box-sizing: border-box;
     }
     .history-collapse-header {
       cursor: pointer;
@@ -1354,8 +1383,8 @@
       transform: rotate(90deg);
     }
   </style>
-  <script src="db.js?v=5"></script>
-  <script src="backup.js?v=5"></script>
+  <script src="db.js?v=6"></script>
+  <script src="backup.js?v=6"></script>
 </head>
 <body>
 
@@ -1953,6 +1982,7 @@
       document.getElementById('sheetWeightVal').innerText = val.weight + ' kg';
       document.getElementById('sheetNoteInput').value = '';
 
+      cancelInlineRenameExercise();
       closeSheetMoreMenu();
       const sheet = document.getElementById('exerciseBottomSheet');
       const backdrop = document.getElementById('sheetBackdrop');
@@ -1966,6 +1996,7 @@
     }
 
     function closeExerciseSheet() {
+      cancelInlineRenameExercise();
       closeSheetMoreMenu();
       const sheet = document.getElementById('exerciseBottomSheet');
       const backdrop = document.getElementById('sheetBackdrop');
@@ -2376,20 +2407,79 @@
     }
 
     // =========================================================================
-    // MODIFICA / ELIMINA ESERCIZIO + MENU A TENDINA (...)
+    // MODIFICA INLINE / CAMBIA GRUPPO / ELIMINA + MENU A TENDINA (...)
     // =========================================================================
-    let editingExerciseId = null;
+    const SHEET_MUSCLE_GROUPS = ['Petto', 'Spalle', 'Tricipiti', 'Schiena', 'Bicipiti', 'Gambe', 'Core / Addome'];
+    let isCommittingRename = false;
 
     function toggleSheetMoreMenu(event) {
       if (event) event.stopPropagation();
       haptic();
       const menu = document.getElementById('sheetDropdownMenu');
-      if (menu) menu.classList.toggle('open');
+      if (!menu) return;
+      const willOpen = !menu.classList.contains('open');
+      if (willOpen) {
+        showMainDropdownMenu();
+        menu.classList.add('open');
+      } else {
+        menu.classList.remove('open');
+      }
+    }
+
+    function showMainDropdownMenu(event) {
+      if (event) event.stopPropagation();
+      const mainView = document.getElementById('sheetMenuMain');
+      const groupView = document.getElementById('sheetMenuGroups');
+      if (mainView) mainView.style.display = 'flex';
+      if (groupView) groupView.style.display = 'none';
+    }
+
+    function openGroupSubmenu(event) {
+      if (event) event.stopPropagation();
+      haptic();
+      if (!activeSheetExId) return;
+      const ex = exercises.find(e => e.id === activeSheetExId);
+      if (!ex) return;
+
+      const list = document.getElementById('sheetMenuGroupsList');
+      if (list) {
+        list.innerHTML = SHEET_MUSCLE_GROUPS.map(g => {
+          const isCurrent = ex.group === g;
+          const safeGroupArg = g.replace(/'/g, "\\'");
+          return `
+            <button type="button" class="sheet-dropdown-item ${isCurrent ? 'is-selected' : ''}" onclick="changeActiveExerciseGroup('${safeGroupArg}', event)">
+              <span>${escapeHtml(g)}</span>
+              ${isCurrent ? '<span>&#10003;</span>' : ''}
+            </button>
+          `;
+        }).join('');
+      }
+
+      const mainView = document.getElementById('sheetMenuMain');
+      const groupView = document.getElementById('sheetMenuGroups');
+      if (mainView) mainView.style.display = 'none';
+      if (groupView) groupView.style.display = 'flex';
+    }
+
+    async function changeActiveExerciseGroup(newGroup, event) {
+      if (event) event.stopPropagation();
+      haptic();
+      if (!activeSheetExId) return;
+      const ex = exercises.find(e => e.id === activeSheetExId);
+      if (!ex) return;
+
+      closeSheetMoreMenu();
+      if (ex.group === newGroup) return;
+
+      await GymDB.updateExerciseAndSets({ ...ex, group: newGroup });
+      await refreshStateFromDB();
+      showToast(`Spostato in: ${newGroup}`);
     }
 
     function closeSheetMoreMenu() {
       const menu = document.getElementById('sheetDropdownMenu');
       if (menu) menu.classList.remove('open');
+      showMainDropdownMenu();
     }
 
     document.addEventListener('click', (e) => {
@@ -2398,58 +2488,71 @@
       }
     });
 
-    function openEditExerciseModal(mode = 'rename') {
+    function startInlineRenameExercise() {
       closeSheetMoreMenu();
       if (!activeSheetExId) return;
       const ex = exercises.find(e => e.id === activeSheetExId);
       if (!ex) return;
-      editingExerciseId = ex.id;
 
-      const titleEl = document.getElementById('editExModalTitle');
-      const nameWrap = document.getElementById('editExNameField');
-      const groupWrap = document.getElementById('editExGroupField');
+      const titleEl = document.getElementById('sheetExTitle');
+      const inputEl = document.getElementById('sheetExTitleInput');
+      if (!titleEl || !inputEl) return;
 
-      document.getElementById('editExNameInput').value = ex.name;
-      document.getElementById('editExGroupSelect').value = ex.group;
+      isCommittingRename = false;
+      inputEl.value = ex.name;
+      titleEl.style.display = 'none';
+      inputEl.style.display = 'block';
+      inputEl.focus();
+      inputEl.select();
+    }
 
-      if (mode === 'rename') {
-        if (titleEl) titleEl.innerText = 'Rinomina Esercizio';
-        if (nameWrap) nameWrap.style.display = 'flex';
-        if (groupWrap) groupWrap.style.display = 'none';
-      } else {
-        if (titleEl) titleEl.innerText = 'Cambia Gruppo';
-        if (nameWrap) nameWrap.style.display = 'none';
-        if (groupWrap) groupWrap.style.display = 'flex';
-      }
+    function cancelInlineRenameExercise() {
+      if (isCommittingRename) return;
+      const titleEl = document.getElementById('sheetExTitle');
+      const inputEl = document.getElementById('sheetExTitleInput');
+      if (inputEl) inputEl.style.display = 'none';
+      if (titleEl) titleEl.style.display = 'block';
+    }
 
-      document.getElementById('editExerciseModal').style.display = 'flex';
-      if (mode === 'rename') {
-        setTimeout(() => document.getElementById('editExNameInput').focus(), 100);
+    function handleSheetTitleKeydown(event) {
+      if (event.key === 'Enter') {
+        event.preventDefault();
+        commitInlineRenameExercise();
+      } else if (event.key === 'Escape') {
+        event.preventDefault();
+        cancelInlineRenameExercise();
       }
     }
 
-    function closeEditExerciseModal() {
-      document.getElementById('editExerciseModal').style.display = 'none';
-      editingExerciseId = null;
-    }
+    async function commitInlineRenameExercise() {
+      if (isCommittingRename || !activeSheetExId) return;
+      const ex = exercises.find(e => e.id === activeSheetExId);
+      const titleEl = document.getElementById('sheetExTitle');
+      const inputEl = document.getElementById('sheetExTitleInput');
+      if (!ex || !titleEl || !inputEl) return;
 
-    async function saveEditedExercise() {
-      if (!editingExerciseId) return;
-      const ex = exercises.find(e => e.id === editingExerciseId);
-      if (!ex) return;
-      const newName = document.getElementById('editExNameInput').value.trim();
-      const newGroup = document.getElementById('editExGroupSelect').value;
+      const newName = inputEl.value.trim();
       if (!newName) {
         showToast('Inserisci un nome valido!');
+        inputEl.focus();
         return;
       }
-      await GymDB.updateExerciseAndSets({ ...ex, name: newName, group: newGroup });
-      await refreshStateFromDB();
-      if (activeSheetExId === editingExerciseId) {
-        document.getElementById('sheetExTitle').innerText = newName;
+
+      isCommittingRename = true;
+      inputEl.style.display = 'none';
+      titleEl.style.display = 'block';
+      inputEl.blur();
+
+      try {
+        if (newName !== ex.name) {
+          await GymDB.updateExerciseAndSets({ ...ex, name: newName });
+          await refreshStateFromDB();
+          titleEl.innerText = newName;
+          showToast('Esercizio rinominato!');
+        }
+      } finally {
+        isCommittingRename = false;
       }
-      closeEditExerciseModal();
-      showToast('Esercizio aggiornato!');
     }
 
     async function deleteActiveExercise() {
@@ -2513,7 +2616,7 @@
     }
 
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('sw.js?v=5', {scope: './'}).then(reg => {
+      navigator.serviceWorker.register('sw.js?v=6', {scope: './'}).then(reg => {
         reg.update();
       }).catch(() => {});
     }
@@ -2713,24 +2816,41 @@
       <button type="button" class="sheet-close-x" onclick="closeExerciseSheet()" title="Chiudi scheda" aria-label="Chiudi" style="flex-shrink:0;">&times;</button>
       <div class="sheet-title-info" style="flex:1; min-width:0; text-align:center;">
         <div class="sheet-title-name" id="sheetExTitle" style="word-break:break-word;">Esercizio</div>
+        <input type="text" id="sheetExTitleInput" class="sheet-title-input" style="display:none;" enterkeyhint="done" autocomplete="off" autocorrect="off" autocapitalize="sentences" onkeydown="handleSheetTitleKeydown(event)" onblur="cancelInlineRenameExercise()" aria-label="Nuovo nome esercizio">
         <div class="sheet-title-stats" style="justify-content:center;">
           <span>Ultima: <strong id="sheetStatsUltima">-</strong></span>
           <span>PR: <strong id="sheetStatsPR">-</strong></span>
         </div>
       </div>
       <div class="sheet-more-wrap">
-        <button type="button" class="sheet-close-x" id="sheetMoreBtn" onclick="toggleSheetMoreMenu(event)" title="Opzioni esercizio" aria-label="Opzioni esercizio" style="font-size:1.15rem; font-weight:800;">&hellip;</button>
-        <div class="sheet-dropdown-menu" id="sheetDropdownMenu">
-          <button type="button" class="sheet-dropdown-item" onclick="openEditExerciseModal('rename')">
-            <span>Rinomina</span>
-          </button>
-          <button type="button" class="sheet-dropdown-item" onclick="openEditExerciseModal('group')">
-            <span>Cambia gruppo</span>
-          </button>
-          <div class="sheet-dropdown-divider"></div>
-          <button type="button" class="sheet-dropdown-item danger" onclick="deleteActiveExercise()">
-            <span>Elimina</span>
-          </button>
+        <button type="button" class="sheet-close-x" id="sheetMoreBtn" onclick="toggleSheetMoreMenu(event)" title="Opzioni esercizio" aria-label="Opzioni esercizio">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+            <circle cx="5" cy="12" r="2.2"></circle>
+            <circle cx="12" cy="12" r="2.2"></circle>
+            <circle cx="19" cy="12" r="2.2"></circle>
+          </svg>
+        </button>
+        <div class="sheet-dropdown-menu" id="sheetDropdownMenu" onclick="event.stopPropagation()">
+          <div id="sheetMenuMain" class="sheet-dropdown-subview">
+            <button type="button" class="sheet-dropdown-item" onclick="startInlineRenameExercise()">
+              <span>Rinomina</span>
+            </button>
+            <button type="button" class="sheet-dropdown-item" onclick="openGroupSubmenu(event)">
+              <span>Cambia gruppo</span>
+              <span style="opacity:0.6; font-size:1rem; line-height:1;">&rsaquo;</span>
+            </button>
+            <div class="sheet-dropdown-divider"></div>
+            <button type="button" class="sheet-dropdown-item danger" onclick="deleteActiveExercise()">
+              <span>Elimina</span>
+            </button>
+          </div>
+          <div id="sheetMenuGroups" class="sheet-dropdown-subview" style="display:none;">
+            <button type="button" class="sheet-dropdown-item sheet-dropdown-back" onclick="showMainDropdownMenu(event)">
+              <span>&lsaquo; Indietro</span>
+            </button>
+            <div class="sheet-dropdown-divider"></div>
+            <div id="sheetMenuGroupsList" style="display:flex; flex-direction:column; gap:2px;"></div>
+          </div>
         </div>
       </div>
     </div>
@@ -2838,39 +2958,6 @@
     </div>
   </div>
 
-
-  <!-- Modale Rinomina / Cambia Gruppo Esercizio -->
-  <div class="modal-overlay" id="editExerciseModal" onclick="if(event.target===this) closeEditExerciseModal()">
-    <div class="modal-card">
-      <div class="modal-header">
-        <h3 id="editExModalTitle">Modifica Esercizio</h3>
-        <button type="button" class="modal-close-btn" onclick="closeEditExerciseModal()">&times;</button>
-      </div>
-
-      <div class="modal-field" id="editExNameField">
-        <label for="editExNameInput">Nome Esercizio</label>
-        <input type="text" id="editExNameInput" autocomplete="off">
-      </div>
-
-      <div class="modal-field" id="editExGroupField">
-        <label for="editExGroupSelect">Gruppo Muscolare</label>
-        <select id="editExGroupSelect">
-          <option value="Petto">Petto</option>
-          <option value="Spalle">Spalle</option>
-          <option value="Tricipiti">Tricipiti</option>
-          <option value="Schiena">Schiena</option>
-          <option value="Bicipiti">Bicipiti</option>
-          <option value="Gambe">Gambe</option>
-          <option value="Core / Addome">Core / Addome</option>
-        </select>
-      </div>
-
-      <div class="modal-actions">
-        <button type="button" class="modal-btn-cancel" onclick="closeEditExerciseModal()">Annulla</button>
-        <button type="button" class="modal-btn-confirm" onclick="saveEditedExercise()">Salva</button>
-      </div>
-    </div>
-  </div>
 
 </body>
 </html>
