@@ -43,25 +43,30 @@
       user-select: none;
     }
 
+    html {
+      height: 100%;
+    }
+
     body {
       background-color: var(--bg);
       color: var(--text);
       font-family: var(--font);
-      min-height: 100vh;
+      min-height: 100%;
       padding-bottom: calc(65px + env(safe-area-inset-bottom, 0px));
       overflow-x: hidden;
     }
 
-    /* Header */
+    /* Header (calibrato per Dynamic Island / Notch su iPhone) */
     header {
+      position: -webkit-sticky;
       position: sticky;
       top: 0;
-      z-index: 100;
+      z-index: 1000;
       background: var(--header-bg);
       backdrop-filter: blur(20px);
       -webkit-backdrop-filter: blur(20px);
       border-bottom: 1px solid var(--card-border);
-      padding: 14px 16px 10px;
+      padding: max(20px, calc(env(safe-area-inset-top, 0px) + 8px)) 16px 10px;
     }
 
     .header-top {
@@ -1274,8 +1279,8 @@
       flex-shrink: 0;
     }
   </style>
-  <script src="db.js?v=3"></script>
-  <script src="backup.js?v=3"></script>
+  <script src="db.js?v=4"></script>
+  <script src="backup.js?v=4"></script>
 </head>
 <body>
 
@@ -1738,6 +1743,10 @@
     // =========================================================================
     // NAVIGAZIONE A GRUPPI + GESTURE SWIPE SU IPHONE/IPAD + TASTO INDIETRO BROWSER
     // =========================================================================
+    function setGroup(group) {
+      openMuscleGroup(group, true);
+    }
+
     function openMuscleGroup(group, pushHistory = true) {
       haptic();
       currentFilter = group;
@@ -1745,7 +1754,8 @@
 
       document.getElementById('groupsHubView').style.display = 'none';
       document.getElementById('exercisesContainer').style.display = 'block';
-      document.getElementById('activeGroupTitle').innerText = group;
+      const labelEl = document.getElementById('activeDistrettoLabel');
+      if (labelEl) labelEl.innerText = group;
       document.getElementById('searchInput').value = '';
 
       if (pushHistory && window.history && window.history.pushState) {
@@ -1753,10 +1763,10 @@
       }
 
       renderExercises();
-      window.scrollTo({top: 0, behavior: 'smooth'});
+      window.scrollTo({top: 0, behavior: 'instant'});
     }
 
-    function showGroupsHub(fromPopState = false) {
+    function backToGroups(fromPopState = false) {
       haptic();
       currentFilter = 'Tutti';
       document.getElementById('exercisesContainer').style.display = 'none';
@@ -1769,7 +1779,7 @@
           window.history.back();
         }
       }
-      window.scrollTo({top: 0, behavior: 'smooth'});
+      window.scrollTo({top: 0, behavior: 'instant'});
     }
 
     window.addEventListener('popstate', (e) => {
@@ -1777,7 +1787,7 @@
         openMuscleGroup(e.state.group, false);
       } else {
         if (document.getElementById('exercisesContainer').style.display !== 'none') {
-          showGroupsHub(true);
+          backToGroups(true);
         }
       }
     });
@@ -1798,7 +1808,7 @@
         const dy = Math.abs(e.changedTouches[0].clientY - touchStartY);
         const inExercisesView = document.getElementById('exercisesContainer').style.display === 'block';
         if (inExercisesView && touchStartX < 45 && dx > 75 && dy < 70) {
-          showGroupsHub(false);
+          backToGroups(false);
         }
       }, { passive: true });
     })();
@@ -1831,6 +1841,9 @@
 
       const sheet = document.getElementById('exerciseBottomSheet');
       const backdrop = document.getElementById('sheetBackdrop');
+      backdrop.style.display = 'block';
+      sheet.style.display = 'block';
+      sheet.offsetHeight;
       sheet.style.transform = '';
       sheet.classList.remove('dragging');
       backdrop.classList.add('active');
@@ -1840,11 +1853,18 @@
     function closeExerciseSheet() {
       const sheet = document.getElementById('exerciseBottomSheet');
       const backdrop = document.getElementById('sheetBackdrop');
-      sheet.style.transform = '';
+      if (!sheet) return;
       sheet.classList.remove('dragging');
       sheet.classList.remove('active');
-      backdrop.classList.remove('active');
-      activeSheetExId = null;
+      sheet.style.transform = 'translateY(100%)';
+      if (backdrop) backdrop.classList.remove('active');
+
+      setTimeout(() => {
+        sheet.style.display = 'none';
+        sheet.style.transform = '';
+        if (backdrop) backdrop.style.display = 'none';
+        activeSheetExId = null;
+      }, 280);
     }
 
     function sheetModReps(delta) {
@@ -2339,7 +2359,7 @@
     }
 
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('sw.js?v=3', {scope: './'}).then(reg => {
+      navigator.serviceWorker.register('sw.js?v=4', {scope: './'}).then(reg => {
         reg.update();
       }).catch(() => {});
     }
@@ -2531,7 +2551,7 @@
   <!-- Bottom Sheet Layer: Interfaccia Dettaglio e Registrazione Serie -->
   <div class="sheet-backdrop" id="sheetBackdrop" onclick="closeExerciseSheet()"></div>
   <div class="bottom-sheet" id="exerciseBottomSheet" style="display:none;" role="dialog" aria-modal="true">
-    <div class="sheet-handle-area" title="Trascina verso il basso per chiudere">
+    <div class="sheet-handle-area" id="sheetDragHandle" title="Trascina verso il basso per chiudere">
       <div class="sheet-handle-bar"></div>
     </div>
 
