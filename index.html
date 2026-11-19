@@ -943,6 +943,13 @@
       gap: 6px;
       flex-wrap: wrap;
     }
+    .today-set-note {
+      font-size: 0.78rem;
+      color: rgba(255, 255, 255, 0.78);
+      margin-top: 3px;
+      line-height: 1.35;
+      word-break: break-word;
+    }
     .today-set-actions {
       display: flex;
       align-items: center;
@@ -1513,8 +1520,8 @@
       transform: rotate(90deg);
     }
   </style>
-  <script src="db.js?v=9"></script>
-  <script src="backup.js?v=9"></script>
+  <script src="db.js?v=10"></script>
+  <script src="backup.js?v=10"></script>
 </head>
 <body>
 
@@ -2054,12 +2061,10 @@
       const timelineHtml = datesDesc.map(dateStr => {
         const daySets = byDate[dateStr].sort((a, b) => (a.timestamp || '').localeCompare(b.timestamp || ''));
         const formatted = GymDB.formatDaySets(daySets);
-        const notes = daySets.map(x => x.notes).filter(Boolean).join(' · ');
         return `
           <div class="history-clean-row" data-date="${escapeHtml(dateStr)}" data-exkey="${encodeURIComponent(activeHistoryProgressKey)}" onclick="openHistoryDetailFromEl(this)">
             <div class="history-row-left">
               <div class="history-ex-name">${escapeHtml(formatNaturalDate(dateStr))}</div>
-              ${notes ? `<div class="history-ex-sub">${escapeHtml(notes)}</div>` : ''}
             </div>
             <div class="history-row-right">
               <span class="history-ex-sets">${escapeHtml(formatted)}</span>
@@ -2128,10 +2133,8 @@
           <div class="today-set-item">
             <div class="today-set-info">
               <div class="today-set-name">Serie ${idx + 1} &middot; ${s.weight} kg &times; ${escapeHtml(String(s.reps))}</div>
-              <div class="today-set-meta">
-                ${timeStr ? `<span>${timeStr}</span>` : ''}
-                ${s.notes ? `<span>${timeStr ? '&bull; ' : ''}${escapeHtml(s.notes)}</span>` : ''}
-              </div>
+              ${timeStr ? `<div class="today-set-meta"><span>${timeStr}</span></div>` : ''}
+              ${s.notes ? `<div class="today-set-note">${escapeHtml(s.notes)}</div>` : ''}
             </div>
             ${renderSetRowActionsHtml(s.id)}
           </div>
@@ -2302,12 +2305,10 @@
         const groupsLabel = groupsSeen.length > 0 ? groupsSeen.join(' · ') : 'Allenamento';
         const exRowsHtml = Object.values(byEx).map(exObj => {
           const formatted = GymDB.formatDaySets(exObj.sets);
-          const notes = exObj.sets.map(x => x.notes).filter(Boolean).join(' · ');
           return `
             <div class="history-clean-row" data-date="${escapeHtml(dateStr)}" data-exkey="${encodeURIComponent(exObj.key)}" onclick="openHistoryDetailFromEl(this)">
               <div class="history-row-left">
                 <div class="history-ex-name">${escapeHtml(exObj.name)}</div>
-                ${notes ? `<div class="history-ex-sub">${escapeHtml(notes)}</div>` : ''}
               </div>
               <div class="history-row-right">
                 <span class="history-ex-sets">${escapeHtml(formatted)}</span>
@@ -3061,7 +3062,7 @@
     }
 
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('sw.js?v=9', {scope: './'}).then(reg => {
+      navigator.serviceWorker.register('sw.js?v=10', {scope: './'}).then(reg => {
         reg.update();
       }).catch(() => {});
     }
