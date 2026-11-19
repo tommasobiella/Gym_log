@@ -1520,8 +1520,8 @@
       transform: rotate(90deg);
     }
   </style>
-  <script src="db.js?v=10"></script>
-  <script src="backup.js?v=10"></script>
+  <script src="db.js?v=11"></script>
+  <script src="backup.js?v=11"></script>
 </head>
 <body>
 
@@ -2128,12 +2128,10 @@
       document.getElementById('histDetailDate').innerText = formatNaturalDate(dateStr, true);
 
       document.getElementById('histDetailSetsList').innerHTML = daySets.map((s, idx) => {
-        const timeStr = s.timestamp ? new Date(s.timestamp).toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' }) : '';
         return `
           <div class="today-set-item">
             <div class="today-set-info">
               <div class="today-set-name">Serie ${idx + 1} &middot; ${s.weight} kg &times; ${escapeHtml(String(s.reps))}</div>
-              ${timeStr ? `<div class="today-set-meta"><span>${timeStr}</span></div>` : ''}
               ${s.notes ? `<div class="today-set-note">${escapeHtml(s.notes)}</div>` : ''}
             </div>
             ${renderSetRowActionsHtml(s.id)}
@@ -3062,7 +3060,7 @@
     }
 
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('sw.js?v=10', {scope: './'}).then(reg => {
+      navigator.serviceWorker.register('sw.js?v=11', {scope: './'}).then(reg => {
         reg.update();
       }).catch(() => {});
     }
