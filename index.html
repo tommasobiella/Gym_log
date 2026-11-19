@@ -83,6 +83,10 @@
       display: flex;
       align-items: center;
       gap: 6px;
+      user-select: none;
+      -webkit-user-select: none;
+      -webkit-tap-highlight-color: transparent;
+      cursor: default;
     }
 
     .title-area span {
@@ -1370,6 +1374,38 @@
       margin-top: 2px;
       padding-right: 2px;
     }
+    .sahur-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 9500;
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.35s ease;
+      overflow: hidden;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .sahur-overlay.visible {
+      pointer-events: auto;
+      opacity: 1;
+    }
+    .sahur-img {
+      width: min(78vw, 340px);
+      max-height: 76vh;
+      height: auto;
+      object-fit: contain;
+      transform: translateY(108%);
+      transition: transform 2.6s cubic-bezier(0.22, 1, 0.36, 1);
+      filter: drop-shadow(0 -12px 32px rgba(0, 0, 0, 0.78));
+      user-select: none;
+      -webkit-user-select: none;
+      pointer-events: none;
+    }
+    .sahur-overlay.visible .sahur-img {
+      transform: translateY(6px);
+    }
     .backup-info-box {
       background: rgba(255, 255, 255, 0.04);
       border: 1px solid var(--card-border);
@@ -1520,15 +1556,15 @@
       transform: rotate(90deg);
     }
   </style>
-  <script src="db.js?v=11"></script>
-  <script src="backup.js?v=11"></script>
+  <script src="db.js?v=12"></script>
+  <script src="backup.js?v=12"></script>
 </head>
 <body>
 
   <header>
     <div class="header-top">
       <div class="title-area">
-        <h1>Gym Log</h1>
+        <h1 id="gymLogoTitle" onclick="handleLogoTap(event)">Gym Log</h1>
       </div>
       <button type="button" class="sync-status-display" id="backupStatusDisplay" onclick="openBackupModal()" title="Salva o ripristina backup locale">
         <span>Backup</span>
@@ -3060,9 +3096,41 @@
     }
 
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('sw.js?v=11', {scope: './'}).then(reg => {
+      navigator.serviceWorker.register('sw.js?v=12', {scope: './'}).then(reg => {
         reg.update();
       }).catch(() => {});
+    }
+
+    let logoTapCount = 0;
+    let logoTapResetTimer = null;
+
+    function handleLogoTap(event) {
+      if (event) event.stopPropagation();
+      logoTapCount += 1;
+      clearTimeout(logoTapResetTimer);
+      logoTapResetTimer = setTimeout(() => {
+        logoTapCount = 0;
+      }, 2200);
+
+      if (logoTapCount >= 12) {
+        logoTapCount = 0;
+        clearTimeout(logoTapResetTimer);
+        showSahurEasterEgg();
+      }
+    }
+
+    function showSahurEasterEgg() {
+      haptic();
+      const overlay = document.getElementById('sahurOverlay');
+      if (!overlay) return;
+      overlay.classList.remove('visible');
+      overlay.offsetHeight;
+      overlay.classList.add('visible');
+    }
+
+    function hideSahurEasterEgg() {
+      const overlay = document.getElementById('sahurOverlay');
+      if (overlay) overlay.classList.remove('visible');
     }
 
     window.onload = init;
@@ -3440,6 +3508,10 @@
         <button type="button" class="modal-btn-confirm" onclick="closeHistoryDetailModal()">Chiudi</button>
       </div>
     </div>
+  </div>
+
+  <div id="sahurOverlay" class="sahur-overlay" onclick="hideSahurEasterEgg()" aria-hidden="true">
+    <img src="tung.png?v=12" alt="" class="sahur-img" draggable="false">
   </div>
 
 </body>

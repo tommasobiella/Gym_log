@@ -1,16 +1,17 @@
 /**
  * Service Worker Gym Log Standalone: Offline-First with Pre-Cache & Auto-Claim
  */
-const CACHE_NAME = 'gym-log-standalone-v11';
+const CACHE_NAME = 'gym-log-standalone-v12';
 const PRECACHE_ASSETS = [
   './',
   './index.html',
-  './db.js?v=11',
-  './backup.js?v=11',
+  './db.js?v=12',
+  './backup.js?v=12',
   './default-exercises.json?v=2',
   './manifest.json',
   './icon-192.svg',
-  './icon-512.svg'
+  './icon-512.svg',
+  './tung.png?v=12'
 ];
 
 self.addEventListener('install', (event) => {
