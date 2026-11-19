@@ -1274,8 +1274,8 @@
       flex-shrink: 0;
     }
   </style>
-  <script src="db.js?v=2"></script>
-  <script src="backup.js?v=2"></script>
+  <script src="db.js?v=3"></script>
+  <script src="backup.js?v=3"></script>
 </head>
 <body>
 
@@ -2133,7 +2133,7 @@
         if (GymBackup.supportsDirectoryPicker()) {
           folderBox.innerHTML = 'Scegli una cartella sul tuo dispositivo dove salvare i backup automatici con 1 clic.';
         } else {
-          folderBox.innerHTML = 'Su iPhone/iPad tutti i dati restano salvati offline nell'app. Quando premi <strong>Backup</strong> puoi salvarli su <strong>iCloud Drive / File</strong> nella cartella che preferisci.';
+          folderBox.innerHTML = 'Su iPhone/iPad tutti i dati restano salvati offline nell\'app. Quando premi <strong>Backup</strong> puoi salvarli su <strong>iCloud Drive / File</strong> nella cartella che preferisci.';
         }
       }
       const btnPick = document.getElementById('firstLaunchPickFolderBtn');
@@ -2339,7 +2339,7 @@
     }
 
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('sw.js?v=2', {scope: './'}).then(reg => {
+      navigator.serviceWorker.register('sw.js?v=3', {scope: './'}).then(reg => {
         reg.update();
       }).catch(() => {});
     }
