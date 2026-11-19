@@ -1,0 +1,16 @@
+[
+  { "id": "ex_sample_petto_1", "name": "Chest Press (Bilanciere)", "group": "Petto", "equipment": "Bilanciere", "last_weight": null, "last_reps": null, "last_date": null, "pr": null },
+  { "id": "ex_sample_petto_2", "name": "Croci ai Cavi", "group": "Petto", "equipment": "Cavi", "last_weight": null, "last_reps": null, "last_date": null, "pr": null },
+  { "id": "ex_sample_spalle_1", "name": "Military Press (Manubri)", "group": "Spalle", "equipment": "Manubri", "last_weight": null, "last_reps": null, "last_date": null, "pr": null },
+  { "id": "ex_sample_spalle_2", "name": "Alzate Laterali", "group": "Spalle", "equipment": "Cavi", "last_weight": null, "last_reps": null, "last_date": null, "pr": null },
+  { "id": "ex_sample_tricipiti_1", "name": "Triceps Pushdown", "group": "Tricipiti", "equipment": "Cavi", "last_weight": null, "last_reps": null, "last_date": null, "pr": null },
+  { "id": "ex_sample_tricipiti_2", "name": "French Press (Manubri)", "group": "Tricipiti", "equipment": "Manubri", "last_weight": null, "last_reps": null, "last_date": null, "pr": null },
+  { "id": "ex_sample_schiena_1", "name": "Lat Machine (Presa Larga)", "group": "Schiena", "equipment": "Macchina", "last_weight": null, "last_reps": null, "last_date": null, "pr": null },
+  { "id": "ex_sample_schiena_2", "name": "Rematore Manubrio", "group": "Schiena", "equipment": "Manubri", "last_weight": null, "last_reps": null, "last_date": null, "pr": null },
+  { "id": "ex_sample_bicipiti_1", "name": "Curl Manubri", "group": "Bicipiti", "equipment": "Manubri", "last_weight": null, "last_reps": null, "last_date": null, "pr": null },
+  { "id": "ex_sample_bicipiti_2", "name": "Hammer Curl", "group": "Bicipiti", "equipment": "Manubri", "last_weight": null, "last_reps": null, "last_date": null, "pr": null },
+  { "id": "ex_sample_gambe_1", "name": "Leg Press", "group": "Gambe", "equipment": "Macchina", "last_weight": null, "last_reps": null, "last_date": null, "pr": null },
+  { "id": "ex_sample_gambe_2", "name": "Leg Extension", "group": "Gambe", "equipment": "Macchina", "last_weight": null, "last_reps": null, "last_date": null, "pr": null },
+  { "id": "ex_sample_core_1", "name": "Cable Crunch", "group": "Core / Addome", "equipment": "Cavi", "last_weight": null, "last_reps": null, "last_date": null, "pr": null },
+  { "id": "ex_sample_core_2", "name": "Addominali Corpo Libero", "group": "Core / Addome", "equipment": "Corpo Libero", "last_weight": null, "last_reps": null, "last_date": null, "pr": null }
+]

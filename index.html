@@ -1,0 +1,2691 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Gym Log">
+  <link rel="manifest" href="manifest.json">
+  <link rel="apple-touch-icon" href="icon-192.svg">
+  <link rel="icon" type="image/svg+xml" href="icon-192.svg">
+  <title>Gym Log</title>
+  <style>
+    :root {
+      /* Apple Dark Palette (Standalone) */
+      --bg: #000000;
+      --card-bg: #1C1C1E;
+      --card-border: #2C2C2E;
+      --card-hover: #2C2C2E;
+      --accent: #0A84FF;
+      --accent-glow: rgba(10, 132, 255, 0.35);
+      --fern: #30D158;
+      --success: #30D158;
+      --warning: #FF9F0A;
+      --danger: #FF453A;
+      --text: #FFFFFF;
+      --text-muted: #8E8E93;
+      --text-dim: #636366;
+      --btn-bg: #2C2C2E;
+      --btn-hover: #3A3A3C;
+      --header-bg: rgba(0, 0, 0, 0.88);
+      --input-bg: #2C2C2E;
+      --step-btn-bg: #2C2C2E;
+      --cta-text: #FFFFFF;
+      --font: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, sans-serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+
+    body {
+      background-color: var(--bg);
+      color: var(--text);
+      font-family: var(--font);
+      min-height: 100vh;
+      padding-bottom: calc(65px + env(safe-area-inset-bottom, 0px));
+      overflow-x: hidden;
+    }
+
+    /* Header */
+    header {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: var(--header-bg);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--card-border);
+      padding: 14px 16px 10px;
+    }
+
+    .header-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0px;
+    }
+
+    .title-area h1 {
+      font-size: 1.15rem;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .title-area span {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      font-weight: 500;
+    }
+
+    .sync-badge {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--btn-bg);
+      border: 1px solid var(--card-border);
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 0.72rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    .sync-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--success);
+    }
+    .sync-dot.pending {
+      background: var(--warning);
+      animation: pulse 1.5s infinite;
+    }
+
+    @keyframes pulse {
+      0% { opacity: 0.4; }
+      50% { opacity: 1; }
+      100% { opacity: 0.4; }
+    }
+
+    /* Filter pills */
+    .filter-scroll {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding-bottom: 4px;
+      scrollbar-width: none;
+    }
+    .filter-scroll::-webkit-scrollbar { display: none; }
+
+    .pill {
+      flex: 0 0 auto;
+      padding: 6px 14px;
+      border-radius: 16px;
+      background: var(--btn-bg);
+      border: 1px solid var(--card-border);
+      color: var(--text-muted);
+      font-size: 0.8rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.15s ease;
+    }
+
+    .pill.active {
+      background: var(--accent);
+      color: #000;
+      border-color: var(--accent);
+      box-shadow: 0 0 12px var(--accent-glow);
+    }
+
+    /* Search */
+    .search-row-wrap {
+      margin: 6px 16px 6px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .search-box {
+      flex: 1;
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+    .search-icon-inside {
+      position: absolute;
+      left: 12px;
+      color: var(--text-muted);
+      pointer-events: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .search-box input {
+      width: 100%;
+      padding: 10px 14px 10px 38px;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      color: var(--text);
+      font-size: 0.9rem;
+      outline: none;
+      transition: border-color 0.15s ease;
+    }
+    .search-box input:focus {
+      border-color: var(--accent);
+    }
+    .btn-new-exercise {
+      background: var(--accent);
+      color: var(--cta-text);
+      border: none;
+      border-radius: 12px;
+      font-size: 0.82rem;
+      font-weight: 700;
+      letter-spacing: -0.2px;
+      padding: 0 14px;
+      height: 42px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      cursor: pointer;
+      white-space: nowrap;
+      box-shadow: 0 2px 10px var(--accent-glow);
+      transition: background 0.15s ease, transform 0.1s ease;
+      flex-shrink: 0;
+    }
+    .btn-new-exercise:hover {
+      background: #e29b42;
+    }
+    .btn-new-exercise:active {
+      transform: scale(0.96);
+    }
+    .btn-new-exercise svg {
+      stroke: var(--cta-text);
+    }
+
+    /* Modal / Sheet for Nuovo Esercizio */
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0, 0, 0, 0.7);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      z-index: 1000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .modal-overlay.active {
+      display: flex;
+    }
+    .modal-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 20px;
+      width: 100%;
+      max-width: 420px;
+      padding: 24px;
+      box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6);
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      animation: modalSlideUp 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    @keyframes modalSlideUp {
+      from { transform: translateY(20px); opacity: 0; }
+      to { transform: translateY(0); opacity: 1; }
+    }
+    .modal-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .modal-header h3 {
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: #fff;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .modal-close-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-size: 1.3rem;
+      cursor: pointer;
+      padding: 4px 8px;
+      line-height: 1;
+    }
+    .modal-field {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .modal-field label {
+      font-size: 0.78rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      color: var(--accent);
+    }
+    .modal-field input, .modal-field select {
+      background: var(--bg);
+      border: 1px solid var(--card-border);
+      border-radius: 10px;
+      padding: 10px 14px;
+      color: var(--text);
+      font-size: 0.92rem;
+      outline: none;
+    }
+    .modal-field input:focus, .modal-field select:focus {
+      border-color: var(--accent);
+    }
+    .modal-actions {
+      display: flex;
+      gap: 10px;
+      margin-top: 8px;
+    }
+    .modal-btn-cancel {
+      flex: 1;
+      background: rgba(233, 228, 212, 0.08);
+      border: 1px solid var(--card-border);
+      border-radius: 10px;
+      color: var(--text-muted);
+      padding: 12px;
+      font-size: 0.88rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .modal-btn-confirm {
+      flex: 1.4;
+      background: var(--accent);
+      border: none;
+      border-radius: 10px;
+      color: var(--cta-text);
+      padding: 12px;
+      font-size: 0.88rem;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 2px 10px var(--accent-glow);
+    }
+
+    /* Exercise List */
+    .exercise-list {
+      padding: 10px 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .ex-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 14px 16px;
+      cursor: pointer;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+      transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
+    .ex-card:hover {
+      border-color: var(--accent);
+      background: var(--card-hover);
+      transform: translateY(-1px);
+    }
+
+    .ex-card:active {
+      transform: scale(0.985);
+      border-color: var(--accent);
+    }
+
+    .ex-card .ex-header {
+      margin-bottom: 0;
+    }
+
+    .ex-card .ex-stats {
+      margin-bottom: 0;
+      padding-bottom: 0;
+      border-bottom: none;
+    }
+
+    /* iOS Bottom Sheet Logger Modal */
+    .sheet-backdrop {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.65);
+      backdrop-filter: blur(10px);
+      -webkit-backdrop-filter: blur(10px);
+      z-index: 1200;
+      display: none;
+      opacity: 0;
+      transition: opacity 0.25s ease;
+    }
+    .sheet-backdrop.active {
+      display: block;
+      opacity: 1;
+    }
+
+    .bottom-sheet {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-bottom: none;
+      border-top-left-radius: 28px;
+      border-top-right-radius: 28px;
+      border-bottom-left-radius: 0;
+      border-bottom-right-radius: 0;
+      padding: 14px 20px calc(48px + env(safe-area-inset-bottom, 0px));
+      z-index: 1210;
+      box-shadow: 0 -16px 48px rgba(0, 0, 0, 0.75);
+      transform: translateY(100%);
+      transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+      touch-action: pan-y;
+      max-height: 90vh;
+      overflow-y: auto;
+      overscroll-behavior: contain;
+      -webkit-overflow-scrolling: touch;
+      box-sizing: border-box;
+    }
+
+    @media (min-width: 600px) {
+      .bottom-sheet {
+        left: 50%;
+        transform: translate(-50%, 100%);
+        max-width: 540px;
+      }
+      .bottom-sheet.active {
+        transform: translate(-50%, 0) !important;
+      }
+    }
+    .bottom-sheet.active {
+      transform: translateY(0);
+    }
+    .bottom-sheet.dragging {
+      transition: none;
+    }
+
+    .sheet-handle-area {
+      width: 100%;
+      padding: 8px 0 12px;
+      display: flex;
+      justify-content: center;
+      cursor: grab;
+      touch-action: none;
+    }
+    .sheet-handle-bar {
+      width: 44px;
+      height: 5px;
+      background: rgba(255, 255, 255, 0.28);
+      border-radius: 3px;
+      transition: background 0.2s ease;
+    }
+    .sheet-handle-area:hover .sheet-handle-bar {
+      background: rgba(255, 255, 255, 0.5);
+    }
+
+    .sheet-header-row {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    .sheet-title-info {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .sheet-title-name {
+      font-size: 1.25rem;
+      font-weight: 800;
+      color: #fff;
+      letter-spacing: -0.3px;
+    }
+    .sheet-title-stats {
+      font-size: 0.82rem;
+      color: var(--text-muted);
+      display: flex;
+      gap: 12px;
+    }
+    .sheet-title-stats strong {
+      color: var(--accent);
+    }
+    .sheet-close-x {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid var(--card-border);
+      color: var(--text-muted);
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.2rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      line-height: 1;
+      padding: 0;
+    }
+    .sheet-close-x:hover {
+      background: rgba(255, 255, 255, 0.18);
+      color: #fff;
+      border-color: var(--accent);
+    }
+
+    /* Tastoni per Bottom Sheet */
+    .sheet-stepper-grid {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+      margin-bottom: 18px;
+    }
+    .sheet-stepper-box {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    .sheet-box-label {
+      font-size: 0.72rem;
+      font-weight: 700;
+      color: var(--text-muted);
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      margin-bottom: 8px;
+    }
+    .sheet-box-controls {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      gap: 6px;
+    }
+    .sheet-big-btn {
+      width: 48px;
+      height: 48px;
+      border-radius: 14px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid var(--card-border);
+      color: #fff;
+      font-size: 1.45rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+      transition: all 0.12s ease;
+    }
+    .sheet-big-btn:hover {
+      background: rgba(255, 255, 255, 0.18);
+      border-color: var(--accent);
+    }
+    .sheet-big-btn:active {
+      transform: scale(0.92);
+      background: var(--accent);
+      color: #000;
+    }
+    .sheet-box-val {
+      font-size: 1.45rem;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      color: var(--text);
+      min-width: 65px;
+      text-align: center;
+    }
+    .sheet-quick-weights {
+      display: flex;
+      gap: 6px;
+      width: 100%;
+      margin-top: 10px;
+    }
+    .sheet-sub-btn {
+      flex: 1;
+      padding: 7px 0;
+      border-radius: 8px;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid var(--card-border);
+      color: var(--text-muted);
+      font-size: 0.76rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: all 0.12s ease;
+    }
+    .sheet-sub-btn:hover {
+      background: rgba(255, 255, 255, 0.14);
+      color: #fff;
+    }
+    .sheet-sub-btn:active {
+      background: var(--accent);
+      color: #000;
+      transform: scale(0.95);
+    }
+
+    .sheet-notes-field {
+      margin-bottom: 16px;
+    }
+    .sheet-notes-input {
+      width: 100%;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 12px 14px;
+      color: var(--text);
+      font-size: 0.9rem;
+      outline: none;
+      box-sizing: border-box;
+      transition: border-color 0.2s ease;
+    }
+    .sheet-notes-input:focus {
+      border-color: var(--accent);
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    .sheet-save-btn {
+      width: 100%;
+      background: var(--accent);
+      color: var(--cta-text);
+      border: none;
+      border-radius: 14px;
+      padding: 15px 20px;
+      font-size: 1.05rem;
+      font-weight: 800;
+      letter-spacing: 0.3px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      box-shadow: 0 4px 18px var(--accent-glow);
+      transition: all 0.15s ease;
+      user-select: none;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .sheet-save-btn:hover {
+      opacity: 0.94;
+      transform: translateY(-1px);
+    }
+    .sheet-save-btn:active {
+      transform: scale(0.98);
+      filter: brightness(0.9);
+    }
+
+
+    .ex-card.active-card {
+      border-color: var(--accent);
+      box-shadow: 0 4px 20px var(--accent-glow);
+    }
+
+    .ex-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 8px;
+    }
+
+    .ex-title {
+      font-size: 1rem;
+      font-weight: 700;
+      letter-spacing: -0.3px;
+    }
+
+    .ex-tags {
+      display: flex;
+      gap: 6px;
+    }
+
+    .tag {
+      font-size: 0.68rem;
+      padding: 2px 8px;
+      border-radius: 8px;
+      background: var(--btn-bg);
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .ex-stats {
+      display: flex;
+      gap: 14px;
+      font-size: 0.78rem;
+      color: var(--text-muted);
+      margin-bottom: 12px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+    }
+
+    .ex-stats span strong {
+      color: var(--accent);
+    }
+
+    /* Steppers */
+    .stepper-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .stepper-group {
+      background: var(--btn-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 8px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    .stepper-label {
+      font-size: 0.68rem;
+      color: var(--text-muted);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 4px;
+    }
+
+    .stepper-controls {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+    }
+
+    .step-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      background: #252c3d;
+      border: none;
+      color: var(--text);
+      font-size: 1.15rem;
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background 0.1s;
+    }
+    .step-btn:active {
+      background: var(--accent);
+      color: #000;
+      transform: scale(0.94);
+    }
+
+    .step-val {
+      font-size: 1.25rem;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      color: var(--text);
+    }
+
+    .quick-weight-btns {
+      display: flex;
+      gap: 4px;
+      margin-top: 6px;
+      width: 100%;
+    }
+    .sub-btn {
+      flex: 1;
+      padding: 3px 0;
+      border-radius: 6px;
+      background: rgba(255, 255, 255, 0.06);
+      border: none;
+      color: var(--text-muted);
+      font-size: 0.65rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .sub-btn:active {
+      background: var(--accent);
+      color: #000;
+    }
+
+    /* Actions */
+    .action-row {
+      display: flex;
+      gap: 8px;
+    }
+
+    .note-input {
+      flex: 1;
+      background: var(--btn-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 10px;
+      padding: 8px 12px;
+      color: var(--text);
+      font-size: 0.8rem;
+      outline: none;
+    }
+
+    .log-btn {
+      background: var(--accent);
+      color: var(--cta-text);
+      border: none;
+      font-weight: 700;
+      font-size: 0.85rem;
+      letter-spacing: 0.3px;
+      padding: 0 20px;
+      height: 40px;
+      border-radius: 10px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 10px var(--accent-glow);
+      transition: background 0.15s ease, transform 0.1s ease;
+    }
+    .log-btn:hover {
+      background: #e29b42;
+    }
+    .log-btn:active {
+      transform: scale(0.95);
+    }
+
+    /* Bottom Dock */
+    .bottom-dock {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: var(--header-bg);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border-top: 1px solid var(--card-border);
+      padding: 6px 14px max(6px, env(safe-area-inset-bottom, 0px));
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      z-index: 200;
+      box-sizing: border-box;
+    }
+
+    .dock-info {
+      display: flex;
+      align-items: center;
+    }
+
+    .sync-action-btn {
+      background: var(--btn-bg);
+      border: 1px solid var(--card-border);
+      color: var(--text);
+      font-size: 0.8rem;
+      font-weight: 700;
+      padding: 8px 16px;
+      border-radius: 10px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    
+    /* Dock and Sync Badge Redesign */
+    .dock-count-btn {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid var(--card-border);
+      color: var(--text);
+      font-size: 0.82rem;
+      font-weight: 700;
+      padding: 6px 11px;
+      border-radius: 9px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      transition: all 0.15s ease;
+      text-align: left;
+      line-height: 1.2;
+    }
+    .dock-count-btn:hover {
+      background: rgba(255, 255, 255, 0.12);
+      border-color: var(--accent);
+    }
+    .dock-count-btn:active {
+      transform: scale(0.97);
+    }
+    .sync-status-display {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--card-border);
+      color: var(--text);
+      font-size: 0.82rem;
+      font-weight: 700;
+      padding: 6px 12px;
+      border-radius: 9px;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      cursor: pointer;
+      user-select: none;
+      transition: all 0.15s ease;
+      line-height: 1.2;
+    }
+    .sync-status-display:hover {
+      background: rgba(255, 255, 255, 0.1);
+    }
+    .sync-emoji-spin {
+      display: inline-block;
+      animation: spinSync 1s linear infinite;
+    }
+    @keyframes spinSync {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(-360deg); }
+    }
+
+    /* Today Sets Modal Styles */
+    .today-sets-list {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      max-height: 52vh;
+      overflow-y: auto;
+      padding-right: 4px;
+      margin: 10px 0;
+    }
+    .today-set-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 10px 14px;
+      transition: background 0.2s ease;
+    }
+    .today-set-item:hover {
+      background: rgba(255, 255, 255, 0.07);
+    }
+    .today-set-info {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+    .today-set-title {
+      font-size: 0.92rem;
+      font-weight: 700;
+      color: var(--text);
+    }
+    .today-set-meta {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+    }
+    .today-set-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .set-action-btn {
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid var(--card-border);
+      color: var(--text);
+      width: 34px;
+      height: 34px;
+      border-radius: 8px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      padding: 0;
+    }
+    .set-action-btn:hover {
+      background: rgba(255, 255, 255, 0.15);
+      border-color: var(--accent);
+    }
+    .set-action-btn.delete:hover {
+      background: rgba(229, 57, 53, 0.2);
+      border-color: var(--danger);
+      color: #ff6b6b;
+    }
+    .today-empty-state {
+      text-align: center;
+      padding: 24px 12px;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+
+    .sync-action-btn.has-pending {
+      background: var(--warning);
+      color: #000;
+      border-color: var(--warning);
+    }
+  
+    /* Tiles Distretti Muscolari */
+    .groups-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+    @media (max-width: 400px) {
+      .groups-grid {
+        grid-template-columns: 1fr;
+      }
+      .group-tile[style*="grid-column: span 2"] {
+        grid-column: span 1 !important;
+      }
+    }
+    .group-tile {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 14px 16px;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      min-height: 68px;
+      transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .group-tile::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 3px;
+      background: var(--accent-hue, var(--accent));
+    }
+    .group-tile:hover {
+      background: var(--btn-bg);
+      border-color: rgba(255, 255, 255, 0.15);
+      transform: translateY(-1px);
+    }
+    .group-tile:active {
+      transform: scale(0.975);
+    }
+    .tile-left {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      flex: 1;
+      min-width: 0;
+    }
+    .tile-icon-wrap {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.06);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .tile-title {
+      font-size: 1.15rem;
+      font-weight: 800;
+      color: #fff;
+      letter-spacing: -0.02em;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .tile-right {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+    .tile-sub {
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      white-space: nowrap;
+      background: rgba(255, 255, 255, 0.05);
+      padding: 4px 8px;
+      border-radius: 8px;
+      border: 1px solid var(--card-border);
+    }
+    .tile-arrow {
+      opacity: 0.6;
+      flex-shrink: 0;
+      transition: all 0.2s;
+    }
+    .group-tile:hover .tile-arrow {
+      opacity: 1;
+      transform: translateX(2px);
+      stroke: var(--accent-hue, var(--accent));
+    }
+    .group-tile:hover .tile-arrow {
+      opacity: 1;
+      transform: translateX(2px);
+      color: var(--accent-hue, var(--accent));
+    }
+
+    /* Back Bar quando sei dentro al gruppo */
+    .group-back-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 16px 4px;
+    }
+    .back-pill-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid var(--card-border);
+      color: #fff;
+      font-size: 0.82rem;
+      font-weight: 700;
+      padding: 6px 14px;
+      border-radius: 18px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .back-pill-btn:hover {
+      background: rgba(255, 255, 255, 0.15);
+      border-color: var(--accent);
+    }
+    .back-pill-btn:active {
+      transform: scale(0.95);
+    }
+    .current-distretto-indicator {
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: var(--accent);
+      letter-spacing: -0.01em;
+    }
+
+
+    /* Mode Switcher (Registra / Storico) */
+    .mode-switch {
+      display: inline-flex;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 3px;
+      gap: 2px;
+    }
+    .mode-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-size: 0.78rem;
+      font-weight: 700;
+      padding: 6px 12px;
+      border-radius: 9px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .mode-btn.active {
+      background: var(--accent);
+      color: #fff;
+      box-shadow: 0 2px 8px var(--accent-glow);
+    }
+
+    /* History View */
+    #historyView {
+      display: none;
+      padding: 10px 16px 24px;
+      max-width: 720px;
+      margin: 0 auto;
+    }
+    .history-session-card {
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      border-radius: 16px;
+      padding: 14px 16px;
+      margin-bottom: 12px;
+    }
+    .history-date-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 10px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--card-border);
+    }
+    .history-date-title {
+      font-size: 0.95rem;
+      font-weight: 800;
+      color: #fff;
+    }
+    .history-date-meta {
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--accent);
+    }
+    .history-ex-row {
+      padding: 8px 0;
+      border-bottom: 1px dashed rgba(255, 255, 255, 0.07);
+    }
+    .history-ex-row:last-child {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+    .history-ex-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      gap: 8px;
+    }
+    .history-ex-name {
+      font-size: 0.92rem;
+      font-weight: 700;
+      color: #fff;
+    }
+    .history-ex-group {
+      font-size: 0.72rem;
+      font-weight: 600;
+      color: var(--text-muted);
+    }
+    .history-ex-sets {
+      font-size: 0.85rem;
+      font-weight: 700;
+      color: var(--accent);
+      margin-top: 3px;
+    }
+    .history-ex-notes {
+      font-size: 0.76rem;
+      color: var(--text-muted);
+      margin-top: 2px;
+      font-style: italic;
+    }
+    .history-set-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 6px;
+    }
+    .history-set-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--card-border);
+      border-radius: 8px;
+      padding: 4px 8px;
+      font-size: 0.75rem;
+      color: var(--text);
+      cursor: pointer;
+    }
+    .history-set-chip:active {
+      transform: scale(0.96);
+    }
+    .backup-info-box {
+      background: rgba(255, 255, 255, 0.04);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 12px 14px;
+      font-size: 0.84rem;
+      color: var(--text-muted);
+      line-height: 1.45;
+    }
+    .backup-info-box strong {
+      color: #fff;
+    }
+    .history-sub-toggle {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 6px;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid var(--card-border);
+      border-radius: 12px;
+      padding: 4px;
+      margin-bottom: 12px;
+    }
+    .history-sub-btn {
+      background: transparent;
+      border: none;
+      color: var(--text-muted);
+      font-size: 0.82rem;
+      font-weight: 700;
+      padding: 8px 10px;
+      border-radius: 9px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .history-sub-btn.active {
+      background: var(--card-bg);
+      color: #fff;
+      border: 1px solid var(--card-border);
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
+    }
+    .sheet-header-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      flex-shrink: 0;
+    }
+  </style>
+  <script src="db.js?v=2"></script>
+  <script src="backup.js?v=2"></script>
+</head>
+<body>
+
+  <header>
+    <div class="header-top">
+      <div class="title-area">
+        <h1>Gym Log</h1>
+      </div>
+      <div class="mode-switch" role="tablist" aria-label="Modalità app">
+        <button type="button" class="mode-btn active" id="modeBtnLog" onclick="switchAppMode('log')">Registra</button>
+        <button type="button" class="mode-btn" id="modeBtnHistory" onclick="switchAppMode('history')">Storico</button>
+      </div>
+    </div>
+    
+    <div class="filter-scroll" id="filterContainer" style="display:none;">
+      <button class="pill active" onclick="setGroup('Tutti')">Tutti</button>
+      <button class="pill" onclick="setGroup('Petto')">Petto</button>
+      <button class="pill" onclick="setGroup('Spalle')">Spalle</button>
+      <button class="pill" onclick="setGroup('Schiena')">Schiena</button>
+      <button class="pill" onclick="setGroup('Tricipiti')">Tricipiti</button>
+      <button class="pill" onclick="setGroup('Bicipiti')">Bicipiti</button>
+      <button class="pill" onclick="setGroup('Gambe')">Gambe</button>
+      <button class="pill" onclick="setGroup('Core / Addome')">Core</button>
+    </div>
+  </header>
+
+  
+  <!-- VISTA 1: HUB DEI GRUPPI MUSCOLARI (Home Gym) -->
+  <section id="groupsHubView" style="padding: 12px 16px;">
+    <div style="margin-bottom: 14px;">
+      <h2 style="font-size: 1.25rem; font-weight: 800; color: #fff; letter-spacing: -0.02em;">Gruppi Muscolari</h2>
+      <p style="font-size: 0.8rem; color: var(--text-muted); margin-top: 2px;">Seleziona un distretto per aprire gli esercizi</p>
+    </div>
+
+        <div class="groups-grid">
+      <!-- 1. Petto -->
+      <div class="group-tile" onclick="openMuscleGroup('Petto')" style="--accent-hue: var(--accent);">
+        <div class="tile-left">
+          <div class="tile-icon-wrap"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#E9E4D4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/><path d="M8 11h8M12 7v8"/></svg></div>
+          <div class="tile-title">Petto</div>
+        </div>
+        <div class="tile-right">
+          <div class="tile-sub" id="groupSub_Petto">Calcolo...</div>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" class="tile-arrow"><polyline points="9 18 15 12 9 6"></polyline></svg>
+        </div>
+      </div>
+
+      <!-- 2. Spalle -->
+      <div class="group-tile" onclick="openMuscleGroup('Spalle')" style="--accent-hue: var(--accent);">
+        <div class="tile-left">
+          <div class="tile-icon-wrap"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 14l4-8h8l4 8M2 18h20M9 10h6"/></svg></div>
+          <div class="tile-title">Spalle</div>
+        </div>
+        <div class="tile-right">
+          <div class="tile-sub" id="groupSub_Spalle">Calcolo...</div>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" class="tile-arrow"><polyline points="9 18 15 12 9 6"></polyline></svg>
+        </div>
+      </div>
+
+      <!-- 3. Tricipiti -->
+      <div class="group-tile" onclick="openMuscleGroup('Tricipiti')" style="--accent-hue: var(--accent);">
+        <div class="tile-left">
+          <div class="tile-icon-wrap"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#E9E4D4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="4"/><path d="M9 9h6v6H9z"/></svg></div>
+          <div class="tile-title">Tricipiti</div>
+        </div>
+        <div class="tile-right">
+          <div class="tile-sub" id="groupSub_Tricipiti">Calcolo...</div>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" class="tile-arrow"><polyline points="9 18 15 12 9 6"></polyline></svg>
+        </div>
+      </div>
+
+      <!-- 4. Schiena -->
+      <div class="group-tile" onclick="openMuscleGroup('Schiena')" style="--accent-hue: var(--accent);">
+        <div class="tile-left">
+          <div class="tile-icon-wrap"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18M8 8l4-4 4 4M7 14l5-3 5 3M6 19l6-2 6 2"/></svg></div>
+          <div class="tile-title">Schiena</div>
+        </div>
+        <div class="tile-right">
+          <div class="tile-sub" id="groupSub_Schiena">Calcolo...</div>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" class="tile-arrow"><polyline points="9 18 15 12 9 6"></polyline></svg>
+        </div>
+      </div>
+
+      <!-- 5. Bicipiti -->
+      <div class="group-tile" onclick="openMuscleGroup('Bicipiti')" style="--accent-hue: var(--accent);">
+        <div class="tile-left">
+          <div class="tile-icon-wrap"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#E9E4D4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 18c0-4 2-7 6-7s6 3 6 7M9 11V6a3 3 0 0 1 6 0v5"/></svg></div>
+          <div class="tile-title">Bicipiti</div>
+        </div>
+        <div class="tile-right">
+          <div class="tile-sub" id="groupSub_Bicipiti">Calcolo...</div>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" class="tile-arrow"><polyline points="9 18 15 12 9 6"></polyline></svg>
+        </div>
+      </div>
+
+      <!-- 6. Gambe -->
+      <div class="group-tile" onclick="openMuscleGroup('Gambe')" style="--accent-hue: var(--accent);">
+        <div class="tile-left">
+          <div class="tile-icon-wrap"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 3v8l-2 10M16 3v8l2 10M8 11h8"/></svg></div>
+          <div class="tile-title">Gambe</div>
+        </div>
+        <div class="tile-right">
+          <div class="tile-sub" id="groupSub_Gambe">Calcolo...</div>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" class="tile-arrow"><polyline points="9 18 15 12 9 6"></polyline></svg>
+        </div>
+      </div>
+
+      <!-- 7. Core / Addome -->
+      <div class="group-tile" onclick="openMuscleGroup('Core / Addome')" style="--accent-hue: var(--accent); grid-column: span 2;">
+        <div class="tile-left">
+          <div class="tile-icon-wrap"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#E9E4D4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><line x1="12" y1="2" x2="12" y2="4"/><line x1="12" y1="20" x2="12" y2="22"/></svg></div>
+          <div class="tile-title">Core / Addome</div>
+        </div>
+        <div class="tile-right">
+          <div class="tile-sub" id="groupSub_Core_Addome">Calcolo...</div>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" class="tile-arrow"><polyline points="9 18 15 12 9 6"></polyline></svg>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- VISTA 2: LISTA ESERCIZI DEL DISTRETTO -->
+  <section id="exercisesContainer" style="display: none;">
+    <!-- Barra Torna Indietro Intestazione -->
+    <div class="group-back-bar">
+      <button type="button" class="back-pill-btn" onclick="backToGroups()">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"></line><polyline points="12 19 5 12 12 5"></polyline></svg>
+        Gruppi
+      </button>
+      <div class="current-distretto-indicator" id="activeDistrettoLabel">Petto</div>
+    </div>
+
+  <div class="search-row-wrap">
+    <div class="search-box">
+      <span class="search-icon-inside">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="11" cy="11" r="8"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+      </span>
+      <input type="text" id="searchInput" placeholder="Cerca esercizio..." oninput="renderExercises()">
+    </div>
+    <button type="button" class="btn-new-exercise" onclick="openNewExerciseModal()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+        <line x1="12" y1="5" x2="12" y2="19"></line>
+        <line x1="5" y1="12" x2="19" y2="12"></line>
+      </svg>
+      <span>Nuovo esercizio</span>
+    </button>
+  </div>
+
+  <main class="exercise-list" id="exerciseList">
+    <!-- Populated via JS -->
+  </main>
+  </section> <!-- /exercisesContainer -->
+
+  <!-- VISTA 3: STORICO (MODALITÀ LETTURA) -->
+  <section id="historyView">
+    <div class="history-sub-toggle" role="tablist">
+      <button type="button" class="history-sub-btn active" id="histSubByEx" onclick="setHistorySubMode('exercise')">Per Esercizio</button>
+      <button type="button" class="history-sub-btn" id="histSubByDate" onclick="setHistorySubMode('date')">Per Data</button>
+    </div>
+    <div style="display:flex; gap:8px; margin-bottom:12px;">
+      <input type="text" id="historySearchInput" class="search-input" style="padding-left:14px;" placeholder="Filtra per esercizio o gruppo..." oninput="renderHistoryView()">
+    </div>
+    <div class="filter-scroll" id="historyFilterContainer" style="margin-bottom:12px; padding-bottom:4px;">
+      <button class="pill active" onclick="setHistoryGroup('Tutti', this)">Tutti</button>
+      <button class="pill" onclick="setHistoryGroup('Petto', this)">Petto</button>
+      <button class="pill" onclick="setHistoryGroup('Spalle', this)">Spalle</button>
+      <button class="pill" onclick="setHistoryGroup('Schiena', this)">Schiena</button>
+      <button class="pill" onclick="setHistoryGroup('Tricipiti', this)">Tricipiti</button>
+      <button class="pill" onclick="setHistoryGroup('Bicipiti', this)">Bicipiti</button>
+      <button class="pill" onclick="setHistoryGroup('Gambe', this)">Gambe</button>
+      <button class="pill" onclick="setHistoryGroup('Core / Addome', this)">Core</button>
+    </div>
+    <div id="historyListContainer"></div>
+  </section>
+
+  <div class="bottom-dock">
+    <div class="dock-info">
+      <button type="button" class="dock-count-btn" id="todayCountBtn" onclick="openTodaySetsModal()" title="Visualizza e modifica serie di oggi">
+        <span id="todayCount">0 serie completate oggi</span>
+        <span style="font-size: 0.75rem; opacity: 0.8;">📝</span>
+      </button>
+    </div>
+    <div class="sync-status-display" id="backupStatusDisplay" onclick="openBackupModal()" role="button" tabindex="0" title="Salva o ripristina backup locale">
+      <span>Backup</span>
+      <span id="backupStatusEmoji">💾</span>
+    </div>
+  </div>
+
+  <script>
+    function showToast(msg) {
+      let toast = document.getElementById('gymToast');
+      if (!toast) {
+        toast = document.createElement('div');
+        toast.id = 'gymToast';
+        toast.style.cssText = 'position:fixed;bottom:80px;left:50%;transform:translateX(-50%);background:var(--card-bg);border:1px solid var(--accent);color:#fff;padding:12px 20px;border-radius:12px;font-size:14px;font-weight:700;box-shadow:0 8px 24px rgba(0,0,0,0.5);z-index:9999;transition:opacity 0.3s;opacity:0;pointer-events:none;text-align:center;max-width:90vw;';
+        document.body.appendChild(toast);
+      }
+      toast.innerText = msg;
+      toast.style.opacity = '1';
+      setTimeout(() => { toast.style.opacity = '0'; }, 2600);
+    }
+
+    // State (100% IndexedDB)
+    let rawExercises = [];
+    let exercises = [];
+    let allSets = [];
+    let todayLogs = [];
+    let currentFilter = 'Tutti';
+    let currentAppMode = 'log'; // 'log' | 'history'
+    let historySubMode = 'exercise'; // 'exercise' | 'date'
+    let historyGroupFilter = 'Tutti';
+    let currentValues = {};
+
+    function getTodayStr() {
+      const d = new Date();
+      return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+    }
+
+    async function refreshStateFromDB() {
+      rawExercises = await GymDB.getAllExercises();
+      allSets = await GymDB.getAllSets();
+      const todayStr = getTodayStr();
+      todayLogs = allSets
+        .filter(s => s.date === todayStr)
+        .sort((a, b) => (a.timestamp || '').localeCompare(b.timestamp || ''));
+      exercises = GymDB.recomputeStats(rawExercises, allSets);
+
+      exercises.forEach(ex => {
+        let defaultReps = 10;
+        if (ex.last_reps) {
+          const parts = ex.last_reps.split(/[,~]/);
+          const lastNum = parseInt(parts[parts.length - 1], 10);
+          if (!isNaN(lastNum)) defaultReps = lastNum;
+        }
+        if (!currentValues[ex.id]) {
+          currentValues[ex.id] = {
+            reps: defaultReps,
+            weight: ex.last_weight !== null ? ex.last_weight : 20,
+            note: ''
+          };
+        }
+      });
+
+      updateUIState();
+      renderExercises();
+      if (currentAppMode === 'history') {
+        renderHistoryView();
+      }
+    }
+
+    async function init() {
+      await GymDB.open();
+      let defaultCatalog = [];
+      try {
+        const resp = await fetch('default-exercises.json?v=2');
+        defaultCatalog = await resp.json();
+      } catch (e) {
+        defaultCatalog = [
+          { id: 'ex1', name: 'Chest Press (barbell)', group: 'Petto', equipment: 'Bilanciere', last_weight: null, last_reps: null, last_date: null, pr: null },
+          { id: 'ex2', name: 'Lateral Raise (cables)', group: 'Spalle', equipment: 'Cavi', last_weight: null, last_reps: null, last_date: null, pr: null },
+          { id: 'ex3', name: 'Lat Machine (presa larga)', group: 'Schiena', equipment: 'Macchina', last_weight: null, last_reps: null, last_date: null, pr: null },
+          { id: 'ex4', name: 'Leg Press', group: 'Gambe', equipment: 'Macchina', last_weight: null, last_reps: null, last_date: null, pr: null }
+        ];
+      }
+
+      await GymDB.seedIfEmpty(defaultCatalog);
+      await refreshStateFromDB();
+
+      const firstLaunchDone = await GymDB.getSetting('firstLaunchDone');
+      if (!firstLaunchDone) {
+        openFirstLaunchModal();
+      }
+    }
+
+    // =========================================================================
+    // SWITCH MODALITÀ: REGISTRA (SCRITTURA) <-> STORICO (LETTURA)
+    // =========================================================================
+    function switchAppMode(mode) {
+      haptic();
+      currentAppMode = mode;
+      document.getElementById('modeBtnLog').classList.toggle('active', mode === 'log');
+      document.getElementById('modeBtnHistory').classList.toggle('active', mode === 'history');
+
+      const groupsHub = document.getElementById('groupsHubView');
+      const exercisesCont = document.getElementById('exercisesContainer');
+      const historyView = document.getElementById('historyView');
+
+      if (mode === 'history') {
+        groupsHub.style.display = 'none';
+        exercisesCont.style.display = 'none';
+        historyView.style.display = 'block';
+        renderHistoryView();
+      } else {
+        historyView.style.display = 'none';
+        if (currentFilter === 'Tutti') {
+          groupsHub.style.display = 'block';
+          exercisesCont.style.display = 'none';
+        } else {
+          groupsHub.style.display = 'none';
+          exercisesCont.style.display = 'block';
+        }
+      }
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function setHistorySubMode(subMode) {
+      haptic();
+      historySubMode = subMode;
+      document.getElementById('histSubByEx').classList.toggle('active', subMode === 'exercise');
+      document.getElementById('histSubByDate').classList.toggle('active', subMode === 'date');
+      renderHistoryView();
+    }
+
+    function setHistoryGroup(group, btnEl) {
+      haptic();
+      historyGroupFilter = group;
+      document.querySelectorAll('#historyFilterContainer .pill').forEach(p => p.classList.remove('active'));
+      if (btnEl) btnEl.classList.add('active');
+      renderHistoryView();
+    }
+
+    function renderHistoryView() {
+      const container = document.getElementById('historyListContainer');
+      if (!container) return;
+      const q = (document.getElementById('historySearchInput')?.value || '').trim().toLowerCase();
+
+      const filteredSets = allSets.filter(s => {
+        const matchGroup = historyGroupFilter === 'Tutti' || s.group === historyGroupFilter;
+        const matchQuery = !q || (s.exerciseName || '').toLowerCase().includes(q) || (s.group || '').toLowerCase().includes(q);
+        return matchGroup && matchQuery;
+      });
+
+      if (filteredSets.length === 0) {
+        container.innerHTML = '<div class="today-empty" style="margin-top:20px;">Nessuna serie nello storico per i filtri selezionati.</div>';
+        return;
+      }
+
+      if (historySubMode === 'exercise') {
+        // VISTA STILE NOTION: Raggruppato per Esercizio -> Tutte le date in ordine cronologico inverso
+        const byEx = {};
+        for (const s of filteredSets) {
+          const key = s.exerciseId || s.exerciseName;
+          if (!byEx[key]) {
+            const exMeta = exercises.find(e => e.id === s.exerciseId);
+            byEx[key] = {
+              id: s.exerciseId,
+              name: exMeta ? exMeta.name : s.exerciseName,
+              group: exMeta ? exMeta.group : s.group,
+              pr: exMeta ? exMeta.pr : null,
+              byDate: {}
+            };
+          }
+          if (!byEx[key].byDate[s.date]) byEx[key].byDate[s.date] = [];
+          byEx[key].byDate[s.date].push(s);
+        }
+
+        const exList = Object.values(byEx).sort((a, b) => a.name.localeCompare(b.name));
+        container.innerHTML = exList.map(exObj => {
+          const dates = Object.keys(exObj.byDate).sort((a, b) => b.localeCompare(a));
+          const rowsHtml = dates.map(dateStr => {
+            const daySets = exObj.byDate[dateStr].sort((a, b) => (a.timestamp || '').localeCompare(b.timestamp || ''));
+            const [y, m, d] = dateStr.split('-');
+            const shortDate = `${d}/${m}/${y.slice(-2)}`;
+            const formatted = GymDB.formatDaySets(daySets);
+            const notes = daySets.map(x => x.notes).filter(Boolean).join(' · ');
+            const chipsHtml = daySets.map(s => `
+              <span class="history-set-chip" onclick="openEditSetModal('${s.id}')" title="Tocca per modificare o eliminare">
+                <span>${escapeHtml(String(s.reps))} × ${s.weight}kg</span>
+                <span style="opacity:0.5;">✎</span>
+              </span>
+            `).join('');
+
+            return `
+              <div class="history-ex-row">
+                <div class="history-ex-top">
+                  <span class="history-ex-sets" style="margin-top:0;">${shortDate} ~ ${escapeHtml(formatted)}</span>
+                </div>
+                ${notes ? `<div class="history-ex-notes">${escapeHtml(notes)}</div>` : ''}
+                <div class="history-set-chips">${chipsHtml}</div>
+              </div>
+            `;
+          }).join('');
+
+          const prLabel = exObj.pr !== null ? `PR: ${exObj.pr} kg` : '';
+          return `
+            <div class="history-session-card">
+              <div class="history-date-header">
+                <div>
+                  <div class="history-date-title">${escapeHtml(exObj.name)}</div>
+                  <div class="history-ex-group">${escapeHtml(exObj.group)}</div>
+                </div>
+                <span class="history-date-meta">${prLabel}</span>
+              </div>
+              ${rowsHtml}
+            </div>
+          `;
+        }).join('');
+        return;
+      }
+
+      // VISTA PER DATA (Diario seduta per seduta)
+      const byDate = {};
+      for (const s of filteredSets) {
+        if (!byDate[s.date]) byDate[s.date] = [];
+        byDate[s.date].push(s);
+      }
+
+      const sortedDates = Object.keys(byDate).sort((a, b) => b.localeCompare(a));
+
+      container.innerHTML = sortedDates.map(dateStr => {
+        const daySets = byDate[dateStr].sort((a, b) => (a.timestamp || '').localeCompare(b.timestamp || ''));
+        const [y, m, d] = dateStr.split('-');
+        const dateLabel = `${d}/${m}/${y}`;
+
+        const byEx = {};
+        for (const s of daySets) {
+          const key = s.exerciseId || s.exerciseName;
+          if (!byEx[key]) byEx[key] = { name: s.exerciseName, group: s.group, sets: [] };
+          byEx[key].sets.push(s);
+        }
+
+        const exHtml = Object.values(byEx).map(exObj => {
+          const formatted = GymDB.formatDaySets(exObj.sets);
+          const notes = exObj.sets.map(x => x.notes).filter(Boolean).join(' · ');
+          const chipsHtml = exObj.sets.map(s => `
+            <span class="history-set-chip" onclick="openEditSetModal('${s.id}')" title="Tocca per modificare o eliminare">
+              <span>${escapeHtml(String(s.reps))} × ${s.weight}kg</span>
+              <span style="opacity:0.5;">✎</span>
+            </span>
+          `).join('');
+
+          return `
+            <div class="history-ex-row">
+              <div class="history-ex-top">
+                <span class="history-ex-name">${escapeHtml(exObj.name)}</span>
+                <span class="history-ex-group">${escapeHtml(exObj.group)}</span>
+              </div>
+              <div class="history-ex-sets">${escapeHtml(formatted)}</div>
+              ${notes ? `<div class="history-ex-notes">${escapeHtml(notes)}</div>` : ''}
+              <div class="history-set-chips">${chipsHtml}</div>
+            </div>
+          `;
+        }).join('');
+
+        return `
+          <div class="history-session-card">
+            <div class="history-date-header">
+              <span class="history-date-title">${dateLabel}</span>
+              <span class="history-date-meta">${daySets.length} serie</span>
+            </div>
+            ${exHtml}
+          </div>
+        `;
+      }).join('');
+    }
+
+    // =========================================================================
+    // NAVIGAZIONE A GRUPPI + GESTURE SWIPE SU IPHONE/IPAD + TASTO INDIETRO BROWSER
+    // =========================================================================
+    function openMuscleGroup(group, pushHistory = true) {
+      haptic();
+      currentFilter = group;
+      if (currentAppMode !== 'log') switchAppMode('log');
+
+      document.getElementById('groupsHubView').style.display = 'none';
+      document.getElementById('exercisesContainer').style.display = 'block';
+      document.getElementById('activeGroupTitle').innerText = group;
+      document.getElementById('searchInput').value = '';
+
+      if (pushHistory && window.history && window.history.pushState) {
+        window.history.pushState({ view: 'group', group: group }, '', '#group-' + encodeURIComponent(group));
+      }
+
+      renderExercises();
+      window.scrollTo({top: 0, behavior: 'smooth'});
+    }
+
+    function showGroupsHub(fromPopState = false) {
+      haptic();
+      currentFilter = 'Tutti';
+      document.getElementById('exercisesContainer').style.display = 'none';
+      document.getElementById('groupsHubView').style.display = 'block';
+      document.getElementById('searchInput').value = '';
+      updateGroupLastDates();
+
+      if (!fromPopState && window.location.hash.startsWith('#group-')) {
+        if (window.history && window.history.back) {
+          window.history.back();
+        }
+      }
+      window.scrollTo({top: 0, behavior: 'smooth'});
+    }
+
+    window.addEventListener('popstate', (e) => {
+      if (e.state && e.state.view === 'group' && e.state.group) {
+        openMuscleGroup(e.state.group, false);
+      } else {
+        if (document.getElementById('exercisesContainer').style.display !== 'none') {
+          showGroupsHub(true);
+        }
+      }
+    });
+
+    (function initSwipeBack() {
+      let touchStartX = 0;
+      let touchStartY = 0;
+      document.addEventListener('touchstart', (e) => {
+        if (e.touches.length === 1) {
+          touchStartX = e.touches[0].clientX;
+          touchStartY = e.touches[0].clientY;
+        }
+      }, { passive: true });
+
+      document.addEventListener('touchend', (e) => {
+        if (e.changedTouches.length !== 1) return;
+        const dx = e.changedTouches[0].clientX - touchStartX;
+        const dy = Math.abs(e.changedTouches[0].clientY - touchStartY);
+        const inExercisesView = document.getElementById('exercisesContainer').style.display === 'block';
+        if (inExercisesView && touchStartX < 45 && dx > 75 && dy < 70) {
+          showGroupsHub(false);
+        }
+      }, { passive: true });
+    })();
+
+    function haptic() {
+      if (navigator.vibrate) navigator.vibrate(10);
+    }
+
+    // =========================================================================
+    // BOTTOM SHEET LOGGER (INTERFACCIA LAYER DAL BASSO)
+    // =========================================================================
+    let activeSheetExId = null;
+
+    function openExerciseSheet(exId) {
+      haptic();
+      activeSheetExId = exId;
+      const ex = exercises.find(e => e.id === exId);
+      if (!ex) return;
+
+      const val = currentValues[exId] || {reps: 10, weight: 20};
+      const lastStr = ex.last_weight !== null ? `${ex.last_weight} kg` : '-';
+      const prStr = ex.pr !== null ? `${ex.pr} kg` : '-';
+
+      document.getElementById('sheetExTitle').innerText = ex.name;
+      document.getElementById('sheetStatsUltima').innerText = ex.last_weight !== null ? `${lastStr} (${ex.last_reps || '-'})` : 'Nessuna';
+      document.getElementById('sheetStatsPR').innerText = prStr;
+      document.getElementById('sheetRepsVal').innerText = val.reps;
+      document.getElementById('sheetWeightVal').innerText = val.weight + ' kg';
+      document.getElementById('sheetNoteInput').value = '';
+
+      const sheet = document.getElementById('exerciseBottomSheet');
+      const backdrop = document.getElementById('sheetBackdrop');
+      sheet.style.transform = '';
+      sheet.classList.remove('dragging');
+      backdrop.classList.add('active');
+      sheet.classList.add('active');
+    }
+
+    function closeExerciseSheet() {
+      const sheet = document.getElementById('exerciseBottomSheet');
+      const backdrop = document.getElementById('sheetBackdrop');
+      sheet.style.transform = '';
+      sheet.classList.remove('dragging');
+      sheet.classList.remove('active');
+      backdrop.classList.remove('active');
+      activeSheetExId = null;
+    }
+
+    function sheetModReps(delta) {
+      haptic();
+      if (!activeSheetExId) return;
+      if (!currentValues[activeSheetExId]) currentValues[activeSheetExId] = {reps: 10, weight: 20};
+      currentValues[activeSheetExId].reps = Math.max(1, currentValues[activeSheetExId].reps + delta);
+      document.getElementById('sheetRepsVal').innerText = currentValues[activeSheetExId].reps;
+    }
+
+    function sheetSetReps(targetReps) {
+      haptic();
+      if (!activeSheetExId) return;
+      if (!currentValues[activeSheetExId]) currentValues[activeSheetExId] = {reps: 10, weight: 20};
+      currentValues[activeSheetExId].reps = Math.max(1, parseInt(targetReps, 10));
+      document.getElementById('sheetRepsVal').innerText = currentValues[activeSheetExId].reps;
+    }
+
+    function sheetModWeight(delta) {
+      haptic();
+      if (!activeSheetExId) return;
+      if (!currentValues[activeSheetExId]) currentValues[activeSheetExId] = {reps: 10, weight: 20};
+      const current = currentValues[activeSheetExId].weight;
+      const next = Math.max(0, parseFloat((current + delta).toFixed(2)));
+      currentValues[activeSheetExId].weight = next;
+      document.getElementById('sheetWeightVal').innerText = next + ' kg';
+    }
+
+    async function saveCurrentSheetSet() {
+      haptic();
+      if (!activeSheetExId) return;
+      const exId = activeSheetExId;
+      const ex = exercises.find(e => e.id === exId);
+      const val = currentValues[exId];
+      const noteInput = document.getElementById('sheetNoteInput');
+      const noteVal = noteInput ? noteInput.value.trim() : '';
+
+      const logEntry = {
+        id: 'log_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6),
+        exerciseId: ex.id,
+        exerciseName: ex.name,
+        group: ex.group,
+        date: getTodayStr(),
+        reps: String(val.reps),
+        weight: val.weight,
+        notes: noteVal,
+        timestamp: new Date().toISOString()
+      };
+
+      await GymDB.addSet(logEntry);
+      await refreshStateFromDB();
+
+      showToast(`Serie salvata: ${ex.name} ${val.weight}kg × ${val.reps}`);
+
+      const card = document.getElementById('card-' + exId);
+      if (card) {
+        card.classList.add('active-card');
+        setTimeout(() => card.classList.remove('active-card'), 600);
+      }
+
+      closeExerciseSheet();
+    }
+
+    /* Swipe Down / Drag to Dismiss Bottom Sheet */
+    (function initBottomSheetDrag() {
+      let startY = 0;
+      let currentY = 0;
+      let isDragging = false;
+
+      function onTouchStart(e) {
+        const sheet = document.getElementById('exerciseBottomSheet');
+        if (!sheet || !sheet.classList.contains('active')) return;
+        startY = e.touches[0].clientY;
+        currentY = startY;
+        isDragging = true;
+      }
+
+      function onTouchMove(e) {
+        if (!isDragging) return;
+        currentY = e.touches[0].clientY;
+        const diffY = currentY - startY;
+        const sheet = document.getElementById('exerciseBottomSheet');
+        if (diffY > 0 && sheet) {
+          sheet.classList.add('dragging');
+          const isDesktop = window.innerWidth >= 600;
+          sheet.style.transform = isDesktop ? `translate(-50%, ${diffY}px)` : `translateY(${diffY}px)`;
+        }
+      }
+
+      function onTouchEnd() {
+        if (!isDragging) return;
+        isDragging = false;
+        const diffY = currentY - startY;
+        const sheet = document.getElementById('exerciseBottomSheet');
+        if (!sheet) return;
+        sheet.classList.remove('dragging');
+        if (diffY > 110) {
+          closeExerciseSheet();
+        } else {
+          sheet.style.transform = '';
+        }
+      }
+
+      document.addEventListener('DOMContentLoaded', () => {
+        const sheet = document.getElementById('exerciseBottomSheet');
+        const handle = document.getElementById('sheetDragHandle');
+        if (sheet && handle) {
+          handle.addEventListener('touchstart', onTouchStart, { passive: true });
+          sheet.addEventListener('touchstart', (e) => {
+            if (e.target.closest('.sheet-header-row') || e.target.closest('.sheet-drag-handle')) {
+              onTouchStart(e);
+            }
+          }, { passive: true });
+          document.addEventListener('touchmove', onTouchMove, { passive: true });
+          document.addEventListener('touchend', onTouchEnd, { passive: true });
+        }
+      });
+    })();
+
+    function updateGroupLastDates() {
+      const groups = ['Petto', 'Spalle', 'Tricipiti', 'Schiena', 'Bicipiti', 'Gambe', 'Core / Addome'];
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      groups.forEach(g => {
+        let latestDateStr = null;
+
+        exercises.filter(ex => ex.group === g).forEach(ex => {
+          if (ex.last_date && (!latestDateStr || ex.last_date > latestDateStr)) {
+            latestDateStr = ex.last_date;
+          }
+        });
+
+        const elId = 'groupSub_' + g.replace(/[^a-zA-Z0-9]+/g, '_');
+        const subEl = document.getElementById(elId);
+        if (subEl) {
+          if (!latestDateStr) {
+            subEl.innerText = 'Nessuna sessione';
+          } else {
+            const target = new Date(latestDateStr + 'T00:00:00');
+            const diffDays = Math.round((today.getTime() - target.getTime()) / (1000 * 60 * 60 * 24));
+            if (diffDays <= 0) {
+              subEl.innerText = 'Ultimo: oggi';
+            } else if (diffDays === 1) {
+              subEl.innerText = 'Ultimo: ieri';
+            } else {
+              subEl.innerText = `Ultimo: ${diffDays} gg fa`;
+            }
+          }
+        }
+      });
+    }
+
+    function updateUIState() {
+      updateGroupLastDates();
+      const countEl = document.getElementById('todayCount');
+      if (countEl) {
+        countEl.innerText = `${todayLogs.length} serie completate oggi`;
+      }
+    }
+
+    // =========================================================================
+    // GESTIONE SERIE COMPLETATE OGGI & MODIFICA STORICO
+    // =========================================================================
+    function openTodaySetsModal() {
+      haptic();
+      renderTodaySetsList();
+      const modal = document.getElementById('todaySetsModal');
+      if (modal) modal.style.display = 'flex';
+    }
+
+    function closeTodaySetsModal() {
+      const modal = document.getElementById('todaySetsModal');
+      if (modal) modal.style.display = 'none';
+    }
+
+    function renderTodaySetsList() {
+      const container = document.getElementById('todaySetsListContainer');
+      if (!container) return;
+
+      if (todayLogs.length === 0) {
+        container.innerHTML = '<div class="today-empty">Nessuna serie registrata oggi.<br>Seleziona un gruppo muscolare per iniziare!</div>';
+        return;
+      }
+
+      container.innerHTML = todayLogs.map((log) => {
+        const timeStr = log.timestamp ? new Date(log.timestamp).toLocaleTimeString('it-IT', {hour: '2-digit', minute: '2-digit'}) : '';
+        return `
+          <div class="today-set-item">
+            <div class="today-set-info">
+              <div class="today-set-name">${escapeHtml(log.exerciseName)}</div>
+              <div class="today-set-meta">
+                <span>${log.weight} kg &times; ${log.reps} reps</span>
+                ${timeStr ? `<span>&bull; ${timeStr}</span>` : ''}
+                ${log.notes ? `<span>&bull; ${escapeHtml(log.notes)}</span>` : ''}
+              </div>
+            </div>
+            <div class="today-set-actions">
+              <button type="button" class="btn-icon-action" onclick="openEditSetModal('${log.id}')" title="Modifica serie" aria-label="Modifica">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                  <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                </svg>
+              </button>
+              <button type="button" class="btn-icon-action danger" onclick="deleteSetById('${log.id}')" title="Elimina serie" aria-label="Elimina">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="3 6 5 6 21 6"></polyline>
+                  <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                  <line x1="10" y1="11" x2="10" y2="17"></line>
+                  <line x1="14" y1="11" x2="14" y2="17"></line>
+                </svg>
+              </button>
+            </div>
+          </div>
+        `;
+      }).reverse().join('');
+    }
+
+    async function deleteSetById(logId) {
+      haptic();
+      if (!confirm('Vuoi davvero eliminare questa serie registrata?')) return;
+      await GymDB.deleteSet(logId);
+      await refreshStateFromDB();
+      renderTodaySetsList();
+      closeEditSetModal();
+      showToast('Serie eliminata');
+    }
+
+    let editingLogId = null;
+
+    function openEditSetModal(logId) {
+      haptic();
+      const log = allSets.find(l => l.id === logId);
+      if (!log) return;
+
+      editingLogId = logId;
+      document.getElementById('editExName').innerText = `${log.exerciseName} (${log.date})`;
+      document.getElementById('editSetWeightInput').value = log.weight;
+      document.getElementById('editSetRepsInput').value = log.reps;
+      document.getElementById('editSetNotesInput').value = log.notes || '';
+
+      const modal = document.getElementById('editSetModal');
+      if (modal) modal.style.display = 'flex';
+    }
+
+    function closeEditSetModal() {
+      const modal = document.getElementById('editSetModal');
+      if (modal) modal.style.display = 'none';
+      editingLogId = null;
+    }
+
+    async function saveEditedSet() {
+      haptic();
+      if (!editingLogId) return;
+
+      const log = allSets.find(l => l.id === editingLogId);
+      if (!log) return;
+
+      const newWeight = parseFloat(document.getElementById('editSetWeightInput').value);
+      const newReps = parseInt(document.getElementById('editSetRepsInput').value, 10);
+      const newNotes = document.getElementById('editSetNotesInput').value.trim();
+
+      if (isNaN(newWeight) || isNaN(newReps) || newReps <= 0) {
+        alert('Inserisci valori validi per peso e ripetizioni.');
+        return;
+      }
+
+      const updated = { ...log, weight: newWeight, reps: String(newReps), notes: newNotes };
+      await GymDB.updateSet(updated);
+      await refreshStateFromDB();
+      closeEditSetModal();
+      renderTodaySetsList();
+      showToast('Serie aggiornata!');
+    }
+
+    function deleteEditingSet() {
+      if (editingLogId) deleteSetById(editingLogId);
+    }
+
+    // =========================================================================
+    // BACKUP & RIPRISTINO LOCALE + PRIMA APERTURA
+    // =========================================================================
+    async function openFirstLaunchModal() {
+      const folderBox = document.getElementById('firstLaunchFolderHint');
+      if (folderBox) {
+        if (GymBackup.supportsDirectoryPicker()) {
+          folderBox.innerHTML = 'Scegli una cartella sul tuo dispositivo dove salvare i backup automatici con 1 clic.';
+        } else {
+          folderBox.innerHTML = 'Su iPhone/iPad tutti i dati restano salvati offline nell'app. Quando premi <strong>Backup</strong> puoi salvarli su <strong>iCloud Drive / File</strong> nella cartella che preferisci.';
+        }
+      }
+      const btnPick = document.getElementById('firstLaunchPickFolderBtn');
+      if (btnPick) {
+        btnPick.style.display = GymBackup.supportsDirectoryPicker() ? 'block' : 'none';
+      }
+      document.getElementById('firstLaunchModal').style.display = 'flex';
+    }
+
+    async function pickFolderFromFirstLaunch() {
+      try {
+        const res = await GymBackup.pickBackupFolder();
+        if (res.supported) {
+          showToast(`Cartella impostata: ${res.name}`);
+        }
+        await completeFirstLaunch();
+      } catch (e) {
+        if (e.name !== 'AbortError') showToast('Selezione cartella annullata');
+      }
+    }
+
+    async function completeFirstLaunch() {
+      await GymDB.setSetting('firstLaunchDone', true);
+      document.getElementById('firstLaunchModal').style.display = 'none';
+    }
+
+    async function openBackupModal() {
+      haptic();
+      const lastBackup = await GymDB.getSetting('lastBackupAt');
+      const folderName = await GymDB.getSetting('backupFolderName');
+      const infoEl = document.getElementById('backupStatusDetail');
+      if (infoEl) {
+        const lastStr = lastBackup ? new Date(lastBackup).toLocaleString('it-IT') : 'Mai eseguito';
+        const folderStr = GymBackup.supportsDirectoryPicker()
+          ? (folderName ? `Cartella selezionata: <strong>${escapeHtml(folderName)}</strong>` : 'Nessuna cartella selezionata')
+          : 'Destinazione iOS: <strong>Salva su File (iCloud Drive)</strong>';
+        infoEl.innerHTML = `${folderStr}<br>Ultimo backup: <strong>${lastStr}</strong><br>Totale serie salvate: <strong>${allSets.length}</strong>`;
+      }
+      const pickBtn = document.getElementById('changeFolderBtn');
+      if (pickBtn) {
+        pickBtn.style.display = GymBackup.supportsDirectoryPicker() ? 'inline-flex' : 'none';
+      }
+      document.getElementById('backupModal').style.display = 'flex';
+    }
+
+    function closeBackupModal() {
+      document.getElementById('backupModal').style.display = 'none';
+    }
+
+    async function handlePickBackupFolder() {
+      try {
+        const res = await GymBackup.pickBackupFolder();
+        if (res.supported) {
+          showToast(`Cartella aggiornata: ${res.name}`);
+          openBackupModal();
+        }
+      } catch (e) {
+        if (e.name !== 'AbortError') showToast('Errore selezione cartella');
+      }
+    }
+
+    async function handleSaveBackup() {
+      haptic();
+      try {
+        const res = await GymBackup.saveBackup();
+        if (res.method === 'directory') {
+          showToast(`Salvato in "${res.folderName}/${res.filename}"`);
+        } else {
+          showToast(`Backup pronto: ${res.filename}`);
+        }
+        openBackupModal();
+      } catch (e) {
+        if (e.name !== 'AbortError') {
+          alert('Errore durante il salvataggio del backup: ' + e.message);
+        }
+      }
+    }
+
+    function triggerRestoreFile() {
+      document.getElementById('restoreFileInput').click();
+    }
+
+    async function handleRestoreFileSelected(event) {
+      const file = event.target.files?.[0];
+      if (!file) return;
+      const ok = confirm('Attenzione: stai per sovrascrivere tutti gli esercizi e i dati attualmente presenti nell\'app con quelli del file JSON selezionato. Continuare?');
+      if (!ok) {
+        event.target.value = '';
+        return;
+      }
+      try {
+        const res = await GymBackup.restoreFromFile(file);
+        currentValues = {};
+        await refreshStateFromDB();
+        closeBackupModal();
+        document.getElementById('firstLaunchModal').style.display = 'none';
+        await GymDB.setSetting('firstLaunchDone', true);
+        showToast(`Ripristinati ${res.exercisesCount} esercizi e ${res.setsCount} serie!`);
+      } catch (e) {
+        alert('Impossibile importare il file: ' + e.message);
+      } finally {
+        event.target.value = '';
+      }
+    }
+
+    // =========================================================================
+    // MODIFICA / ELIMINA ESERCIZIO
+    // =========================================================================
+    let editingExerciseId = null;
+
+    function openEditExerciseModal() {
+      if (!activeSheetExId) return;
+      const ex = exercises.find(e => e.id === activeSheetExId);
+      if (!ex) return;
+      editingExerciseId = ex.id;
+      document.getElementById('editExNameInput').value = ex.name;
+      document.getElementById('editExGroupSelect').value = ex.group;
+      document.getElementById('editExerciseModal').style.display = 'flex';
+    }
+
+    function closeEditExerciseModal() {
+      document.getElementById('editExerciseModal').style.display = 'none';
+      editingExerciseId = null;
+    }
+
+    async function saveEditedExercise() {
+      if (!editingExerciseId) return;
+      const ex = exercises.find(e => e.id === editingExerciseId);
+      if (!ex) return;
+      const newName = document.getElementById('editExNameInput').value.trim();
+      const newGroup = document.getElementById('editExGroupSelect').value;
+      if (!newName) {
+        showToast('Inserisci un nome valido!');
+        return;
+      }
+      await GymDB.updateExerciseAndSets({ ...ex, name: newName, group: newGroup });
+      await refreshStateFromDB();
+      if (activeSheetExId === editingExerciseId) {
+        document.getElementById('sheetExTitle').innerText = newName;
+      }
+      closeEditExerciseModal();
+      showToast('Esercizio aggiornato!');
+    }
+
+    async function deleteCurrentExercise() {
+      if (!editingExerciseId) return;
+      const ex = exercises.find(e => e.id === editingExerciseId);
+      if (!ex) return;
+      const exSetsCount = allSets.filter(s => s.exerciseId === ex.id).length;
+      const msg = exSetsCount > 0
+        ? `Eliminare "${ex.name}" e tutte le sue ${exSetsCount} serie dallo storico?`
+        : `Eliminare l'esercizio "${ex.name}"?`;
+      if (!confirm(msg)) return;
+
+      await GymDB.deleteExerciseAndSets(ex.id);
+      delete currentValues[ex.id];
+      closeEditExerciseModal();
+      closeExerciseSheet();
+      await refreshStateFromDB();
+      showToast(`Eliminato: ${ex.name}`);
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;');
+    }
+
+    function renderExercises() {
+      const list = document.getElementById('exerciseList');
+      const query = (document.getElementById('searchInput').value || '').toLowerCase();
+
+      const filtered = exercises.filter(ex => {
+        const matchesGroup = (currentFilter === 'Tutti') || (ex.group === currentFilter);
+        const matchesQuery = !query || ex.name.toLowerCase().includes(query) || ex.group.toLowerCase().includes(query);
+        return matchesGroup && matchesQuery;
+      });
+
+      list.innerHTML = filtered.map(ex => {
+        const lastStr = ex.last_weight !== null ? `${ex.last_weight} kg` : '-';
+        const prStr = ex.pr !== null ? `${ex.pr} kg` : '-';
+
+        return `
+          <div class="ex-card" id="card-${ex.id}" onclick="openExerciseSheet('${ex.id}')" role="button" tabindex="0" title="Tocca per registrare la serie">
+            <div class="ex-header">
+              <div class="ex-title">${escapeHtml(ex.name)}</div>
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="opacity:0.6; flex-shrink:0;">
+                <polyline points="9 18 15 12 9 6"></polyline>
+              </svg>
+            </div>
+
+            <div class="ex-stats" id="stats-${ex.id}">
+              <span>Ultima: <strong>${lastStr}</strong> ${ex.last_reps ? `(${ex.last_reps})` : ''}</span>
+              <span>PR: <strong>${prStr}</strong></span>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('sw.js?v=2', {scope: './'}).then(reg => {
+        reg.update();
+      }).catch(() => {});
+    }
+
+    window.onload = init;
+
+    // =========================================================================
+    // MODALE & AGGIUNTA NUOVO ESERCIZIO
+    // =========================================================================
+    function openNewExerciseModal() {
+      haptic();
+      const modal = document.getElementById('newExerciseModal');
+      const groupSelect = document.getElementById('newExGroupSelect');
+      const nameInput = document.getElementById('newExNameInput');
+      const weightInput = document.getElementById('newExWeightInput');
+
+      nameInput.value = '';
+      weightInput.value = '';
+
+      if (currentFilter && currentFilter !== 'Tutti') {
+        groupSelect.value = currentFilter;
+      }
+
+      modal.classList.add('active');
+      setTimeout(() => nameInput.focus(), 150);
+    }
+
+    function closeNewExerciseModal() {
+      document.getElementById('newExerciseModal').classList.remove('active');
+    }
+
+    async function saveNewExercise() {
+      const nameInput = document.getElementById('newExNameInput');
+      const groupSelect = document.getElementById('newExGroupSelect');
+      const weightInput = document.getElementById('newExWeightInput');
+
+      const name = nameInput.value.trim();
+      const group = groupSelect.value;
+      const initialWeight = parseFloat(weightInput.value) || 20;
+
+      if (!name) {
+        showToast('Inserisci il nome dell\'esercizio!');
+        nameInput.focus();
+        return;
+      }
+
+      if (exercises.some(e => e.name.toLowerCase() === name.toLowerCase())) {
+        showToast('Esercizio già presente!');
+        return;
+      }
+
+      const newId = 'ex_custom_' + Date.now();
+      const newEx = {
+        id: newId,
+        name: name,
+        group: group,
+        equipment: 'Personalizzato',
+        last_weight: null,
+        last_reps: null,
+        last_date: null,
+        pr: null
+      };
+
+      await GymDB.saveExercise(newEx);
+      currentValues[newId] = { reps: 10, weight: initialWeight, note: '' };
+      await refreshStateFromDB();
+
+      closeNewExerciseModal();
+      haptic();
+      showToast(`Aggiunto: ${name} (${group})!`);
+
+      if (currentFilter !== group) {
+        openMuscleGroup(group, false);
+      } else {
+        renderExercises();
+      }
+      window.scrollTo({top: 0, behavior: 'smooth'});
+    }
+  </script>
+    <!-- Modale Visualizza Serie di Oggi -->
+  <div class="modal-overlay" id="todaySetsModal" onclick="if(event.target===this) closeTodaySetsModal()">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+            <polyline points="14 2 14 8 20 8"></polyline>
+            <line x1="16" y1="13" x2="8" y2="13"></line>
+            <line x1="16" y1="17" x2="8" y2="17"></line>
+            <polyline points="10 9 9 9 8 9"></polyline>
+          </svg>
+          Serie Completate Oggi
+        </h3>
+        <button type="button" class="modal-close-btn" onclick="closeTodaySetsModal()">&times;</button>
+      </div>
+
+      <div class="today-sets-list" id="todaySetsListContainer">
+        <!-- Generato dinamicamente via JS -->
+      </div>
+
+      <div class="modal-actions">
+        <button type="button" class="modal-btn-confirm" onclick="closeTodaySetsModal()">Chiudi</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modale Modifica Singola Serie -->
+  <div class="modal-overlay" id="editSetModal" onclick="if(event.target===this) closeEditSetModal()">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+          </svg>
+          Modifica Serie
+        </h3>
+        <button type="button" class="modal-close-btn" onclick="closeEditSetModal()">&times;</button>
+      </div>
+
+      <div style="font-size: 0.95rem; font-weight: 700; color: var(--accent); margin-bottom: 4px;" id="editExName">Esercizio</div>
+
+      <div class="modal-field">
+        <label for="editSetWeightInput">Carico (kg)</label>
+        <input type="number" id="editSetWeightInput" step="0.5" min="0">
+      </div>
+
+      <div class="modal-field">
+        <label for="editSetRepsInput">Ripetizioni</label>
+        <input type="number" id="editSetRepsInput" step="1" min="1">
+      </div>
+
+      <div class="modal-field">
+        <label for="editSetNotesInput">Note (opzionale)</label>
+        <input type="text" id="editSetNotesInput" placeholder="es. RPE 8, drop set">
+      </div>
+
+      <div class="modal-actions">
+        <button type="button" class="modal-btn-cancel" style="color:var(--danger); border-color:rgba(255,69,58,0.35);" onclick="deleteEditingSet()">Elimina</button>
+        <button type="button" class="modal-btn-cancel" onclick="closeEditSetModal()">Annulla</button>
+        <button type="button" class="modal-btn-confirm" onclick="saveEditedSet()">Salva</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modale Aggiungi Nuovo Esercizio -->
+  <div class="modal-overlay" id="newExerciseModal" onclick="if(event.target===this) closeNewExerciseModal()">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <line x1="5" y1="12" x2="19" y2="12"></line>
+          </svg>
+          Nuovo Esercizio
+        </h3>
+        <button type="button" class="modal-close-btn" onclick="closeNewExerciseModal()">&times;</button>
+      </div>
+
+      <div class="modal-field">
+        <label for="newExNameInput">Nome Esercizio</label>
+        <input type="text" id="newExNameInput" placeholder="es. Lat machine presa inversa" autocomplete="off">
+      </div>
+
+      <div class="modal-field">
+        <label for="newExGroupSelect">Gruppo Muscolare</label>
+        <select id="newExGroupSelect">
+          <option value="Petto">Petto</option>
+          <option value="Spalle">Spalle</option>
+          <option value="Tricipiti">Tricipiti</option>
+          <option value="Schiena">Schiena</option>
+          <option value="Bicipiti">Bicipiti</option>
+          <option value="Gambe">Gambe</option>
+          <option value="Core / Addome">Core / Addome</option>
+        </select>
+      </div>
+
+      <div class="modal-field">
+        <label for="newExWeightInput">Peso Iniziale (kg, opzionale)</label>
+        <input type="number" id="newExWeightInput" placeholder="es. 20" step="0.5" min="0">
+      </div>
+
+      <div class="modal-actions">
+        <button type="button" class="modal-btn-cancel" onclick="closeNewExerciseModal()">Annulla</button>
+        <button type="button" class="modal-btn-confirm" onclick="saveNewExercise()">Aggiungi Esercizio</button>
+      </div>
+    </div>
+  </div>
+  <!-- Bottom Sheet Layer: Interfaccia Dettaglio e Registrazione Serie -->
+  <div class="sheet-backdrop" id="sheetBackdrop" onclick="closeExerciseSheet()"></div>
+  <div class="bottom-sheet" id="exerciseBottomSheet" style="display:none;" role="dialog" aria-modal="true">
+    <div class="sheet-handle-area" title="Trascina verso il basso per chiudere">
+      <div class="sheet-handle-bar"></div>
+    </div>
+
+    <div class="sheet-header-row">
+      <div class="sheet-title-info">
+        <div class="sheet-title-name" id="sheetExTitle">Esercizio</div>
+        <div class="sheet-title-stats">
+          <span>Ultima: <strong id="sheetStatsUltima">-</strong></span>
+          <span>PR: <strong id="sheetStatsPR">-</strong></span>
+        </div>
+      </div>
+      <div class="sheet-header-actions">
+        <button type="button" class="sheet-close-x" onclick="openEditExerciseModal()" title="Modifica o elimina esercizio" aria-label="Modifica esercizio" style="font-size:0.95rem;">✎</button>
+        <button type="button" class="sheet-close-x" onclick="closeExerciseSheet()" title="Chiudi scheda" aria-label="Chiudi">&times;</button>
+      </div>
+    </div>
+
+    <!-- Stepper Tastoni (Carico SOPRA, Ripetizioni SOTTO con tasti rapidi 6, 9, 12) -->
+    <div class="sheet-stepper-grid">
+      <!-- Box 1: CARICO (Sopra) -->
+      <div class="sheet-stepper-box">
+        <div class="sheet-box-label">Carico</div>
+        <div class="sheet-box-controls">
+          <button type="button" class="sheet-big-btn" onclick="sheetModWeight(-1)" aria-label="Meno 1 kg">−</button>
+          <span class="sheet-box-val" id="sheetWeightVal">20 kg</span>
+          <button type="button" class="sheet-big-btn" onclick="sheetModWeight(1)" aria-label="Più 1 kg">+</button>
+        </div>
+        <div class="sheet-quick-weights">
+          <button type="button" class="sheet-sub-btn" onclick="sheetModWeight(-0.5)">-0,5</button>
+          <button type="button" class="sheet-sub-btn" onclick="sheetModWeight(0.5)">+0,5</button>
+          <button type="button" class="sheet-sub-btn" onclick="sheetModWeight(2.5)">+2,5</button>
+        </div>
+      </div>
+
+      <!-- Box 2: RIPETIZIONI (Sotto) -->
+      <div class="sheet-stepper-box">
+        <div class="sheet-box-label">Ripetizioni</div>
+        <div class="sheet-box-controls">
+          <button type="button" class="sheet-big-btn" onclick="sheetModReps(-1)" aria-label="Meno ripetizioni">−</button>
+          <span class="sheet-box-val" id="sheetRepsVal">10</span>
+          <button type="button" class="sheet-big-btn" onclick="sheetModReps(1)" aria-label="Più ripetizioni">+</button>
+        </div>
+        <div class="sheet-quick-weights">
+          <button type="button" class="sheet-sub-btn" onclick="sheetSetReps(6)">6</button>
+          <button type="button" class="sheet-sub-btn" onclick="sheetSetReps(9)">9</button>
+          <button type="button" class="sheet-sub-btn" onclick="sheetSetReps(12)">12</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Note -->
+    <div class="sheet-notes-field">
+      <input type="text" class="sheet-notes-input" id="sheetNoteInput" placeholder="Note (es. cedimento, drop set, sensazioni)..." autocomplete="off">
+    </div>
+
+    <!-- Pulsantone Salva -->
+    <button type="button" class="sheet-save-btn" onclick="saveCurrentSheetSet()">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
+        <polyline points="17 21 17 13 7 13 7 21"></polyline>
+        <polyline points="7 3 7 8 15 8"></polyline>
+      </svg>
+      Salva Serie
+    </button>
+  </div>
+
+
+  <!-- Modale Backup & Ripristino -->
+  <div class="modal-overlay" id="backupModal" onclick="if(event.target===this) closeBackupModal()">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>Backup Locale &amp; Ripristino</h3>
+        <button type="button" class="modal-close-btn" onclick="closeBackupModal()">&times;</button>
+      </div>
+
+      <div class="backup-info-box" id="backupStatusDetail">
+        Caricamento stato backup...
+      </div>
+
+      <input type="file" id="restoreFileInput" accept=".json,application/json" style="display:none" onchange="handleRestoreFileSelected(event)">
+
+      <div style="display:flex; flex-direction:column; gap:10px; margin-top:4px;">
+        <button type="button" class="modal-btn-confirm" style="width:100%;" onclick="handleSaveBackup()">
+          Salva Backup (gym-log-backup.json)
+        </button>
+        <button type="button" class="modal-btn-cancel" id="changeFolderBtn" style="width:100%; display:none;" onclick="handlePickBackupFolder()">
+          Cambia Cartella di Destinazione
+        </button>
+        <button type="button" class="modal-btn-cancel" style="width:100%;" onclick="triggerRestoreFile()">
+          Ripristina da File (.json)
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modale Prima Apertura (Onboarding Cartella Backup) -->
+  <div class="modal-overlay" id="firstLaunchModal" style="display:none;">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>Benvenuto in Gym Log</h3>
+      </div>
+
+      <div class="backup-info-box" id="firstLaunchFolderHint">
+        I tuoi allenamenti vengono salvati direttamente sul dispositivo e funzionano anche offline.
+      </div>
+
+      <div style="display:flex; flex-direction:column; gap:10px; margin-top:6px;">
+        <button type="button" class="modal-btn-confirm" id="firstLaunchPickFolderBtn" style="width:100%; display:none;" onclick="pickFolderFromFirstLaunch()">
+          Scegli Cartella Backup
+        </button>
+        <button type="button" class="modal-btn-confirm" style="width:100%;" onclick="completeFirstLaunch()">
+          Inizia ad Allenarti
+        </button>
+        <button type="button" class="modal-btn-cancel" style="width:100%;" onclick="triggerRestoreFile()">
+          Hai già un Backup? Ripristinalo
+        </button>
+      </div>
+    </div>
+  </div>
+
+
+  <!-- Modale Modifica / Elimina Esercizio -->
+  <div class="modal-overlay" id="editExerciseModal" onclick="if(event.target===this) closeEditExerciseModal()">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>Modifica Esercizio</h3>
+        <button type="button" class="modal-close-btn" onclick="closeEditExerciseModal()">&times;</button>
+      </div>
+
+      <div class="modal-field">
+        <label for="editExNameInput">Nome Esercizio</label>
+        <input type="text" id="editExNameInput" autocomplete="off">
+      </div>
+
+      <div class="modal-field">
+        <label for="editExGroupSelect">Gruppo Muscolare</label>
+        <select id="editExGroupSelect">
+          <option value="Petto">Petto</option>
+          <option value="Spalle">Spalle</option>
+          <option value="Tricipiti">Tricipiti</option>
+          <option value="Schiena">Schiena</option>
+          <option value="Bicipiti">Bicipiti</option>
+          <option value="Gambe">Gambe</option>
+          <option value="Core / Addome">Core / Addome</option>
+        </select>
+      </div>
+
+      <div class="modal-actions">
+        <button type="button" class="modal-btn-cancel" style="color:var(--danger); border-color:rgba(255,69,58,0.35);" onclick="deleteCurrentExercise()">Elimina</button>
+        <button type="button" class="modal-btn-cancel" onclick="closeEditExerciseModal()">Annulla</button>
+        <button type="button" class="modal-btn-confirm" onclick="saveEditedExercise()">Salva</button>
+      </div>
+    </div>
+  </div>
+
+</body>
+</html>
