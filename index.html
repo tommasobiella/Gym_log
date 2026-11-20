@@ -515,8 +515,25 @@
     .sheet-title-stats {
       font-size: 0.82rem;
       color: var(--text-muted);
-      display: flex;
-      gap: 12px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      border-radius: 999px;
+      padding: 4px 12px;
+      margin: 2px auto 0;
+      cursor: pointer;
+      font-family: inherit;
+      transition: background 0.15s ease, transform 0.12s ease;
+    }
+    .sheet-title-stats:hover,
+    .sheet-title-stats:active {
+      background: rgba(255, 255, 255, 0.11);
+    }
+    .sheet-title-stats:active {
+      transform: scale(0.97);
     }
     .sheet-title-stats strong {
       color: var(--accent);
@@ -1465,8 +1482,8 @@
       }
     }
   </style>
-  <script src="db.js?v=24"></script>
-  <script src="backup.js?v=24"></script>
+  <script src="db.js?v=25"></script>
+  <script src="backup.js?v=25"></script>
 </head>
 <body>
 
@@ -1482,18 +1499,8 @@
             <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
           </svg>
         </button>
-        <div class="sheet-dropdown-menu" id="settingsDropdownMenu" style="min-width: 235px;" onclick="event.stopPropagation()">
+        <div class="sheet-dropdown-menu" id="settingsDropdownMenu" style="min-width: 225px;" onclick="event.stopPropagation()">
           <div id="settingsMenuMain" class="sheet-dropdown-subview">
-            <button type="button" class="sheet-dropdown-item" onclick="openHistoryModeSubmenu(event)">
-              <span class="sheet-dropdown-item-left">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><line x1="8" y1="6" x2="21" y2="6"/><line x1="8" y1="12" x2="21" y2="12"/><line x1="8" y1="18" x2="21" y2="18"/><line x1="3" y1="6" x2="3.01" y2="6"/><line x1="3" y1="12" x2="3.01" y2="12"/><line x1="3" y1="18" x2="3.01" y2="18"/></svg>
-                <span>Vista Storico</span>
-              </span>
-              <span style="display:inline-flex; align-items:center; gap:6px;">
-                <span id="settingsHistModeLabel" style="font-size:0.76rem; color:var(--text-muted); font-weight:600;">Per Seduta</span>
-                <span style="opacity:0.6; font-size:1rem; line-height:1;">&rsaquo;</span>
-              </span>
-            </button>
             <button type="button" class="sheet-dropdown-item" onclick="openThemeSubmenu(event)">
               <span class="sheet-dropdown-item-left">
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="13.5" cy="6.5" r=".5" fill="currentColor"/><circle cx="17.5" cy="10.5" r=".5" fill="currentColor"/><circle cx="8.5" cy="7.5" r=".5" fill="currentColor"/><circle cx="6.5" cy="12.5" r=".5" fill="currentColor"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/></svg>
@@ -1528,20 +1535,6 @@
                 <span>Esporta</span>
               </span>
               <span style="opacity:0.6; font-size:1rem; line-height:1;">&rsaquo;</span>
-            </button>
-          </div>
-          <div id="settingsMenuHistoryView" class="sheet-dropdown-subview" style="display:none;">
-            <button type="button" class="sheet-dropdown-item sheet-dropdown-back" onclick="showMainSettingsMenu(event)">
-              <span>&lsaquo; Indietro</span>
-            </button>
-            <div class="sheet-dropdown-divider"></div>
-            <button type="button" class="sheet-dropdown-item" id="settingsHistOptDate" onclick="setHistorySubMode('date', event)">
-              <span>Per Seduta</span>
-              <span id="settingsHistCheckDate">&#10003;</span>
-            </button>
-            <button type="button" class="sheet-dropdown-item" id="settingsHistOptEx" onclick="setHistorySubMode('exercise', event)">
-              <span>Per Esercizio</span>
-              <span id="settingsHistCheckEx" style="display:none;">&#10003;</span>
             </button>
           </div>
           <div id="settingsMenuExport" class="sheet-dropdown-subview" style="display:none;">
@@ -1784,9 +1777,6 @@
     let todayLogs = [];
     let currentFilter = 'Tutti';
     let currentAppMode = 'log'; // 'log' | 'history'
-    let historySubMode = localStorage.getItem('gym_history_submode') || 'date'; // 'date' | 'exercise'
-    if (historySubMode !== 'date' && historySubMode !== 'exercise') historySubMode = 'date';
-    let expandedHistoryGroups = new Set();
     let expandedHistoryDates = new Set();
     let activeHistoryProgressKey = null;
     let activeHistoryDetail = null; // { dateStr, exKey }
@@ -1855,39 +1845,9 @@
       const mainView = document.getElementById('settingsMenuMain');
       const themeView = document.getElementById('settingsMenuThemes');
       const exportView = document.getElementById('settingsMenuExport');
-      const histView = document.getElementById('settingsMenuHistoryView');
       if (mainView) mainView.style.display = 'flex';
       if (themeView) themeView.style.display = 'none';
       if (exportView) exportView.style.display = 'none';
-      if (histView) histView.style.display = 'none';
-    }
-
-    function openHistoryModeSubmenu(event) {
-      if (event) event.stopPropagation();
-      haptic();
-      syncHistoryModeUI();
-      const mainView = document.getElementById('settingsMenuMain');
-      const themeView = document.getElementById('settingsMenuThemes');
-      const exportView = document.getElementById('settingsMenuExport');
-      const histView = document.getElementById('settingsMenuHistoryView');
-      if (mainView) mainView.style.display = 'none';
-      if (themeView) themeView.style.display = 'none';
-      if (exportView) exportView.style.display = 'none';
-      if (histView) histView.style.display = 'flex';
-    }
-
-    function syncHistoryModeUI() {
-      const label = document.getElementById('settingsHistModeLabel');
-      const optDate = document.getElementById('settingsHistOptDate');
-      const optEx = document.getElementById('settingsHistOptEx');
-      const chkDate = document.getElementById('settingsHistCheckDate');
-      const chkEx = document.getElementById('settingsHistCheckEx');
-      const isEx = historySubMode === 'exercise';
-      if (label) label.innerText = isEx ? 'Per Esercizio' : 'Per Seduta';
-      if (optDate) optDate.classList.toggle('is-selected', !isEx);
-      if (optEx) optEx.classList.toggle('is-selected', isEx);
-      if (chkDate) chkDate.style.display = !isEx ? 'inline' : 'none';
-      if (chkEx) chkEx.style.display = isEx ? 'inline' : 'none';
     }
 
     function openExportSubmenu(event) {
@@ -1896,10 +1856,8 @@
       const mainView = document.getElementById('settingsMenuMain');
       const themeView = document.getElementById('settingsMenuThemes');
       const exportView = document.getElementById('settingsMenuExport');
-      const histView = document.getElementById('settingsMenuHistoryView');
       if (mainView) mainView.style.display = 'none';
       if (themeView) themeView.style.display = 'none';
-      if (histView) histView.style.display = 'none';
       if (exportView) exportView.style.display = 'flex';
     }
 
@@ -2063,14 +2021,7 @@
 
     async function init() {
       syncHeaderOffset();
-      syncHistoryModeUI();
       await GymDB.open();
-      const savedHistMode = await GymDB.getSetting('historySubMode');
-      if (savedHistMode === 'date' || savedHistMode === 'exercise') {
-        historySubMode = savedHistMode;
-        syncHistoryModeUI();
-        try { localStorage.setItem('gym_history_submode', savedHistMode); } catch (e) {}
-      }
       const savedTheme = await GymDB.getSetting('accentTheme');
       if (savedTheme && ACCENT_THEMES[savedTheme]) {
         applyAccentTheme(savedTheme, false);
@@ -2139,7 +2090,6 @@
       });
     }
 
-    const HISTORY_GROUPS_ORDER = ['Petto', 'Spalle', 'Tricipiti', 'Schiena', 'Bicipiti', 'Gambe', 'Core / Addome'];
     const MONTHS_IT = ['Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno', 'Luglio', 'Agosto', 'Settembre', 'Ottobre', 'Novembre', 'Dicembre'];
     const MONTHS_SHORT_IT = ['Gen', 'Feb', 'Mar', 'Apr', 'Mag', 'Giu', 'Lug', 'Ago', 'Set', 'Ott', 'Nov', 'Dic'];
     const DAYS_SHORT_IT = ['Dom', 'Lun', 'Mar', 'Mer', 'Gio', 'Ven', 'Sab'];
@@ -2166,21 +2116,6 @@
       return `${MONTHS_IT[m - 1]} ${y}`;
     }
 
-    function toggleHistoryGroupCard(groupName) {
-      haptic();
-      if (expandedHistoryGroups.has(groupName)) {
-        expandedHistoryGroups.delete(groupName);
-      } else {
-        expandedHistoryGroups.add(groupName);
-      }
-      renderHistoryView();
-    }
-
-    function toggleHistoryGroupFromEl(el) {
-      const g = decodeURIComponent(el.dataset.histGroup || '');
-      if (g) toggleHistoryGroupCard(g);
-    }
-
     function toggleHistoryDateCard(dateStr) {
       haptic();
       if (expandedHistoryDates.has(dateStr)) {
@@ -2189,20 +2124,6 @@
         expandedHistoryDates.add(dateStr);
       }
       renderHistoryView();
-    }
-
-    function setHistorySubMode(subMode, event) {
-      if (event) event.stopPropagation();
-      haptic();
-      historySubMode = subMode === 'exercise' ? 'exercise' : 'date';
-      syncHistoryModeUI();
-      try { localStorage.setItem('gym_history_submode', historySubMode); } catch (e) {}
-      if (typeof GymDB !== 'undefined' && GymDB.setSetting) {
-        GymDB.setSetting('historySubMode', historySubMode).catch(() => {});
-      }
-      closeSettingsMenu();
-      renderHistoryView();
-      showToast(`Storico: ${historySubMode === 'exercise' ? 'Per Esercizio' : 'Per Seduta'}`);
     }
 
     function onHistorySearchInput() {
@@ -2312,6 +2233,17 @@
           </div>
         </div>
       `;
+    }
+
+    function openActiveSheetProgress() {
+      if (!activeSheetExId) return;
+      const { exSets } = getExKeySetsAndMeta(activeSheetExId);
+      if (exSets.length === 0) {
+        haptic();
+        showToast('Nessuna seduta registrata per questo esercizio');
+        return;
+      }
+      openExerciseProgressModal(activeSheetExId);
     }
 
     function openExerciseProgressModal(exKey) {
@@ -2486,97 +2418,6 @@
 
       if (allSets.length === 0) {
         container.innerHTML = '<div class="today-empty" style="margin-top:20px;">Nessuna serie ancora registrata.</div>';
-        return;
-      }
-
-      if (historySubMode === 'exercise') {
-        // VISTA PER ESERCIZIO: Raggruppata a fisarmonica per Gruppo Muscolare
-        const byEx = {};
-        for (const s of allSets) {
-          const key = s.exerciseId || s.exerciseName;
-          if (!byEx[key]) {
-            const exMeta = exercises.find(e => e.id === s.exerciseId);
-            byEx[key] = {
-              key: key,
-              name: exMeta ? exMeta.name : s.exerciseName,
-              group: exMeta ? exMeta.group : (s.group || 'Altro'),
-              pr: exMeta ? exMeta.pr : null,
-              lastWeight: exMeta ? exMeta.last_weight : null,
-              lastDate: exMeta ? exMeta.last_date : null,
-              datesSet: new Set()
-            };
-          }
-          byEx[key].datesSet.add(s.date);
-        }
-
-        const filteredEx = Object.values(byEx).filter(exObj => {
-          if (!q) return true;
-          return exObj.name.toLowerCase().includes(q) || exObj.group.toLowerCase().includes(q);
-        });
-
-        if (filteredEx.length === 0) {
-          container.innerHTML = '<div class="today-empty" style="margin-top:20px;">Nessun esercizio trovato per "' + escapeHtml(q) + '".</div>';
-          return;
-        }
-
-        const byGroup = {};
-        for (const exObj of filteredEx) {
-          const g = exObj.group || 'Altro';
-          if (!byGroup[g]) byGroup[g] = [];
-          byGroup[g].push(exObj);
-        }
-
-        const orderedGroups = Object.keys(byGroup).sort((a, b) => {
-          const ia = HISTORY_GROUPS_ORDER.indexOf(a);
-          const ib = HISTORY_GROUPS_ORDER.indexOf(b);
-          if (ia !== -1 && ib !== -1) return ia - ib;
-          if (ia !== -1) return -1;
-          if (ib !== -1) return 1;
-          return a.localeCompare(b);
-        });
-
-        container.innerHTML = orderedGroups.map(groupName => {
-          const list = byGroup[groupName].sort((a, b) => a.name.localeCompare(b.name));
-          const isExpanded = q.length > 0 || expandedHistoryGroups.has(groupName);
-          const rowsHtml = list.map(exObj => {
-            const sessionsCount = exObj.datesSet.size;
-            const lastTxt = exObj.lastWeight !== null ? `${exObj.lastWeight} kg` : '-';
-            const prTxt = exObj.pr !== null ? `PR ${exObj.pr}` : '';
-            const lastDateTxt = exObj.lastDate ? `Ultima: ${formatNaturalDate(exObj.lastDate, false)}` : '';
-            return `
-              <div class="history-clean-row" data-exkey="${encodeURIComponent(exObj.key)}" onclick="openExerciseProgressFromEl(this)">
-                <div class="history-row-left">
-                  <div class="history-ex-name">${escapeHtml(exObj.name)}</div>
-                  <div class="history-ex-sub">${escapeHtml(lastDateTxt)} &middot; ${sessionsCount} ${sessionsCount === 1 ? 'seduta' : 'sedute'}</div>
-                </div>
-                <div class="history-row-right">
-                  <div>
-                    <div class="history-ex-sets">${lastTxt}</div>
-                    ${prTxt ? `<div class="history-ex-sub" style="margin-top:0;">${prTxt}</div>` : ''}
-                  </div>
-                  <svg class="history-row-chevron" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
-                </div>
-              </div>
-            `;
-          }).join('');
-
-          return `
-            <div class="history-session-card ${isExpanded ? 'expanded' : ''}">
-              <div class="history-date-header history-collapse-header" data-hist-group="${encodeURIComponent(groupName)}" onclick="toggleHistoryGroupFromEl(this)">
-                <div class="history-date-title">${escapeHtml(groupName)}</div>
-                <div style="display:flex; align-items:center; gap:8px;">
-                  <span class="history-date-meta">${list.length} es.</span>
-                  <svg class="history-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                    <polyline points="9 18 15 12 9 6"></polyline>
-                  </svg>
-                </div>
-              </div>
-              <div class="history-collapse-body">
-                ${rowsHtml}
-              </div>
-            </div>
-          `;
-        }).join('');
         return;
       }
 
@@ -3559,7 +3400,7 @@
     }
 
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('sw.js?v=24', {scope: './'}).then(reg => {
+      navigator.serviceWorker.register('sw.js?v=25', {scope: './'}).then(reg => {
         reg.update();
       }).catch(() => {});
     }
@@ -3791,10 +3632,11 @@
       <div class="sheet-title-info" style="flex:1; min-width:0; text-align:center;">
         <div class="sheet-title-name" id="sheetExTitle" style="word-break:break-word;">Esercizio</div>
         <input type="text" id="sheetExTitleInput" class="sheet-title-input" style="display:none;" enterkeyhint="done" autocomplete="off" autocorrect="off" autocapitalize="sentences" onkeydown="handleSheetTitleKeydown(event)" aria-label="Nuovo nome esercizio">
-        <div class="sheet-title-stats" style="justify-content:center;">
+        <button type="button" class="sheet-title-stats" onclick="openActiveSheetProgress()" title="Vedi grafico e storico esercizio">
           <span>Ultima: <strong id="sheetStatsUltima">-</strong></span>
           <span>PR: <strong id="sheetStatsPR">-</strong></span>
-        </div>
+          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="opacity:0.65; flex-shrink:0;" aria-hidden="true"><polyline points="9 18 15 12 9 6"></polyline></svg>
+        </button>
         <div class="sheet-today-pill" id="sheetTodayPill"></div>
       </div>
       <div class="sheet-more-wrap">
