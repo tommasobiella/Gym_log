@@ -1791,9 +1791,17 @@
       outline: 2px solid var(--accent);
       outline-offset: 2px;
     }
+    .today-set-item.is-clickable {
+      cursor: pointer;
+      transition: transform 0.12s ease, background 0.15s ease, border-color 0.15s ease;
+    }
+    .today-set-item.is-clickable:active {
+      transform: scale(0.985);
+      background: rgba(255, 255, 255, 0.08);
+    }
   </style>
-  <script src="db.js?v=40"></script>
-  <script src="backup.js?v=40"></script>
+  <script src="db.js?v=41"></script>
+  <script src="backup.js?v=41"></script>
 </head>
 <body>
   <div id="orientationLockOverlay" class="orientation-lock-overlay" aria-live="polite">
@@ -2281,7 +2289,12 @@
         orderSavedToast: 'Ordine aggiornato!',
         exOptionsAria: 'Opzioni esercizio',
         openProgressAria: 'Vedi grafico e storico',
-        renameExTitle: 'Rinomina Esercizio'
+        renameExTitle: 'Rinomina Esercizio',
+        setNumberLabel: (n) => `Serie ${n}`,
+        confirmDeleteTitle: 'Conferma eliminazione',
+        confirmRestoreTitle: 'Ripristina backup',
+        confirmActionTitle: 'Conferma',
+        confirmRestoreBtn: 'Ripristina'
       },
       en: {
         portraitTitle: 'Portrait Mode Only',
@@ -2413,7 +2426,12 @@
         orderSavedToast: 'Order updated!',
         exOptionsAria: 'Exercise options',
         openProgressAria: 'View progress chart',
-        renameExTitle: 'Rename Exercise'
+        renameExTitle: 'Rename Exercise',
+        setNumberLabel: (n) => `Set ${n}`,
+        confirmDeleteTitle: 'Confirm Deletion',
+        confirmRestoreTitle: 'Restore Backup',
+        confirmActionTitle: 'Confirm',
+        confirmRestoreBtn: 'Restore'
       }
     };
 
@@ -3223,13 +3241,8 @@
     function renderSetRowActionsHtml(setId) {
       return `
         <div class="today-set-actions">
-          <button type="button" class="set-action-btn" onclick="openEditSetModal('${setId}')" title="Modifica serie" aria-label="Modifica">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path>
-            </svg>
-          </button>
-          <button type="button" class="set-action-btn danger" onclick="deleteSetById('${setId}')" title="Elimina serie" aria-label="Elimina">
-            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <button type="button" class="set-action-btn danger" onclick="event.stopPropagation(); deleteSetById('${setId}')" title="${t('deleteBtn')}" aria-label="${t('deleteBtn')}">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
               <polyline points="3 6 5 6 21 6"></polyline>
               <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path>
               <path d="M10 11v6"></path>
@@ -3259,9 +3272,9 @@
 
       document.getElementById('histDetailSetsList').innerHTML = daySets.map((s, idx) => {
         return `
-          <div class="today-set-item">
+          <div class="today-set-item is-clickable" onclick="openEditSetModal('${s.id}')" role="button" tabindex="0">
             <div class="today-set-info">
-              <div class="today-set-name">Serie ${idx + 1} &middot; ${s.weight} kg &times; ${escapeHtml(String(s.reps))}</div>
+              <div class="today-set-name">${escapeHtml(t('setNumberLabel', idx + 1))} &middot; ${s.weight} kg &times; ${escapeHtml(String(s.reps))}</div>
               ${s.notes ? `<div class="today-set-note">${escapeHtml(s.notes)}</div>` : ''}
             </div>
             ${renderSetRowActionsHtml(s.id)}
@@ -3931,7 +3944,7 @@
       container.innerHTML = todayLogs.map((log) => {
         const timeStr = log.timestamp ? new Date(log.timestamp).toLocaleTimeString(timeLocale, {hour: '2-digit', minute: '2-digit'}) : '';
         return `
-          <div class="today-set-item">
+          <div class="today-set-item is-clickable" onclick="openEditSetModal('${log.id}')" role="button" tabindex="0">
             <div class="today-set-info">
               <div class="today-set-name">${escapeHtml(log.exerciseName)}</div>
               <div class="today-set-meta">
@@ -3946,9 +3959,54 @@
       }).reverse().join('');
     }
 
+    let appConfirmResolver = null;
+
+    function showAppConfirm({ title, message, confirmLabel, danger = false }) {
+      return new Promise((resolve) => {
+        appConfirmResolver = resolve;
+        const modal = document.getElementById('appConfirmModal');
+        const titleEl = document.getElementById('appConfirmTitle');
+        const msgEl = document.getElementById('appConfirmMessage');
+        const cancelBtn = document.getElementById('appConfirmCancelBtn');
+        const okBtn = document.getElementById('appConfirmOkBtn');
+        if (!modal || !titleEl || !msgEl || !cancelBtn || !okBtn) {
+          resolve(false);
+          return;
+        }
+        titleEl.innerText = title || t('confirmActionTitle');
+        msgEl.innerText = message || '';
+        cancelBtn.innerText = t('cancelBtn');
+        okBtn.innerText = confirmLabel || t('deleteBtn');
+        if (danger) {
+          okBtn.style.background = 'var(--danger)';
+          okBtn.style.color = '#FFFFFF';
+        } else {
+          okBtn.style.background = 'var(--accent)';
+          okBtn.style.color = 'var(--cta-text)';
+        }
+        modal.style.display = 'flex';
+      });
+    }
+
+    function resolveAppConfirm(result) {
+      const modal = document.getElementById('appConfirmModal');
+      if (modal) modal.style.display = 'none';
+      if (typeof appConfirmResolver === 'function') {
+        const r = appConfirmResolver;
+        appConfirmResolver = null;
+        r(Boolean(result));
+      }
+    }
+
     async function deleteSetById(logId) {
       haptic();
-      if (!confirm(t('deleteSetConfirm'))) return;
+      const ok = await showAppConfirm({
+        title: t('confirmDeleteTitle'),
+        message: t('deleteSetConfirm'),
+        confirmLabel: t('deleteBtn'),
+        danger: true
+      });
+      if (!ok) return;
       await GymDB.deleteSet(logId);
       await refreshStateFromDB();
       renderTodaySetsList();
@@ -3992,7 +4050,7 @@
       const newNotes = document.getElementById('editSetNotesInput').value.trim();
 
       if (isNaN(newWeight) || isNaN(newReps) || newReps <= 0) {
-        alert(t('invalidSetAlert'));
+        showToast(t('invalidSetAlert'));
         return;
       }
 
@@ -4093,7 +4151,7 @@
         openBackupModal();
       } catch (e) {
         if (e.name !== 'AbortError') {
-          alert(t('backupSaveErr', e.message));
+          showToast(t('backupSaveErr', e.message));
         }
       }
     }
@@ -4105,7 +4163,12 @@
     async function handleRestoreFileSelected(event) {
       const file = event.target.files?.[0];
       if (!file) return;
-      const ok = confirm(t('restoreConfirm'));
+      const ok = await showAppConfirm({
+        title: t('confirmRestoreTitle'),
+        message: t('restoreConfirm'),
+        confirmLabel: t('confirmRestoreBtn'),
+        danger: true
+      });
       if (!ok) {
         event.target.value = '';
         return;
@@ -4119,7 +4182,7 @@
         await GymDB.setSetting('firstLaunchDone', true);
         showToast(t('restoredCountToast', res.exercisesCount, res.setsCount));
       } catch (e) {
-        alert(t('restoreErrAlert', e.message));
+        showToast(t('restoreErrAlert', e.message));
       } finally {
         event.target.value = '';
       }
@@ -4311,7 +4374,13 @@
       const msg = exSetsCount > 0
         ? t('deleteExConfirmSets', ex.name, exSetsCount)
         : t('deleteExConfirm', ex.name);
-      if (!confirm(msg)) return;
+      const ok = await showAppConfirm({
+        title: t('confirmDeleteTitle'),
+        message: msg,
+        confirmLabel: t('deleteBtn'),
+        danger: true
+      });
+      if (!ok) return;
 
       await GymDB.deleteExerciseAndSets(ex.id);
       delete currentValues[ex.id];
@@ -4667,7 +4736,7 @@
     })();
 
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('sw.js?v=40', {scope: './'}).then(reg => {
+      navigator.serviceWorker.register('sw.js?v=41', {scope: './'}).then(reg => {
         reg.update();
       }).catch(() => {});
     }
@@ -5172,6 +5241,20 @@
       <div class="modal-actions">
         <button type="button" class="modal-btn-cancel" id="renameExCancelBtn" onclick="closeRenameExerciseModal()">Annulla</button>
         <button type="button" class="modal-btn-confirm" id="renameExSaveBtn" onclick="saveRenamedExercise()">Salva</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modale di Conferma In-App (sostituisce confirm() di sistema) -->
+  <div class="modal-overlay" id="appConfirmModal" style="z-index: 1450;" onclick="if(event.target===this) resolveAppConfirm(false)">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 id="appConfirmTitle">Conferma</h3>
+      </div>
+      <div id="appConfirmMessage" style="font-size: 0.92rem; color: var(--text-muted); line-height: 1.45;"></div>
+      <div class="modal-actions">
+        <button type="button" class="modal-btn-cancel" id="appConfirmCancelBtn" onclick="resolveAppConfirm(false)">Annulla</button>
+        <button type="button" class="modal-btn-confirm" id="appConfirmOkBtn" onclick="resolveAppConfirm(true)">Elimina</button>
       </div>
     </div>
   </div>
