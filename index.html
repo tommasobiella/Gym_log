@@ -46,22 +46,37 @@
 
     html {
       height: 100%;
+      overflow: hidden;
+      overscroll-behavior: none;
     }
 
     body {
       background-color: var(--bg);
       color: var(--text);
       font-family: var(--font);
-      min-height: 100%;
-      padding-bottom: calc(92px + env(safe-area-inset-bottom, 0px));
-      overflow-x: hidden;
+      height: 100%;
+      height: 100dvh;
+      margin: 0;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+      overscroll-behavior: none;
     }
 
-    /* Header (calibrato per Dynamic Island / Notch su iPhone) */
+    .app-scroll-container {
+      flex: 1;
+      min-height: 0;
+      overflow-y: auto;
+      overflow-x: hidden;
+      -webkit-overflow-scrolling: touch;
+      overscroll-behavior-y: contain;
+      padding-bottom: calc(92px + env(safe-area-inset-bottom, 0px));
+    }
+
+    /* Header (inchiodato in alto, calibrato per Dynamic Island / Notch su iPhone) */
     header {
-      position: -webkit-sticky;
-      position: sticky;
-      top: 0;
+      flex-shrink: 0;
+      position: relative;
       z-index: 1000;
       background: var(--header-bg);
       backdrop-filter: blur(20px);
@@ -1431,8 +1446,8 @@
       }
     }
   </style>
-  <script src="db.js?v=18"></script>
-  <script src="backup.js?v=18"></script>
+  <script src="db.js?v=19"></script>
+  <script src="backup.js?v=19"></script>
 </head>
 <body>
 
@@ -1521,7 +1536,8 @@
     </div>
   </header>
 
-  
+  <div id="appScrollRoot" class="app-scroll-container">
+
   <!-- VISTA 1: HUB DEI GRUPPI MUSCOLARI (Home Gym) -->
   <section id="groupsHubView" style="padding: 12px 16px;">
     <div style="margin-bottom: 14px;">
@@ -1665,10 +1681,14 @@
         </svg>
       </span>
       <input type="text" id="historySearchInput" placeholder="Cerca esercizio, gruppo o data..." oninput="onHistorySearchInput()" style="padding-right:36px;">
-      <button type="button" id="historySearchClearBtn" class="history-search-clear" onclick="clearHistorySearch()" aria-label="Pulisci ricerca">&times;</button>
+      <button type="button" id="historySearchClearBtn" class="history-search-clear" onclick="clearHistorySearch()" aria-label="Pulisci ricerca">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+      </button>
     </div>
     <div id="historyListContainer"></div>
   </section>
+
+  </div><!-- /#appScrollRoot -->
 
   <div class="bottom-dock">
     <div class="mode-switch" role="tablist" aria-label="Modalità app">
@@ -1993,9 +2013,14 @@
     // =========================================================================
     const tabScrollPos = { log: 0, history: 0 };
 
+    function getAppScrollEl() {
+      return document.getElementById('appScrollRoot');
+    }
+
     function switchAppMode(mode) {
       haptic();
-      tabScrollPos[currentAppMode] = window.scrollY || window.pageYOffset || 0;
+      const scrollEl = getAppScrollEl();
+      if (scrollEl) tabScrollPos[currentAppMode] = scrollEl.scrollTop || 0;
       currentAppMode = mode;
       document.getElementById('modeBtnLog').classList.toggle('active', mode === 'log');
       document.getElementById('modeBtnHistory').classList.toggle('active', mode === 'history');
@@ -2020,7 +2045,7 @@
         }
       }
       requestAnimationFrame(() => {
-        window.scrollTo({ top: tabScrollPos[mode] || 0, behavior: 'instant' });
+        if (scrollEl) scrollEl.scrollTop = tabScrollPos[mode] || 0;
       });
     }
 
@@ -2564,7 +2589,8 @@
       }
 
       renderExercises();
-      window.scrollTo({top: 0, behavior: 'instant'});
+      const scrollEl = getAppScrollEl();
+      if (scrollEl) scrollEl.scrollTop = 0;
     }
 
     function backToGroups(fromPopState = false) {
@@ -2580,7 +2606,8 @@
           window.history.back();
         }
       }
-      window.scrollTo({top: 0, behavior: 'instant'});
+      const scrollEl = getAppScrollEl();
+      if (scrollEl) scrollEl.scrollTop = 0;
     }
 
     window.addEventListener('popstate', (e) => {
@@ -2623,16 +2650,10 @@
     // =========================================================================
     let activeSheetExId = null;
 
-    function openExerciseSheet(exId) {
-      haptic();
-      activeSheetExId = exId;
-      const ex = exercises.find(e => e.id === exId);
+    function updateActiveSheetMeta(ex) {
       if (!ex) return;
-
-      const val = currentValues[exId] || {reps: 10, weight: 20};
       const lastStr = ex.last_weight !== null ? `${ex.last_weight} kg` : '-';
       const prStr = ex.pr !== null ? `${ex.pr} kg` : '-';
-
       document.getElementById('sheetExTitle').innerText = ex.name;
       document.getElementById('sheetStatsUltima').innerText = ex.last_weight !== null ? `${lastStr} (${ex.last_reps || '-'})` : 'Nessuna';
       document.getElementById('sheetStatsPR').innerText = prStr;
@@ -2641,12 +2662,22 @@
       const todayPill = document.getElementById('sheetTodayPill');
       if (todayPill) {
         if (exToday.length > 0) {
-          todayPill.innerText = `Oggi: ${exToday.length} ${exToday.length === 1 ? 'serie' : 'serie'} (${GymDB.formatDaySets(exToday)})`;
+          todayPill.innerText = `Oggi: ${exToday.length} serie (${GymDB.formatDaySets(exToday)})`;
           todayPill.style.display = 'inline-block';
         } else {
           todayPill.style.display = 'none';
         }
       }
+    }
+
+    function openExerciseSheet(exId) {
+      haptic();
+      activeSheetExId = exId;
+      const ex = exercises.find(e => e.id === exId);
+      if (!ex) return;
+
+      const val = currentValues[exId] || {reps: 10, weight: 20};
+      updateActiveSheetMeta(ex);
 
       cancelInlineValueEdits();
       document.getElementById('sheetRepsVal').innerText = val.reps;
@@ -2837,15 +2868,18 @@
       await GymDB.addSet(logEntry);
       await refreshStateFromDB();
 
-      showToast(`Serie salvata: ${ex.name} ${val.weight}kg × ${val.reps}`);
+      const updatedEx = exercises.find(e => e.id === exId);
+      updateActiveSheetMeta(updatedEx);
+      if (noteInput) noteInput.value = '';
+
+      const todayCountForEx = todayLogs.filter(s => s.exerciseId === exId).length;
+      showToast(`Serie #${todayCountForEx} salvata (${val.weight} kg × ${val.reps})`);
 
       const card = document.getElementById('card-' + exId);
       if (card) {
         card.classList.add('active-card');
         setTimeout(() => card.classList.remove('active-card'), 600);
       }
-
-      closeExerciseSheet();
     }
 
     /* Swipe Down / Drag to Dismiss Bottom Sheet */
@@ -3417,7 +3451,7 @@
     }
 
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('sw.js?v=18', {scope: './'}).then(reg => {
+      navigator.serviceWorker.register('sw.js?v=19', {scope: './'}).then(reg => {
         reg.update();
       }).catch(() => {});
     }
@@ -3526,7 +3560,8 @@
       } else {
         renderExercises();
       }
-      window.scrollTo({top: 0, behavior: 'smooth'});
+      const scrollEl = getAppScrollEl();
+      if (scrollEl) scrollEl.scrollTo({ top: 0, behavior: 'smooth' });
     }
   </script>
     <!-- Modale Visualizza Serie di Oggi -->
@@ -3543,7 +3578,7 @@
           </svg>
           Serie Completate Oggi
         </h3>
-        <button type="button" class="modal-close-btn" onclick="closeTodaySetsModal()">&times;</button>
+        <button type="button" class="modal-close-btn" onclick="closeTodaySetsModal()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
       </div>
 
       <div class="today-sets-list" id="todaySetsListContainer">
@@ -3566,7 +3601,7 @@
           </svg>
           Modifica Serie
         </h3>
-        <button type="button" class="modal-close-btn" onclick="closeEditSetModal()">&times;</button>
+        <button type="button" class="modal-close-btn" onclick="closeEditSetModal()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
       </div>
 
       <div style="font-size: 0.95rem; font-weight: 700; color: var(--accent); margin-bottom: 4px;" id="editExName">Esercizio</div>
@@ -3604,7 +3639,7 @@
           </svg>
           Nuovo Esercizio
         </h3>
-        <button type="button" class="modal-close-btn" onclick="closeNewExerciseModal()">&times;</button>
+        <button type="button" class="modal-close-btn" onclick="closeNewExerciseModal()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
       </div>
 
       <div class="modal-field">
@@ -3644,7 +3679,7 @@
     </div>
 
     <div class="sheet-header-row">
-      <button type="button" class="sheet-close-x" onclick="closeExerciseSheet(true)" title="Chiudi scheda" aria-label="Chiudi" style="flex-shrink:0;">&times;</button>
+      <button type="button" class="sheet-close-x" onclick="closeExerciseSheet(true)" title="Chiudi scheda" aria-label="Chiudi" style="flex-shrink:0;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
       <div class="sheet-title-info" style="flex:1; min-width:0; text-align:center;">
         <div class="sheet-title-name" id="sheetExTitle" style="word-break:break-word;">Esercizio</div>
         <input type="text" id="sheetExTitleInput" class="sheet-title-input" style="display:none;" enterkeyhint="done" autocomplete="off" autocorrect="off" autocapitalize="sentences" onkeydown="handleSheetTitleKeydown(event)" aria-label="Nuovo nome esercizio">
@@ -3758,7 +3793,7 @@
     <div class="modal-card">
       <div class="modal-header">
         <h3>Backup Locale &amp; Ripristino</h3>
-        <button type="button" class="modal-close-btn" onclick="closeBackupModal()">&times;</button>
+        <button type="button" class="modal-close-btn" onclick="closeBackupModal()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
       </div>
 
       <div class="backup-info-box" id="backupStatusDetail">
@@ -3815,7 +3850,7 @@
           <h3 id="histProgTitle" style="line-height:1.2;">Esercizio</h3>
           <div id="histProgGroup" style="font-size:0.78rem; color:var(--text-muted); font-weight:600; margin-top:2px;">Gruppo</div>
         </div>
-        <button type="button" class="modal-close-btn" onclick="closeExerciseProgressModal()">&times;</button>
+        <button type="button" class="modal-close-btn" onclick="closeExerciseProgressModal()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
       </div>
 
       <div class="progress-kpi-grid" id="histProgKpis"></div>
@@ -3836,7 +3871,7 @@
           <h3 id="histDetailTitle" style="line-height:1.2;">Esercizio</h3>
           <div id="histDetailDate" style="font-size:0.78rem; color:var(--accent); font-weight:700; margin-top:2px;">Data</div>
         </div>
-        <button type="button" class="modal-close-btn" onclick="closeHistoryDetailModal()">&times;</button>
+        <button type="button" class="modal-close-btn" onclick="closeHistoryDetailModal()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
       </div>
 
       <div class="today-sets-list" id="histDetailSetsList"></div>
@@ -3852,7 +3887,7 @@
     <div class="modal-card">
       <div class="modal-header">
         <h3>Esercizi Archiviati</h3>
-        <button type="button" class="modal-close-btn" onclick="closeArchivedModal()">&times;</button>
+        <button type="button" class="modal-close-btn" onclick="closeArchivedModal()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
       </div>
 
       <div class="today-sets-list" id="archivedExercisesList"></div>
