@@ -885,6 +885,7 @@
     }
     .today-set-info {
       flex: 1;
+      min-width: 0;
       display: flex;
       flex-direction: column;
       gap: 2px;
@@ -894,6 +895,42 @@
       font-size: 0.92rem;
       font-weight: 700;
       color: var(--text);
+    }
+    .archived-ex-name {
+      font-size: 0.88rem;
+      font-weight: 700;
+      color: var(--text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .archived-ex-meta {
+      font-size: 0.74rem;
+      color: var(--text-muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .archived-restore-btn {
+      background: var(--accent);
+      color: var(--cta-text);
+      border: none;
+      border-radius: 999px;
+      height: 32px;
+      padding: 0 13px;
+      font-size: 0.78rem;
+      font-weight: 800;
+      cursor: pointer;
+      flex-shrink: 0;
+      white-space: nowrap;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: filter 0.15s ease, transform 0.12s ease;
+    }
+    .archived-restore-btn:active {
+      transform: scale(0.95);
+      filter: brightness(0.9);
     }
     .today-set-meta {
       font-size: 0.78rem;
@@ -1523,8 +1560,8 @@
       }
     }
   </style>
-  <script src="db.js?v=27"></script>
-  <script src="backup.js?v=27"></script>
+  <script src="db.js?v=28"></script>
+  <script src="backup.js?v=28"></script>
 </head>
 <body>
 
@@ -1944,10 +1981,10 @@
       container.innerHTML = archived.map(ex => `
         <div class="today-set-item">
           <div class="today-set-info">
-            <div class="today-set-name">${escapeHtml(ex.name)}</div>
-            <div class="today-set-meta"><span>${escapeHtml(ex.group)}</span>${ex.pr !== null ? `<span>&bull; PR ${ex.pr} kg</span>` : ''}</div>
+            <div class="archived-ex-name">${escapeHtml(ex.name)}</div>
+            <div class="archived-ex-meta">${escapeHtml(ex.group)}${ex.pr !== null ? ` &bull; PR ${ex.pr} kg` : ''}</div>
           </div>
-          <button type="button" class="modal-btn-confirm" style="padding:7px 12px; font-size:0.8rem;" data-exid="${escapeHtml(ex.id)}" onclick="restoreArchivedExercise(this.dataset.exid)">Ripristina</button>
+          <button type="button" class="archived-restore-btn" data-exid="${escapeHtml(ex.id)}" onclick="restoreArchivedExercise(this.dataset.exid)">Ripristina</button>
         </div>
       `).join('');
     }
@@ -3502,7 +3539,7 @@
     }
 
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('sw.js?v=27', {scope: './'}).then(reg => {
+      navigator.serviceWorker.register('sw.js?v=28', {scope: './'}).then(reg => {
         reg.update();
       }).catch(() => {});
     }
