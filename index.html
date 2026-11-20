@@ -122,7 +122,7 @@
       background: var(--btn-bg);
       border: 1px solid var(--card-border);
       padding: 4px 10px;
-      border-radius: 20px;
+      border-radius: 999px;
       font-size: 0.72rem;
       font-weight: 600;
       cursor: pointer;
@@ -158,7 +158,7 @@
     .pill {
       flex: 0 0 auto;
       padding: 6px 14px;
-      border-radius: 16px;
+      border-radius: 999px;
       background: var(--btn-bg);
       border: 1px solid var(--card-border);
       color: var(--text-muted);
@@ -201,7 +201,7 @@
       padding: 10px 14px 10px 38px;
       background: var(--card-bg);
       border: 1px solid var(--card-border);
-      border-radius: 12px;
+      border-radius: 16px;
       color: var(--text);
       font-size: 1rem;
       outline: none;
@@ -214,7 +214,7 @@
       background: var(--accent);
       color: var(--cta-text);
       border: none;
-      border-radius: 18px;
+      border-radius: 999px;
       font-size: 0.84rem;
       font-weight: 700;
       letter-spacing: -0.2px;
@@ -253,6 +253,10 @@
     }
     .modal-overlay.active {
       display: flex;
+    }
+    .modal-overlay.modal-overlay-top {
+      align-items: flex-start;
+      padding: calc(env(safe-area-inset-top, 0px) + 54px) 16px 20px;
     }
     .modal-card {
       background: var(--card-bg);
@@ -324,16 +328,25 @@
       letter-spacing: 0.5px;
       color: var(--accent);
     }
-    .modal-field input, .modal-field select {
+    .modal-field input, .modal-field select, .modal-field textarea {
       background: var(--bg);
       border: 1px solid var(--card-border);
-      border-radius: 14px;
-      padding: 11px 14px;
+      border-radius: 18px;
+      padding: 12px 14px;
       color: var(--text);
       font-size: 1rem;
+      font-family: inherit;
       outline: none;
+      width: 100%;
+      box-sizing: border-box;
     }
-    .modal-field input:focus, .modal-field select:focus {
+    .modal-field textarea {
+      resize: none;
+      line-height: 1.4;
+      user-select: text;
+      -webkit-user-select: text;
+    }
+    .modal-field input:focus, .modal-field select:focus, .modal-field textarea:focus {
       border-color: var(--accent);
     }
     .modal-actions {
@@ -375,7 +388,7 @@
     .ex-card {
       background: var(--card-bg);
       border: 1px solid var(--card-border);
-      border-radius: 20px;
+      border-radius: 22px;
       padding: 14px 16px;
       cursor: pointer;
       user-select: none;
@@ -439,13 +452,13 @@
       border-top-right-radius: 36px;
       border-bottom-left-radius: 0;
       border-bottom-right-radius: 0;
-      padding: 16px 16px calc(22px + env(safe-area-inset-bottom, 0px));
+      padding: 18px 16px calc(24px + env(safe-area-inset-bottom, 0px));
       z-index: 1210;
       box-shadow: 0 -16px 48px rgba(0, 0, 0, 0.75);
       transform: translateY(100%);
       transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
       touch-action: pan-y;
-      max-height: 90vh;
+      max-height: 92vh;
       overflow-y: auto;
       overscroll-behavior: contain;
       -webkit-overflow-scrolling: touch;
@@ -498,7 +511,7 @@
       align-items: flex-start;
       justify-content: space-between;
       gap: 10px;
-      margin-bottom: 16px;
+      margin-bottom: 18px;
     }
     .sheet-title-info {
       display: flex;
@@ -598,13 +611,13 @@
     .sheet-stepper-grid {
       display: flex;
       flex-direction: column;
-      gap: 14px;
+      gap: 16px;
       margin-bottom: 18px;
     }
     .sheet-stepper-box {
       background: rgba(255, 255, 255, 0.04);
       border: 1px solid var(--card-border);
-      border-radius: 20px;
+      border-radius: 24px;
       padding: 12px;
       display: flex;
       flex-direction: column;
@@ -616,23 +629,23 @@
       color: var(--text-muted);
       text-transform: uppercase;
       letter-spacing: 0.6px;
-      margin-bottom: 8px;
+      margin-bottom: 10px;
     }
     .sheet-box-controls {
       display: flex;
       align-items: center;
       justify-content: space-between;
       width: 100%;
-      gap: 6px;
+      gap: 8px;
     }
     .sheet-big-btn {
-      width: 48px;
-      height: 48px;
+      width: 56px;
+      height: 56px;
       border-radius: 12px;
       background: rgba(255, 255, 255, 0.08);
       border: 1px solid var(--card-border);
       color: #fff;
-      font-size: 1.45rem;
+      font-size: 1.55rem;
       font-weight: 700;
       display: flex;
       align-items: center;
@@ -652,17 +665,17 @@
       color: var(--cta-text);
     }
     .sheet-box-val {
-      font-size: 1.45rem;
+      font-size: 1.65rem;
       font-weight: 800;
       letter-spacing: -0.5px;
       color: var(--text);
-      min-width: 78px;
+      min-width: 84px;
       text-align: center;
       font-variant-numeric: tabular-nums;
       background: transparent;
       border: 1px solid transparent;
-      border-radius: 10px;
-      padding: 4px 10px;
+      border-radius: 12px;
+      padding: 6px 12px;
       cursor: pointer;
       transition: background 0.15s ease, border-color 0.15s ease;
     }
@@ -672,15 +685,15 @@
       border-color: rgba(255, 255, 255, 0.12);
     }
     .sheet-val-inline-input {
-      width: 96px;
+      width: 104px;
       background: rgba(255, 255, 255, 0.08);
       border: 1.5px solid var(--accent);
-      border-radius: 10px;
+      border-radius: 12px;
       color: #fff;
-      font-size: 1.4rem;
+      font-size: 1.5rem;
       font-weight: 800;
       text-align: center;
-      padding: 3px 6px;
+      padding: 5px 8px;
       outline: none;
       font-family: inherit;
       font-variant-numeric: tabular-nums;
@@ -701,17 +714,17 @@
       display: flex;
       gap: 8px;
       width: 100%;
-      margin-top: 10px;
+      margin-top: 12px;
     }
     .sheet-sub-btn {
       flex: 1;
-      min-height: 42px;
-      padding: 8px 0;
+      min-height: 48px;
+      padding: 10px 0;
       border-radius: 12px;
       background: rgba(255, 255, 255, 0.06);
       border: 1px solid var(--card-border);
       color: var(--text-muted);
-      font-size: 0.86rem;
+      font-size: 0.92rem;
       font-weight: 700;
       cursor: pointer;
       display: inline-flex;
@@ -733,31 +746,52 @@
     .sheet-notes-field {
       margin-bottom: 16px;
     }
-    .sheet-notes-input {
+    .sheet-notes-trigger {
       width: 100%;
+      min-height: 46px;
       background: rgba(255, 255, 255, 0.05);
       border: 1px solid var(--card-border);
-      border-radius: 16px;
-      padding: 12px 14px;
-      color: var(--text);
-      font-size: 1rem;
-      outline: none;
+      border-radius: 999px;
+      padding: 0 16px;
+      color: var(--text-muted);
+      font-size: 0.92rem;
+      font-weight: 500;
+      font-family: inherit;
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      text-align: left;
+      cursor: pointer;
       box-sizing: border-box;
-      transition: border-color 0.2s ease;
+      transition: background 0.15s ease, border-color 0.2s ease, transform 0.12s ease;
     }
-    .sheet-notes-input:focus {
-      border-color: var(--accent);
-      background: rgba(255, 255, 255, 0.08);
+    .sheet-notes-trigger:active {
+      transform: scale(0.985);
+      background: rgba(255, 255, 255, 0.09);
+    }
+    .sheet-notes-trigger.has-note {
+      border-color: var(--accent-glow);
+      background: var(--accent-soft);
+      color: var(--text);
+      font-weight: 600;
+    }
+    .sheet-notes-trigger-text {
+      flex: 1;
+      min-width: 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
 
     .sheet-save-btn {
       width: 100%;
+      min-height: 56px;
       background: var(--accent);
       color: var(--cta-text);
       border: none;
-      border-radius: 18px;
-      padding: 15px 20px;
-      font-size: 1.05rem;
+      border-radius: 999px;
+      padding: 16px 20px;
+      font-size: 1.06rem;
       font-weight: 800;
       letter-spacing: 0.3px;
       cursor: pointer;
@@ -842,8 +876,8 @@
       gap: 12px;
       background: rgba(255, 255, 255, 0.04);
       border: 1px solid var(--card-border);
-      border-radius: 16px;
-      padding: 12px 14px;
+      border-radius: 18px;
+      padding: 10px 10px 10px 14px;
       transition: background 0.2s ease;
     }
     .today-set-item:hover {
@@ -887,7 +921,7 @@
       color: var(--text-muted);
       width: 34px;
       height: 34px;
-      border-radius: 10px;
+      border-radius: 8px;
       display: inline-flex;
       align-items: center;
       justify-content: center;
@@ -941,8 +975,8 @@
     .group-tile {
       background: var(--card-bg);
       border: 1px solid var(--card-border);
-      border-radius: 20px;
-      padding: 14px 16px;
+      border-radius: 22px;
+      padding: 13px 14px;
       cursor: pointer;
       position: relative;
       overflow: hidden;
@@ -970,7 +1004,7 @@
     .tile-icon-wrap {
       width: 36px;
       height: 36px;
-      border-radius: 10px;
+      border-radius: 9px;
       background: rgba(255, 255, 255, 0.06);
       display: inline-flex;
       align-items: center;
@@ -1034,7 +1068,7 @@
       font-weight: 700;
       height: 36px;
       padding: 0 12px;
-      border-radius: 18px;
+      border-radius: 999px;
       cursor: pointer;
       transition: background 0.15s ease, transform 0.12s ease;
     }
@@ -1120,7 +1154,7 @@
     .history-session-card {
       background: var(--card-bg);
       border: 1px solid var(--card-border);
-      border-radius: 20px;
+      border-radius: 22px;
       padding: 14px 16px;
       margin-bottom: 10px;
       transition: border-color 0.2s ease;
@@ -1170,7 +1204,7 @@
       padding: 10px 4px;
       border-bottom: 1px solid rgba(255, 255, 255, 0.06);
       cursor: pointer;
-      border-radius: 8px;
+      border-radius: 10px;
       transition: background 0.15s ease;
     }
     .history-clean-row:active {
@@ -1273,7 +1307,7 @@
       font-size: 0.72rem;
       font-weight: 800;
       padding: 2px 6px;
-      border-radius: 6px;
+      border-radius: 8px;
     }
     .progress-delta-badge.up {
       background: rgba(48, 209, 88, 0.16);
@@ -1352,32 +1386,6 @@
     .backup-info-box strong {
       color: #fff;
     }
-    .history-sub-toggle {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 4px;
-      background: rgba(255, 255, 255, 0.06);
-      border: 1px solid var(--card-border);
-      border-radius: 14px;
-      padding: 4px;
-      margin-bottom: 12px;
-    }
-    .history-sub-btn {
-      background: transparent;
-      border: none;
-      color: var(--text-muted);
-      font-size: 0.84rem;
-      font-weight: 700;
-      padding: 9px 12px;
-      border-radius: 10px;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-    .history-sub-btn.active {
-      background: var(--card-bg);
-      color: #fff;
-      border: 1px solid var(--card-border);
-    }
     .sheet-header-actions {
       display: flex;
       align-items: center;
@@ -1395,7 +1403,7 @@
       min-width: 175px;
       background: #2C2C2E;
       border: 1px solid rgba(255, 255, 255, 0.14);
-      border-radius: 14px;
+      border-radius: 16px;
       padding: 6px;
       box-shadow: 0 12px 32px rgba(0, 0, 0, 0.65);
       display: none;
@@ -1420,7 +1428,7 @@
       font-size: 0.9rem;
       font-weight: 600;
       padding: 10px 12px;
-      border-radius: 9px;
+      border-radius: 10px;
       text-align: left;
       cursor: pointer;
       display: flex;
@@ -1515,8 +1523,8 @@
       }
     }
   </style>
-  <script src="db.js?v=26"></script>
-  <script src="backup.js?v=26"></script>
+  <script src="db.js?v=27"></script>
+  <script src="backup.js?v=27"></script>
 </head>
 <body>
 
@@ -1769,7 +1777,7 @@
       if (!toast) {
         toast = document.createElement('div');
         toast.id = 'gymToast';
-        toast.style.cssText = 'position:fixed;bottom:calc(88px + env(safe-area-inset-bottom, 0px));left:50%;transform:translateX(-50%);background:rgba(28,28,30,0.96);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border:1px solid var(--accent);color:#fff;padding:10px 16px;border-radius:14px;font-size:14px;font-weight:700;box-shadow:0 8px 24px rgba(0,0,0,0.5);z-index:9999;transition:opacity 0.25s;opacity:0;pointer-events:none;text-align:center;max-width:90vw;display:inline-flex;align-items:center;gap:12px;';
+        toast.style.cssText = 'position:fixed;bottom:calc(88px + env(safe-area-inset-bottom, 0px));left:50%;transform:translateX(-50%);background:rgba(28,28,30,0.96);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border:1px solid var(--accent);color:#fff;padding:10px 16px;border-radius:16px;font-size:14px;font-weight:700;box-shadow:0 8px 24px rgba(0,0,0,0.5);z-index:9999;transition:opacity 0.25s;opacity:0;pointer-events:none;text-align:center;max-width:90vw;display:inline-flex;align-items:center;gap:12px;';
         document.body.appendChild(toast);
       }
       clearTimeout(toastHideTimer);
@@ -2665,6 +2673,54 @@
       }
     }
 
+    let activeSheetNote = '';
+
+    function setSheetNote(val) {
+      activeSheetNote = (val || '').trim();
+      const trigger = document.getElementById('sheetNoteTrigger');
+      const txtEl = document.getElementById('sheetNoteTriggerText');
+      if (!trigger || !txtEl) return;
+      if (activeSheetNote) {
+        txtEl.innerText = activeSheetNote;
+        trigger.classList.add('has-note');
+      } else {
+        txtEl.innerText = 'Note (es. cedimento, drop set, sensazioni)...';
+        trigger.classList.remove('has-note');
+      }
+    }
+
+    function openSheetNoteModal() {
+      haptic();
+      const modal = document.getElementById('sheetNoteModal');
+      const textarea = document.getElementById('sheetNoteModalInput');
+      if (!modal || !textarea) return;
+      textarea.value = activeSheetNote;
+      modal.classList.add('active');
+      textarea.focus();
+      const len = textarea.value.length;
+      try { textarea.setSelectionRange(len, len); } catch (_) {}
+    }
+
+    function closeSheetNoteModal() {
+      const modal = document.getElementById('sheetNoteModal');
+      const textarea = document.getElementById('sheetNoteModalInput');
+      if (textarea) textarea.blur();
+      if (modal) modal.classList.remove('active');
+    }
+
+    function clearSheetNoteModal() {
+      haptic();
+      setSheetNote('');
+      closeSheetNoteModal();
+    }
+
+    function saveSheetNoteModal() {
+      haptic();
+      const textarea = document.getElementById('sheetNoteModalInput');
+      setSheetNote(textarea ? textarea.value : '');
+      closeSheetNoteModal();
+    }
+
     function openExerciseSheet(exId) {
       haptic();
       activeSheetExId = exId;
@@ -2677,7 +2733,7 @@
       cancelInlineValueEdits();
       document.getElementById('sheetRepsVal').innerText = val.reps;
       document.getElementById('sheetWeightVal').innerText = val.weight + ' kg';
-      document.getElementById('sheetNoteInput').value = '';
+      setSheetNote('');
 
       cancelInlineRenameExercise();
       closeSheetMoreMenu();
@@ -2705,6 +2761,7 @@
       }
       cancelInlineRenameExercise();
       cancelInlineValueEdits();
+      closeSheetNoteModal();
       closeSheetMoreMenu();
       const sheet = document.getElementById('exerciseBottomSheet');
       const backdrop = document.getElementById('sheetBackdrop');
@@ -2845,8 +2902,7 @@
       const exId = activeSheetExId;
       const ex = exercises.find(e => e.id === exId);
       const val = currentValues[exId];
-      const noteInput = document.getElementById('sheetNoteInput');
-      const noteVal = noteInput ? noteInput.value.trim() : '';
+      const noteVal = activeSheetNote.trim();
 
       const logEntry = {
         id: 'log_' + Date.now() + '_' + Math.random().toString(36).slice(2, 6),
@@ -2865,7 +2921,7 @@
 
       const updatedEx = exercises.find(e => e.id === exId);
       updateActiveSheetMeta(updatedEx);
-      if (noteInput) noteInput.value = '';
+      setSheetNote('');
 
       const todayCountForEx = todayLogs.filter(s => s.exerciseId === exId).length;
       showToast(`Serie #${todayCountForEx} salvata (${val.weight} kg × ${val.reps})`);
@@ -3446,7 +3502,7 @@
     }
 
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('sw.js?v=26', {scope: './'}).then(reg => {
+      navigator.serviceWorker.register('sw.js?v=27', {scope: './'}).then(reg => {
         reg.update();
       }).catch(() => {});
     }
@@ -3768,9 +3824,15 @@
       </div>
     </div>
 
-    <!-- Note -->
+    <!-- Note (apre mini-modale nella parte alta così iOS non spinge l'interfaccia) -->
     <div class="sheet-notes-field">
-      <input type="text" class="sheet-notes-input" id="sheetNoteInput" placeholder="Note (es. cedimento, drop set, sensazioni)..." autocomplete="off">
+      <button type="button" class="sheet-notes-trigger" id="sheetNoteTrigger" onclick="openSheetNoteModal()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round" style="flex-shrink:0; opacity:0.7;" aria-hidden="true">
+          <path d="M12 20h9"></path>
+          <path d="M16.5 3.5a2.121 2.121 0 0 1 3 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+        </svg>
+        <span class="sheet-notes-trigger-text" id="sheetNoteTriggerText">Note (es. cedimento, drop set, sensazioni)...</span>
+      </button>
     </div>
 
     <!-- Pulsantone Salva -->
@@ -3783,6 +3845,25 @@
     </button>
   </div>
 
+
+  <!-- Mini-Modale Note Serie (ancorata in alto sopra la tastiera iOS) -->
+  <div class="modal-overlay modal-overlay-top" id="sheetNoteModal" style="z-index: 1350;" onclick="if(event.target===this) closeSheetNoteModal()">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>Note Serie</h3>
+        <button type="button" class="modal-close-btn" onclick="closeSheetNoteModal()" aria-label="Chiudi note"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+      </div>
+
+      <div class="modal-field">
+        <textarea id="sheetNoteModalInput" rows="3" placeholder="es. cedimento, drop set, sensazioni..." autocomplete="off"></textarea>
+      </div>
+
+      <div class="modal-actions">
+        <button type="button" class="modal-btn-cancel" onclick="clearSheetNoteModal()">Svuota</button>
+        <button type="button" class="modal-btn-confirm" onclick="saveSheetNoteModal()">Fatto</button>
+      </div>
+    </div>
+  </div>
 
   <!-- Modale Backup & Ripristino -->
   <div class="modal-overlay" id="backupModal" onclick="if(event.target===this) closeBackupModal()">
