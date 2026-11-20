@@ -884,8 +884,16 @@
       gap: 8px;
       max-height: 52vh;
       overflow-y: auto;
-      padding-right: 4px;
-      margin: 10px 0;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
+      padding: 10px 0 12px;
+      margin: 4px 0;
+      -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 14px, #000 calc(100% - 14px), transparent 100%);
+      mask-image: linear-gradient(to bottom, transparent 0, #000 14px, #000 calc(100% - 14px), transparent 100%);
+    }
+    .today-sets-list::-webkit-scrollbar,
+    .progress-sessions-scroll::-webkit-scrollbar {
+      display: none;
     }
     .today-set-item {
       display: flex;
@@ -1455,8 +1463,12 @@
     .progress-sessions-scroll {
       max-height: 40vh;
       overflow-y: auto;
+      -webkit-overflow-scrolling: touch;
+      scrollbar-width: none;
       margin-top: 2px;
-      padding-right: 2px;
+      padding: 10px 0 12px;
+      -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 14px, #000 calc(100% - 14px), transparent 100%);
+      mask-image: linear-gradient(to bottom, transparent 0, #000 14px, #000 calc(100% - 14px), transparent 100%);
     }
     .sahur-overlay {
       position: fixed;
@@ -1800,8 +1812,8 @@
       background: rgba(255, 255, 255, 0.08);
     }
   </style>
-  <script src="db.js?v=41"></script>
-  <script src="backup.js?v=41"></script>
+  <script src="db.js?v=42"></script>
+  <script src="backup.js?v=42"></script>
 </head>
 <body>
   <div id="orientationLockOverlay" class="orientation-lock-overlay" aria-live="polite">
@@ -4736,7 +4748,7 @@
     })();
 
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('sw.js?v=41', {scope: './'}).then(reg => {
+      navigator.serviceWorker.register('sw.js?v=42', {scope: './'}).then(reg => {
         reg.update();
       }).catch(() => {});
     }
