@@ -19,6 +19,7 @@
       --card-hover: #2C2C2E;
       --accent: #0A84FF;
       --accent-glow: rgba(10, 132, 255, 0.35);
+      --accent-soft: rgba(10, 132, 255, 0.14);
       --fern: #30D158;
       --success: #30D158;
       --warning: #FF9F0A;
@@ -1166,8 +1167,20 @@
     }
     .mode-btn.active {
       background: var(--accent);
-      color: #fff;
+      color: var(--cta-text);
       box-shadow: 0 2px 10px var(--accent-glow);
+    }
+    .settings-menu-wrap {
+      position: relative;
+      flex-shrink: 0;
+    }
+    .theme-color-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      display: inline-block;
+      flex-shrink: 0;
+      border: 1px solid rgba(255, 255, 255, 0.25);
     }
 
     /* History View v2 (Apple Dark Clean Diary & Progressions) */
@@ -1197,7 +1210,7 @@
       transition: border-color 0.2s ease;
     }
     .history-session-card.expanded {
-      border-color: rgba(10, 132, 255, 0.35);
+      border-color: var(--accent-glow);
     }
     .history-date-header {
       display: flex;
@@ -1225,7 +1238,7 @@
       font-size: 0.74rem;
       font-weight: 700;
       color: var(--accent);
-      background: rgba(10, 132, 255, 0.12);
+      background: var(--accent-soft);
       padding: 3px 9px;
       border-radius: 999px;
       white-space: nowrap;
@@ -1556,8 +1569,8 @@
       transform: rotate(90deg);
     }
   </style>
-  <script src="db.js?v=12"></script>
-  <script src="backup.js?v=12"></script>
+  <script src="db.js?v=13"></script>
+  <script src="backup.js?v=13"></script>
 </head>
 <body>
 
@@ -1566,10 +1579,37 @@
       <div class="title-area">
         <h1 id="gymLogoTitle" onclick="handleLogoTap(event)">Gym Log</h1>
       </div>
-      <button type="button" class="sync-status-display" id="backupStatusDisplay" onclick="openBackupModal()" title="Salva o ripristina backup locale">
-        <span>Backup</span>
-        <span id="backupStatusEmoji">&#128190;</span>
-      </button>
+      <div class="settings-menu-wrap">
+        <button type="button" class="sheet-close-x" id="settingsBtn" onclick="toggleSettingsMenu(event)" title="Impostazioni" aria-label="Impostazioni">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+            <circle cx="12" cy="12" r="3"></circle>
+            <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
+          </svg>
+        </button>
+        <div class="sheet-dropdown-menu" id="settingsDropdownMenu" style="min-width: 205px;" onclick="event.stopPropagation()">
+          <div id="settingsMenuMain" class="sheet-dropdown-subview">
+            <button type="button" class="sheet-dropdown-item" onclick="openBackupFromSettings()">
+              <span>Backup</span>
+              <span style="opacity:0.6; font-size:1rem; line-height:1;">&rsaquo;</span>
+            </button>
+            <div class="sheet-dropdown-divider"></div>
+            <button type="button" class="sheet-dropdown-item" onclick="openThemeSubmenu(event)">
+              <span>Tema</span>
+              <span style="display:inline-flex; align-items:center; gap:6px;">
+                <span id="settingsThemePreviewDot" class="theme-color-dot" style="background: var(--accent);"></span>
+                <span style="opacity:0.6; font-size:1rem; line-height:1;">&rsaquo;</span>
+              </span>
+            </button>
+          </div>
+          <div id="settingsMenuThemes" class="sheet-dropdown-subview" style="display:none;">
+            <button type="button" class="sheet-dropdown-item sheet-dropdown-back" onclick="showMainSettingsMenu(event)">
+              <span>&lsaquo; Indietro</span>
+            </button>
+            <div class="sheet-dropdown-divider"></div>
+            <div id="settingsMenuThemesList" style="display:flex; flex-direction:column; gap:2px;"></div>
+          </div>
+        </div>
+      </div>
     </div>
     
     <div class="filter-scroll" id="filterContainer" style="display:none;">
@@ -1768,6 +1808,116 @@
     let activeHistoryDetail = null; // { dateStr, exKey }
     let currentValues = {};
 
+    const ACCENT_THEMES = {
+      red:    { id: 'red',    label: 'Rosso',     hex: '#FF453A', glow: 'rgba(255, 69, 58, 0.35)',  soft: 'rgba(255, 69, 58, 0.14)',  cta: '#FFFFFF' },
+      orange: { id: 'orange', label: 'Arancione', hex: '#FF9F0A', glow: 'rgba(255, 159, 10, 0.35)', soft: 'rgba(255, 159, 10, 0.14)', cta: '#000000' },
+      yellow: { id: 'yellow', label: 'Giallo',    hex: '#FFD60A', glow: 'rgba(255, 214, 10, 0.32)', soft: 'rgba(255, 214, 10, 0.14)', cta: '#000000' },
+      green:  { id: 'green',  label: 'Verde',     hex: '#30D158', glow: 'rgba(48, 209, 88, 0.35)',  soft: 'rgba(48, 209, 88, 0.14)',  cta: '#000000' },
+      blue:   { id: 'blue',   label: 'Blu',       hex: '#0A84FF', glow: 'rgba(10, 132, 255, 0.35)', soft: 'rgba(10, 132, 255, 0.14)', cta: '#FFFFFF' },
+      purple: { id: 'purple', label: 'Viola',     hex: '#BF5AF2', glow: 'rgba(191, 90, 242, 0.35)', soft: 'rgba(191, 90, 242, 0.14)', cta: '#FFFFFF' }
+    };
+    let currentAccentTheme = localStorage.getItem('gym_accent_theme') || 'blue';
+    if (!ACCENT_THEMES[currentAccentTheme]) currentAccentTheme = 'blue';
+
+    function getActiveAccentHex() {
+      return (ACCENT_THEMES[currentAccentTheme] || ACCENT_THEMES.blue).hex;
+    }
+
+    function applyAccentTheme(themeId, persist = true) {
+      const theme = ACCENT_THEMES[themeId] || ACCENT_THEMES.blue;
+      currentAccentTheme = theme.id;
+      const root = document.documentElement;
+      root.style.setProperty('--accent', theme.hex);
+      root.style.setProperty('--accent-glow', theme.glow);
+      root.style.setProperty('--accent-soft', theme.soft);
+      root.style.setProperty('--cta-text', theme.cta);
+
+      const dot = document.getElementById('settingsThemePreviewDot');
+      if (dot) dot.style.background = theme.hex;
+
+      if (persist) {
+        try { localStorage.setItem('gym_accent_theme', theme.id); } catch (e) {}
+        if (typeof GymDB !== 'undefined' && GymDB.setSetting) {
+          GymDB.setSetting('accentTheme', theme.id).catch(() => {});
+        }
+      }
+      if (activeHistoryProgressKey) renderExerciseProgressModal();
+    }
+
+    applyAccentTheme(currentAccentTheme, false);
+
+    function toggleSettingsMenu(event) {
+      if (event) event.stopPropagation();
+      haptic();
+      const menu = document.getElementById('settingsDropdownMenu');
+      if (!menu) return;
+      const willOpen = !menu.classList.contains('open');
+      if (willOpen) {
+        showMainSettingsMenu();
+        menu.classList.add('open');
+      } else {
+        menu.classList.remove('open');
+      }
+    }
+
+    function closeSettingsMenu() {
+      const menu = document.getElementById('settingsDropdownMenu');
+      if (menu) menu.classList.remove('open');
+      showMainSettingsMenu();
+    }
+
+    function showMainSettingsMenu(event) {
+      if (event) event.stopPropagation();
+      const mainView = document.getElementById('settingsMenuMain');
+      const themeView = document.getElementById('settingsMenuThemes');
+      if (mainView) mainView.style.display = 'flex';
+      if (themeView) themeView.style.display = 'none';
+    }
+
+    function openThemeSubmenu(event) {
+      if (event) event.stopPropagation();
+      haptic();
+      const list = document.getElementById('settingsMenuThemesList');
+      if (list) {
+        list.innerHTML = Object.values(ACCENT_THEMES).map(t => {
+          const isCurrent = t.id === currentAccentTheme;
+          return `
+            <button type="button" class="sheet-dropdown-item ${isCurrent ? 'is-selected' : ''}" onclick="selectAccentTheme('${t.id}', event)">
+              <span style="display:inline-flex; align-items:center; gap:9px;">
+                <span class="theme-color-dot" style="background:${t.hex};"></span>
+                <span>${t.label}</span>
+              </span>
+              ${isCurrent ? '<span>&#10003;</span>' : ''}
+            </button>
+          `;
+        }).join('');
+      }
+      const mainView = document.getElementById('settingsMenuMain');
+      const themeView = document.getElementById('settingsMenuThemes');
+      if (mainView) mainView.style.display = 'none';
+      if (themeView) themeView.style.display = 'flex';
+    }
+
+    function selectAccentTheme(themeId, event) {
+      if (event) event.stopPropagation();
+      haptic();
+      applyAccentTheme(themeId, true);
+      closeSettingsMenu();
+      const label = (ACCENT_THEMES[themeId] || ACCENT_THEMES.blue).label;
+      showToast(`Tema: ${label}`);
+    }
+
+    function openBackupFromSettings() {
+      closeSettingsMenu();
+      openBackupModal();
+    }
+
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('.settings-menu-wrap')) {
+        closeSettingsMenu();
+      }
+    });
+
     function getTodayStr() {
       const d = new Date();
       return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
@@ -1807,6 +1957,11 @@
 
     async function init() {
       await GymDB.open();
+      const savedTheme = await GymDB.getSetting('accentTheme');
+      if (savedTheme && ACCENT_THEMES[savedTheme]) {
+        applyAccentTheme(savedTheme, false);
+        try { localStorage.setItem('gym_accent_theme', savedTheme); } catch (e) {}
+      }
       let defaultCatalog = [];
       try {
         const resp = await fetch('default-exercises.json?v=2');
@@ -1986,7 +2141,8 @@
       });
       const polyPoints = coords.map(c => `${c.x},${c.y}`).join(' ');
       const areaPoints = `${coords[0].x},${h - padY} ${polyPoints} ${coords[coords.length - 1].x},${h - padY}`;
-      const dotsSvg = coords.map(c => `<circle cx="${c.x}" cy="${c.y}" r="3.2" fill="#0A84FF" stroke="#1C1C1E" stroke-width="1.5"></circle>`).join('');
+      const accentHex = getActiveAccentHex();
+      const dotsSvg = coords.map(c => `<circle cx="${c.x}" cy="${c.y}" r="3.2" fill="${accentHex}" stroke="#1C1C1E" stroke-width="1.5"></circle>`).join('');
       const firstDate = formatNaturalDate(points[0].dateStr, true);
       const lastDate = formatNaturalDate(points[points.length - 1].dateStr, true);
       const realMin = Math.min(...weights);
@@ -2001,12 +2157,12 @@
           <svg viewBox="0 0 ${w} ${h}" width="100%" height="76" style="display:block; overflow:visible;">
             <defs>
               <linearGradient id="sparkFillGrad" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="0%" stop-color="#0A84FF" stop-opacity="0.28"/>
-                <stop offset="100%" stop-color="#0A84FF" stop-opacity="0.0"/>
+                <stop offset="0%" stop-color="${accentHex}" stop-opacity="0.28"/>
+                <stop offset="100%" stop-color="${accentHex}" stop-opacity="0.0"/>
               </linearGradient>
             </defs>
             <polygon points="${areaPoints}" fill="url(#sparkFillGrad)"></polygon>
-            <polyline fill="none" stroke="#0A84FF" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" points="${polyPoints}"></polyline>
+            <polyline fill="none" stroke="${accentHex}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" points="${polyPoints}"></polyline>
             ${dotsSvg}
           </svg>
           <div style="display:flex; justify-content:space-between; font-size:0.68rem; color:var(--text-muted); margin-top:2px;">
@@ -3096,7 +3252,7 @@
     }
 
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('sw.js?v=12', {scope: './'}).then(reg => {
+      navigator.serviceWorker.register('sw.js?v=13', {scope: './'}).then(reg => {
         reg.update();
       }).catch(() => {});
     }
