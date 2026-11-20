@@ -1466,9 +1466,17 @@
       text-align: right;
     }
     .history-ex-sets {
-      font-size: 0.85rem;
-      font-weight: 700;
-      color: var(--accent);
+      font-size: 0.75rem;
+      font-weight: 500;
+      color: var(--text-muted);
+      font-variant-numeric: tabular-nums;
+      white-space: nowrap;
+    }
+    .history-sets-primary {
+      font-size: 0.93rem;
+      font-weight: 800;
+      color: #fff;
+      line-height: 1.25;
       font-variant-numeric: tabular-nums;
     }
     .history-row-chevron {
@@ -1965,8 +1973,8 @@
       background: rgba(255, 255, 255, 0.08);
     }
   </style>
-  <script src="db.js?v=47"></script>
-  <script src="backup.js?v=47"></script>
+  <script src="db.js?v=48"></script>
+  <script src="backup.js?v=48"></script>
 </head>
 <body>
   <div id="orientationLockOverlay" class="orientation-lock-overlay" aria-live="polite">
@@ -1983,7 +1991,7 @@
   <header>
     <div class="header-top" id="headerRootBar">
       <div class="title-area">
-        <h1 id="gymLogoTitle" onclick="handleLogoTap(event)">Gym Log <span class="app-version-sub">v47</span></h1>
+        <h1 id="gymLogoTitle" onclick="handleLogoTap(event)">Gym Log <span class="app-version-sub">v48</span></h1>
       </div>
       <div class="settings-menu-wrap">
         <button type="button" class="sheet-close-x" id="settingsBtn" onclick="toggleSettingsMenu(event)" title="Impostazioni" aria-label="Impostazioni">
@@ -2381,7 +2389,7 @@
         pickFolderBtn: 'Scegli Cartella Backup',
         startTrainingBtn: 'Inizia ad Allenarti',
         restorePromptBtn: 'Hai già un Backup? Ripristinalo',
-        allSessionsPrompt: 'Tutte le sedute (tocca per modificare)',
+        allSessionsPrompt: 'Tutte le sedute',
         closeBtn: 'Chiudi',
         prLabel: 'PR Massimale',
         lastSessionLabel: 'Ultima Seduta',
@@ -2518,7 +2526,7 @@
         pickFolderBtn: 'Choose Backup Folder',
         startTrainingBtn: 'Start Training',
         restorePromptBtn: 'Have a backup? Restore it',
-        allSessionsPrompt: 'All sessions (tap to edit)',
+        allSessionsPrompt: 'All sessions',
         closeBtn: 'Close',
         prLabel: 'All-Time PR',
         lastSessionLabel: 'Last Session',
@@ -3576,7 +3584,7 @@
         <div class="progress-kpi-box">
           <div class="progress-kpi-label">${t('lastSessionLabel')}</div>
           <div class="progress-kpi-val">${lastMax} kg ${deltaHtml}</div>
-          <div class="progress-kpi-sub">${escapeHtml(lastFormatted)} &middot; ${lastAvg} ${t('avgPerSetUnit')}</div>
+          <div class="progress-kpi-sub">${escapeHtml(lastFormatted)}</div>
         </div>
       `;
 
@@ -3592,10 +3600,10 @@
         return `
           <div class="history-clean-row" data-date="${escapeHtml(dateStr)}" onclick="openProgressDateSets(this)">
             <div class="history-row-left">
-              <div class="history-ex-name">${escapeHtml(formatNaturalDate(dateStr))}</div>
+              <div class="history-sets-primary">${escapeHtml(formatted)}</div>
             </div>
             <div class="history-row-right">
-              <span class="history-ex-sets">${escapeHtml(formatted)}</span>
+              <span class="history-ex-sets">${escapeHtml(formatNaturalDate(dateStr))}</span>
               <svg class="history-row-chevron" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
             </div>
           </div>
@@ -5230,7 +5238,7 @@
     })();
 
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('sw.js?v=47', {scope: './'}).then(reg => {
+      navigator.serviceWorker.register('sw.js?v=48', {scope: './'}).then(reg => {
         reg.update();
       }).catch(() => {});
     }
