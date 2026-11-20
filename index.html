@@ -1569,8 +1569,8 @@
       transform: rotate(90deg);
     }
   </style>
-  <script src="db.js?v=15"></script>
-  <script src="backup.js?v=15"></script>
+  <script src="db.js?v=16"></script>
+  <script src="backup.js?v=16"></script>
 </head>
 <body>
 
@@ -1586,10 +1586,15 @@
             <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
           </svg>
         </button>
-        <div class="sheet-dropdown-menu" id="settingsDropdownMenu" style="min-width: 205px;" onclick="event.stopPropagation()">
+        <div class="sheet-dropdown-menu" id="settingsDropdownMenu" style="min-width: 215px;" onclick="event.stopPropagation()">
           <div id="settingsMenuMain" class="sheet-dropdown-subview">
             <button type="button" class="sheet-dropdown-item" onclick="openBackupFromSettings()">
               <span>Backup</span>
+              <span style="opacity:0.6; font-size:1rem; line-height:1;">&rsaquo;</span>
+            </button>
+            <div class="sheet-dropdown-divider"></div>
+            <button type="button" class="sheet-dropdown-item" onclick="openExportSubmenu(event)">
+              <span>Esporta</span>
               <span style="opacity:0.6; font-size:1rem; line-height:1;">&rsaquo;</span>
             </button>
             <div class="sheet-dropdown-divider"></div>
@@ -1599,6 +1604,26 @@
                 <span id="settingsThemePreviewDot" class="theme-color-dot" style="background: var(--accent);"></span>
                 <span style="opacity:0.6; font-size:1rem; line-height:1;">&rsaquo;</span>
               </span>
+            </button>
+            <div class="sheet-dropdown-divider"></div>
+            <button type="button" class="sheet-dropdown-item" onclick="openArchivedModalFromSettings()">
+              <span>Esercizi archiviati</span>
+              <span style="display:inline-flex; align-items:center; gap:6px;">
+                <span id="settingsArchivedCount" style="font-size:0.78rem; color:var(--text-muted); font-weight:700;"></span>
+                <span style="opacity:0.6; font-size:1rem; line-height:1;">&rsaquo;</span>
+              </span>
+            </button>
+          </div>
+          <div id="settingsMenuExport" class="sheet-dropdown-subview" style="display:none;">
+            <button type="button" class="sheet-dropdown-item sheet-dropdown-back" onclick="showMainSettingsMenu(event)">
+              <span>&lsaquo; Indietro</span>
+            </button>
+            <div class="sheet-dropdown-divider"></div>
+            <button type="button" class="sheet-dropdown-item" onclick="handleExportData('csv', event)">
+              <span>CSV (.csv)</span>
+            </button>
+            <button type="button" class="sheet-dropdown-item" onclick="handleExportData('md', event)">
+              <span>Markdown (.md)</span>
             </button>
           </div>
           <div id="settingsMenuThemes" class="sheet-dropdown-subview" style="display:none;">
@@ -1870,8 +1895,88 @@
       if (event) event.stopPropagation();
       const mainView = document.getElementById('settingsMenuMain');
       const themeView = document.getElementById('settingsMenuThemes');
+      const exportView = document.getElementById('settingsMenuExport');
       if (mainView) mainView.style.display = 'flex';
       if (themeView) themeView.style.display = 'none';
+      if (exportView) exportView.style.display = 'none';
+    }
+
+    function openExportSubmenu(event) {
+      if (event) event.stopPropagation();
+      haptic();
+      const mainView = document.getElementById('settingsMenuMain');
+      const themeView = document.getElementById('settingsMenuThemes');
+      const exportView = document.getElementById('settingsMenuExport');
+      if (mainView) mainView.style.display = 'none';
+      if (themeView) themeView.style.display = 'none';
+      if (exportView) exportView.style.display = 'flex';
+    }
+
+    async function handleExportData(format, event) {
+      if (event) event.stopPropagation();
+      haptic();
+      closeSettingsMenu();
+      try {
+        if (format === 'csv') {
+          await GymBackup.exportCSV();
+          showToast('Esportazione CSV completata!');
+        } else {
+          await GymBackup.exportMarkdown();
+          showToast('Esportazione Markdown completata!');
+        }
+      } catch (e) {
+        if (e && e.name === 'AbortError') return;
+        showToast('Errore esportazione: ' + (e.message || e));
+      }
+    }
+
+    function openArchivedModalFromSettings() {
+      haptic();
+      closeSettingsMenu();
+      renderArchivedExercisesList();
+      const modal = document.getElementById('archivedExercisesModal');
+      if (modal) modal.style.display = 'flex';
+    }
+
+    function closeArchivedModal() {
+      const modal = document.getElementById('archivedExercisesModal');
+      if (modal) modal.style.display = 'none';
+    }
+
+    function renderArchivedExercisesList() {
+      const container = document.getElementById('archivedExercisesList');
+      if (!container) return;
+      const archived = exercises.filter(e => e.archived === true).sort((a, b) => a.name.localeCompare(b.name));
+      if (archived.length === 0) {
+        container.innerHTML = '<div class="today-empty">Nessun esercizio archiviato.<br>Puoi archiviare un esercizio dal menu <strong>&hellip;</strong> dentro la sua scheda.</div>';
+        return;
+      }
+      container.innerHTML = archived.map(ex => `
+        <div class="today-set-item">
+          <div class="today-set-info">
+            <div class="today-set-name">${escapeHtml(ex.name)}</div>
+            <div class="today-set-meta"><span>${escapeHtml(ex.group)}</span>${ex.pr !== null ? `<span>&bull; PR ${ex.pr} kg</span>` : ''}</div>
+          </div>
+          <button type="button" class="modal-btn-confirm" style="padding:7px 12px; font-size:0.8rem;" data-exid="${escapeHtml(ex.id)}" onclick="restoreArchivedExercise(this.dataset.exid)">Ripristina</button>
+        </div>
+      `).join('');
+    }
+
+    async function restoreArchivedExercise(exId) {
+      haptic();
+      const ex = exercises.find(e => e.id === exId);
+      if (!ex) return;
+      await GymDB.saveExercise({ ...ex, archived: false });
+      await refreshStateFromDB();
+      renderArchivedExercisesList();
+      showToast(`Ripristinato: ${ex.name}`);
+    }
+
+    function updateArchivedBadgeCount() {
+      const el = document.getElementById('settingsArchivedCount');
+      if (!el) return;
+      const count = exercises.filter(e => e.archived === true).length;
+      el.innerText = count > 0 ? String(count) : '';
     }
 
     function openThemeSubmenu(event) {
@@ -2788,7 +2893,7 @@
       groups.forEach(g => {
         let latestDateStr = null;
 
-        exercises.filter(ex => ex.group === g).forEach(ex => {
+        exercises.filter(ex => !ex.archived && ex.group === g).forEach(ex => {
           if (ex.last_date && (!latestDateStr || ex.last_date > latestDateStr)) {
             latestDateStr = ex.last_date;
           }
@@ -2816,6 +2921,7 @@
 
     function updateUIState() {
       updateGroupLastDates();
+      updateArchivedBadgeCount();
       const countEl = document.getElementById('todayCount');
       if (countEl) {
         countEl.innerText = `${todayLogs.length} serie completate oggi`;
@@ -3191,6 +3297,17 @@
       }
     }
 
+    async function archiveActiveExercise() {
+      closeSheetMoreMenu();
+      if (!activeSheetExId) return;
+      const ex = exercises.find(e => e.id === activeSheetExId);
+      if (!ex) return;
+      await GymDB.saveExercise({ ...ex, archived: true });
+      closeExerciseSheet();
+      await refreshStateFromDB();
+      showToast(`Archiviato: ${ex.name}`);
+    }
+
     async function deleteActiveExercise() {
       closeSheetMoreMenu();
       if (!activeSheetExId) return;
@@ -3224,6 +3341,7 @@
       const query = (document.getElementById('searchInput').value || '').toLowerCase();
 
       const filtered = exercises.filter(ex => {
+        if (ex.archived) return false;
         const matchesGroup = (currentFilter === 'Tutti') || (ex.group === currentFilter);
         const matchesQuery = !query || ex.name.toLowerCase().includes(query) || ex.group.toLowerCase().includes(query);
         return matchesGroup && matchesQuery;
@@ -3252,7 +3370,7 @@
     }
 
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('sw.js?v=15', {scope: './'}).then(reg => {
+      navigator.serviceWorker.register('sw.js?v=16', {scope: './'}).then(reg => {
         reg.update();
       }).catch(() => {});
     }
@@ -3506,6 +3624,9 @@
               <span>Cambia gruppo</span>
               <span style="opacity:0.6; font-size:1rem; line-height:1;">&rsaquo;</span>
             </button>
+            <button type="button" class="sheet-dropdown-item" onclick="archiveActiveExercise()">
+              <span>Archivia</span>
+            </button>
             <div class="sheet-dropdown-divider"></div>
             <button type="button" class="sheet-dropdown-item danger" onclick="deleteActiveExercise()">
               <span>Elimina</span>
@@ -3662,6 +3783,22 @@
 
       <div class="modal-actions">
         <button type="button" class="modal-btn-confirm" onclick="closeHistoryDetailModal()">Chiudi</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modale Esercizi Archiviati -->
+  <div class="modal-overlay" id="archivedExercisesModal" onclick="if(event.target===this) closeArchivedModal()">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3>Esercizi Archiviati</h3>
+        <button type="button" class="modal-close-btn" onclick="closeArchivedModal()">&times;</button>
+      </div>
+
+      <div class="today-sets-list" id="archivedExercisesList"></div>
+
+      <div class="modal-actions">
+        <button type="button" class="modal-btn-confirm" onclick="closeArchivedModal()">Chiudi</button>
       </div>
     </div>
   </div>
