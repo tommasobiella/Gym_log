@@ -2,25 +2,25 @@
   <defs>
     <!-- Background Glow -->
     <radialGradient id="gymGlow" cx="50%" cy="50%" r="55%">
-      <stop offset="0%" stop-color="#ff3b30" stop-opacity="0.38"/>
+      <stop offset="0%" stop-color="#0A84FF" stop-opacity="0.42"/>
       <stop offset="100%" stop-color="#090a0f" stop-opacity="0"/>
     </radialGradient>
 
-    <!-- Athletic Crimson Shading Gradients -->
+    <!-- Apple Electric Blue Shading Gradients -->
     <linearGradient id="armBaseGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#ff5252"/>
-      <stop offset="60%" stop-color="#d32f2f"/>
-      <stop offset="100%" stop-color="#9a0007"/>
+      <stop offset="0%" stop-color="#409CFF"/>
+      <stop offset="60%" stop-color="#0A84FF"/>
+      <stop offset="100%" stop-color="#004999"/>
     </linearGradient>
 
     <linearGradient id="muscleShadowGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#c62828"/>
-      <stop offset="100%" stop-color="#600000"/>
+      <stop offset="0%" stop-color="#005EC4"/>
+      <stop offset="100%" stop-color="#002657"/>
     </linearGradient>
 
     <linearGradient id="bicepHighlightGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#ff8a80"/>
-      <stop offset="100%" stop-color="#ff5252"/>
+      <stop offset="0%" stop-color="#8AC6FF"/>
+      <stop offset="100%" stop-color="#409CFF"/>
     </linearGradient>
   </defs>
 
@@ -36,7 +36,7 @@
   <g transform="matrix(2.05 0 0 2.05 16 19)">
     
     <!-- 1. Main Muscle Mass (Forearm, Fist, Bicep Peak, Tricep) -->
-    <path fill="url(#armBaseGrad)" stroke="#ff7961" stroke-width="1.2" stroke-linejoin="round"
+    <path fill="url(#armBaseGrad)" stroke="#64B5FF" stroke-width="1.2" stroke-linejoin="round"
           d="M63.11,54.16 c-10.97,9.44 -26.36,11.68 -46.41,11.56 c0,0 -3.74,1.15 -4.60,-3.57 c0,0 -0.77,-20.89 3.81,-35.55 c0,0 -0.19,-5.98 0.03,-9.90 c0.04,-0.67 0.33,-1.30 0.83,-1.75 c5.76,-5.32 8.35,-6.10 8.35,-6.10 l8.37,-1.48 c1.32,0.91 4.23,4.18 3.75,10.00 l0.11,-0.40 l3.21,0.90 c1.12,0.34 1.86,1.53 1.84,2.65 c-0.01,1.17 -2.81,2.05 -2.81,2.05 c-6.12,1.38 -6.12,1.38 -6.12,1.38 c-1.83,2.87 -5.59,3.18 -7.28,3.10 c-0.09,-0.24 -0.59,-0.02 -0.19,0 c0.59,1.50 1.29,5.11 1.92,11.81 l0.18,1.86 c0.05,0.53 0.32,4.73 0.38,7.48 c1.81,-4.41 6.64,-12.56 15.73,-13.85 c13.46,-1.92 20.17,8.49 20.17,8.49 s0.23,0.27 0.53,0.77 C66.98,47.07 66.16,51.53 63.11,54.16 z"/>
 
     <!-- 2. Anatomical Shading / Muscle Depth Shadows -->
@@ -52,15 +52,15 @@
 
     <!-- 3. Minimal Muscle Contours & Flexion Ribs (Crisp Line Work) -->
     <!-- Bicep Peak Highlight Ridge -->
-    <path fill="none" stroke="#ffebee" stroke-width="1.8" stroke-linecap="round" opacity="0.9"
+    <path fill="none" stroke="#E5F2FF" stroke-width="1.8" stroke-linecap="round" opacity="0.9"
           d="M27.72,50.63 c0,0 2.87,-14.47 16.37,-16.39 c7.50,-1.06 13.50,2.50 17.50,6.50"/>
 
     <!-- Inner Bicep Separation -->
-    <path fill="none" stroke="#ff8a80" stroke-width="1.4" stroke-linecap="round" opacity="0.8"
+    <path fill="none" stroke="#8AC6FF" stroke-width="1.4" stroke-linecap="round" opacity="0.8"
           d="M34.50,53.09 c0,0 10.80,2.70 19.29,-4.33"/>
 
     <!-- Forearm Flexed Tendon -->
-    <path fill="none" stroke="#ffebee" stroke-width="1.3" stroke-linecap="round" opacity="0.75"
+    <path fill="none" stroke="#E5F2FF" stroke-width="1.3" stroke-linecap="round" opacity="0.75"
           d="M27.47,40.55 c-0.43,-4.28 -1.13,-12.72 -1.95,-13.75 c0,0 5.20,1.11 7.81,-2.97"/>
 
     <!-- Fist Knuckles & Thumb Interlock -->
@@ -68,9 +68,9 @@
           d="M25.59,19.29 c0,0 1.82,2.59 3.63,-0.28 V16.0 l-0.46,-1.66 l-0.36,-0.28"/>
     <path fill="none" stroke="#ffffff" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" opacity="0.85"
           d="M29.54,19.29 c0,0 1.82,2.59 3.63,-0.28 V16.0 l-0.87,-2.13"/>
-    <path fill="none" stroke="#ffcdd2" stroke-width="1.3" stroke-linecap="round" opacity="0.8"
+    <path fill="none" stroke="#B8DEFF" stroke-width="1.3" stroke-linecap="round" opacity="0.8"
           d="M36.82,19.01 c-1.96,1.89 -3.32,0 -3.32,0"/>
-    <path fill="none" stroke="#ffcdd2" stroke-width="1.3" stroke-linecap="round" opacity="0.8"
+    <path fill="none" stroke="#B8DEFF" stroke-width="1.3" stroke-linecap="round" opacity="0.8"
           d="M40.36,18.29 c1.93,0.57 2.26,3.43 -0.70,4.10 c-6.33,1.44 -6.33,1.44 -6.33,1.44"/>
   </g>
 </svg>
