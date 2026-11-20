@@ -20,12 +20,30 @@ const GymBackup = (() => {
     }
   }
 
-  async function pickBackupFolder() {
+  const GROUP_EN_MAP = {
+    'Petto': 'Chest',
+    'Spalle': 'Shoulders',
+    'Tricipiti': 'Triceps',
+    'Schiena': 'Back',
+    'Bicipiti': 'Biceps',
+    'Gambe': 'Legs',
+    'Core / Addome': 'Core / Abs',
+    'Altro': 'Other'
+  };
+
+  function localizeGroup(group, lang) {
+    if (lang === 'en') return GROUP_EN_MAP[group] || group;
+    return group;
+  }
+
+  async function pickBackupFolder(lang = 'it') {
     if (!supportsDirectoryPicker()) {
       return {
         supported: false,
         name: null,
-        message: 'Su iPhone/iPad Safari non permette cartelle persistenti automatiche: al salvataggio si aprirà "Salva su File" di iOS.'
+        message: lang === 'en'
+          ? 'Safari on iPhone/iPad does not support persistent folders: tapping Save opens the iOS Share Sheet ("Save to Files").'
+          : 'Su iPhone/iPad Safari non permette cartelle persistenti automatiche: al salvataggio si aprirà "Salva su File" di iOS.'
       };
     }
 
@@ -45,7 +63,7 @@ const GymBackup = (() => {
       perm = await dirHandle.requestPermission({ mode: 'readwrite' });
     }
     if (perm !== 'granted') {
-      throw new Error('Permesso negato sulla cartella di backup.');
+      throw new Error('Backup folder permission denied.');
     }
     const fileHandle = await dirHandle.getFileHandle(filename, { create: true });
     const writable = await fileHandle.createWritable();
@@ -53,7 +71,7 @@ const GymBackup = (() => {
     await writable.close();
   }
 
-  async function saveBackup() {
+  async function saveBackup(lang = 'it') {
     const data = await GymDB.exportAllData();
     const content = JSON.stringify(data, null, 2);
     const mimeType = 'application/json;charset=utf-8';
@@ -62,7 +80,7 @@ const GymBackup = (() => {
     if (supportsDirectoryPicker()) {
       let dirHandle = await getSavedFolderHandle();
       if (!dirHandle) {
-        const picked = await pickBackupFolder();
+        const picked = await pickBackupFolder(lang);
         dirHandle = picked.handle;
       }
       if (dirHandle) {
@@ -137,7 +155,7 @@ const GymBackup = (() => {
     return s;
   }
 
-  async function exportCSV() {
+  async function exportCSV(lang = 'it') {
     const [allSets, allExercises] = await Promise.all([
       GymDB.getAllSets(),
       GymDB.getAllExercises()
@@ -151,10 +169,13 @@ const GymBackup = (() => {
       return (a.timestamp || '').localeCompare(b.timestamp || '');
     });
 
-    const lines = ['Data,Gruppo,Esercizio,Carico_kg,Ripetizioni,Note'];
+    const header = lang === 'en'
+      ? 'Date,Group,Exercise,Weight_kg,Reps,Notes'
+      : 'Data,Gruppo,Esercizio,Carico_kg,Ripetizioni,Note';
+    const lines = [header];
     for (const s of sorted) {
       const exMeta = exMap[s.exerciseId];
-      const group = exMeta ? exMeta.group : (s.group || '');
+      const group = localizeGroup(exMeta ? exMeta.group : (s.group || ''), lang);
       const name = exMeta ? exMeta.name : (s.exerciseName || '');
       lines.push([
         csvEscape(s.date || ''),
@@ -175,7 +196,7 @@ const GymBackup = (() => {
     );
   }
 
-  async function exportMarkdown() {
+  async function exportMarkdown(lang = 'it') {
     const [allSets, allExercises] = await Promise.all([
       GymDB.getAllSets(),
       GymDB.getAllExercises()
@@ -212,7 +233,7 @@ const GymBackup = (() => {
 
     const md = ['# Gym Log', ''];
     for (const g of orderedGroups) {
-      md.push(`## ${g}`, '');
+      md.push(`## ${localizeGroup(g, lang)}`, '');
       const exList = Object.values(byGroup[g]).sort((a, b) => a.name.localeCompare(b.name));
       for (const exObj of exList) {
         md.push(`### ${exObj.name}`);

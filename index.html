@@ -1629,11 +1629,64 @@
         scroll-behavior: auto !important;
       }
     }
+
+    /* Portrait-only lock overlay on mobile landscape */
+    .orientation-lock-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      z-index: 99999;
+      background: #000000;
+      color: var(--text);
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 24px calc(24px + env(safe-area-inset-right, 0px)) 24px calc(24px + env(safe-area-inset-left, 0px));
+      gap: 14px;
+    }
+    .orientation-lock-icon {
+      width: 56px;
+      height: 56px;
+      border-radius: 16px;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--accent);
+    }
+    .orientation-lock-title {
+      font-size: 1.1rem;
+      font-weight: 800;
+      letter-spacing: -0.02em;
+    }
+    .orientation-lock-sub {
+      font-size: 0.88rem;
+      color: var(--text-muted);
+      max-width: 280px;
+      line-height: 1.4;
+    }
+    @media screen and (orientation: landscape) and (max-height: 540px) and (pointer: coarse) {
+      .orientation-lock-overlay {
+        display: flex;
+      }
+    }
   </style>
-  <script src="db.js?v=35"></script>
-  <script src="backup.js?v=35"></script>
+  <script src="db.js?v=36"></script>
+  <script src="backup.js?v=36"></script>
 </head>
 <body>
+  <div id="orientationLockOverlay" class="orientation-lock-overlay" aria-live="polite">
+    <div class="orientation-lock-icon" aria-hidden="true">
+      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="7" y="2" width="10" height="20" rx="2" ry="2"></rect>
+        <line x1="12" y1="18" x2="12.01" y2="18"></line>
+      </svg>
+    </div>
+    <div class="orientation-lock-title" id="orientationLockTitle">Modalità Verticale</div>
+    <div class="orientation-lock-sub" id="orientationLockSub">Ruota il dispositivo in verticale per continuare ad usare Gym Log.</div>
+  </div>
 
   <header>
     <div class="header-top" id="headerRootBar">
@@ -1652,17 +1705,27 @@
             <button type="button" class="sheet-dropdown-item" onclick="openThemeSubmenu(event)">
               <span class="sheet-dropdown-item-left">
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="13.5" cy="6.5" r=".5" fill="currentColor"/><circle cx="17.5" cy="10.5" r=".5" fill="currentColor"/><circle cx="8.5" cy="7.5" r=".5" fill="currentColor"/><circle cx="6.5" cy="12.5" r=".5" fill="currentColor"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/></svg>
-                <span>Tema</span>
+                <span id="settingsLabelTheme">Tema</span>
               </span>
               <span style="display:inline-flex; align-items:center; gap:6px;">
                 <span id="settingsThemePreviewDot" class="theme-color-dot" style="background: var(--accent);"></span>
                 <span style="opacity:0.6; font-size:1rem; line-height:1;">&rsaquo;</span>
               </span>
             </button>
+            <button type="button" class="sheet-dropdown-item" onclick="openLanguageSubmenu(event)">
+              <span class="sheet-dropdown-item-left">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg>
+                <span id="settingsLabelLanguage">Lingua</span>
+              </span>
+              <span style="display:inline-flex; align-items:center; gap:6px;">
+                <span id="settingsLangCode" style="font-size:0.75rem; color:var(--text-muted); font-weight:700;">IT</span>
+                <span style="opacity:0.6; font-size:1rem; line-height:1;">&rsaquo;</span>
+              </span>
+            </button>
             <button type="button" class="sheet-dropdown-item" onclick="openArchivedModalFromSettings()">
               <span class="sheet-dropdown-item-left">
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg>
-                <span>Esercizi archiviati</span>
+                <span id="settingsLabelArchived">Esercizi archiviati</span>
               </span>
               <span style="display:inline-flex; align-items:center; gap:6px;">
                 <span id="settingsArchivedCount" style="font-size:0.78rem; color:var(--text-muted); font-weight:700;"></span>
@@ -1673,21 +1736,21 @@
             <button type="button" class="sheet-dropdown-item" onclick="openBackupFromSettings()">
               <span class="sheet-dropdown-item-left">
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
-                <span>Backup</span>
+                <span id="settingsLabelBackup">Backup</span>
               </span>
               <span style="opacity:0.6; font-size:1rem; line-height:1;">&rsaquo;</span>
             </button>
             <button type="button" class="sheet-dropdown-item" onclick="openExportSubmenu(event)">
               <span class="sheet-dropdown-item-left">
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
-                <span>Esporta</span>
+                <span id="settingsLabelExport">Esporta</span>
               </span>
               <span style="opacity:0.6; font-size:1rem; line-height:1;">&rsaquo;</span>
             </button>
           </div>
           <div id="settingsMenuExport" class="sheet-dropdown-subview" style="display:none;">
             <button type="button" class="sheet-dropdown-item sheet-dropdown-back" onclick="showMainSettingsMenu(event)">
-              <span>&lsaquo; Indietro</span>
+              <span id="settingsBackExport">&lsaquo; Indietro</span>
             </button>
             <div class="sheet-dropdown-divider"></div>
             <button type="button" class="sheet-dropdown-item" onclick="handleExportData('csv', event)">
@@ -1699,27 +1762,34 @@
           </div>
           <div id="settingsMenuThemes" class="sheet-dropdown-subview" style="display:none;">
             <button type="button" class="sheet-dropdown-item sheet-dropdown-back" onclick="showMainSettingsMenu(event)">
-              <span>&lsaquo; Indietro</span>
+              <span id="settingsBackTheme">&lsaquo; Indietro</span>
             </button>
             <div class="sheet-dropdown-divider"></div>
             <div id="settingsMenuThemesList" style="display:flex; flex-direction:column; gap:2px;"></div>
+          </div>
+          <div id="settingsMenuLanguage" class="sheet-dropdown-subview" style="display:none;">
+            <button type="button" class="sheet-dropdown-item sheet-dropdown-back" onclick="showMainSettingsMenu(event)">
+              <span id="settingsBackLang">&lsaquo; Indietro</span>
+            </button>
+            <div class="sheet-dropdown-divider"></div>
+            <div id="settingsMenuLanguageList" style="display:flex; flex-direction:column; gap:2px;"></div>
           </div>
         </div>
       </div>
     </div>
     
     <div class="group-back-bar" id="headerGroupBar" style="display:none;">
-      <button type="button" class="back-pill-btn" onclick="backToGroups()">
+      <button type="button" class="back-pill-btn" id="headerBackGroupsBtn" onclick="backToGroups()">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
-        Gruppi
+        <span id="headerBackGroupsLabel">Gruppi</span>
       </button>
       <div class="current-distretto-indicator" id="activeDistrettoLabel">Petto</div>
-      <button type="button" class="btn-new-exercise" onclick="openNewExerciseModal()" aria-label="Nuovo esercizio">
+      <button type="button" class="btn-new-exercise" id="headerNewExBtn" onclick="openNewExerciseModal()" aria-label="Nuovo esercizio">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round">
           <line x1="12" y1="5" x2="12" y2="19"></line>
           <line x1="5" y1="12" x2="19" y2="12"></line>
         </svg>
-        <span>Nuovo</span>
+        <span id="headerNewExLabel">Nuovo</span>
       </button>
     </div>
 
@@ -1741,8 +1811,8 @@
   <section id="groupsHubView" style="padding: 8px 16px 6px;">
     <div class="groups-hub-header">
       <div style="min-width:0;">
-        <h2 style="font-size: 1.15rem; font-weight: 800; color: #fff; letter-spacing: -0.02em;">Gruppi Muscolari</h2>
-        <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 2px;">Seleziona un distretto per aprire gli esercizi</p>
+        <h2 id="groupsHubTitle" style="font-size: 1.15rem; font-weight: 800; color: #fff; letter-spacing: -0.02em;">Gruppi Muscolari</h2>
+        <p id="groupsHubSubtitle" style="font-size: 0.75rem; color: var(--text-muted); margin-top: 2px;">Seleziona un distretto per aprire gli esercizi</p>
       </div>
       <button type="button" class="today-summary-pill" id="todaySummaryPill" onclick="openTodaySetsModal()" title="Vedi serie completate oggi">Oggi &middot; 0 serie</button>
     </div>
@@ -1751,7 +1821,7 @@
       <!-- 1. Petto -->
       <div class="group-tile" onclick="openMuscleGroup('Petto')">
         <div class="tile-left">
-          <div class="tile-title">Petto</div>
+          <div class="tile-title" data-group-title="Petto">Petto</div>
           <div class="tile-meta" id="groupMeta_Petto"></div>
         </div>
         <div class="tile-right">
@@ -1763,7 +1833,7 @@
       <!-- 2. Spalle -->
       <div class="group-tile" onclick="openMuscleGroup('Spalle')">
         <div class="tile-left">
-          <div class="tile-title">Spalle</div>
+          <div class="tile-title" data-group-title="Spalle">Spalle</div>
           <div class="tile-meta" id="groupMeta_Spalle"></div>
         </div>
         <div class="tile-right">
@@ -1775,7 +1845,7 @@
       <!-- 3. Tricipiti -->
       <div class="group-tile" onclick="openMuscleGroup('Tricipiti')">
         <div class="tile-left">
-          <div class="tile-title">Tricipiti</div>
+          <div class="tile-title" data-group-title="Tricipiti">Tricipiti</div>
           <div class="tile-meta" id="groupMeta_Tricipiti"></div>
         </div>
         <div class="tile-right">
@@ -1787,7 +1857,7 @@
       <!-- 4. Schiena -->
       <div class="group-tile" onclick="openMuscleGroup('Schiena')">
         <div class="tile-left">
-          <div class="tile-title">Schiena</div>
+          <div class="tile-title" data-group-title="Schiena">Schiena</div>
           <div class="tile-meta" id="groupMeta_Schiena"></div>
         </div>
         <div class="tile-right">
@@ -1799,7 +1869,7 @@
       <!-- 5. Bicipiti -->
       <div class="group-tile" onclick="openMuscleGroup('Bicipiti')">
         <div class="tile-left">
-          <div class="tile-title">Bicipiti</div>
+          <div class="tile-title" data-group-title="Bicipiti">Bicipiti</div>
           <div class="tile-meta" id="groupMeta_Bicipiti"></div>
         </div>
         <div class="tile-right">
@@ -1811,7 +1881,7 @@
       <!-- 6. Gambe -->
       <div class="group-tile" onclick="openMuscleGroup('Gambe')">
         <div class="tile-left">
-          <div class="tile-title">Gambe</div>
+          <div class="tile-title" data-group-title="Gambe">Gambe</div>
           <div class="tile-meta" id="groupMeta_Gambe"></div>
         </div>
         <div class="tile-right">
@@ -1823,7 +1893,7 @@
       <!-- 7. Core / Addome -->
       <div class="group-tile" onclick="openMuscleGroup('Core / Addome')">
         <div class="tile-left">
-          <div class="tile-title">Core / Addome</div>
+          <div class="tile-title" data-group-title="Core / Addome">Core / Addome</div>
           <div class="tile-meta" id="groupMeta_Core_Addome"></div>
         </div>
         <div class="tile-right">
@@ -1932,13 +2002,414 @@
     let activeHistoryDetail = null; // { dateStr, exKey }
     let currentValues = {};
 
+    let currentLang = localStorage.getItem('gym_lang') || 'it';
+    if (currentLang !== 'en' && currentLang !== 'it') currentLang = 'it';
+
+    const GROUP_EN_MAP = {
+      'Petto': 'Chest',
+      'Spalle': 'Shoulders',
+      'Tricipiti': 'Triceps',
+      'Schiena': 'Back',
+      'Bicipiti': 'Biceps',
+      'Gambe': 'Legs',
+      'Core / Addome': 'Core / Abs'
+    };
+
+    function tGroup(group) {
+      if (currentLang === 'en') return GROUP_EN_MAP[group] || group;
+      return group;
+    }
+
+    const I18N = {
+      it: {
+        portraitTitle: 'Modalità Verticale',
+        portraitSub: 'Ruota il dispositivo in verticale per continuare ad usare Gym Log.',
+        settings: 'Impostazioni',
+        theme: 'Tema',
+        language: 'Lingua',
+        archivedExercises: 'Esercizi archiviati',
+        backup: 'Backup',
+        export: 'Esporta',
+        back: '‹ Indietro',
+        groups: 'Gruppi',
+        newBtn: 'Nuovo',
+        newExAria: 'Nuovo esercizio',
+        groupsHubTitle: 'Gruppi Muscolari',
+        groupsHubSub: 'Seleziona un distretto per aprire gli esercizi',
+        todaySetsTitle: 'Serie Completate Oggi',
+        todaySetsBtnTitle: 'Vedi serie completate oggi',
+        searchExPlaceholder: 'Cerca esercizio...',
+        searchHistPlaceholder: 'Cerca esercizio, gruppo o data...',
+        clearSearchAria: 'Pulisci ricerca',
+        tabLog: 'Registra',
+        tabHistory: 'Storico',
+        editSetTitle: 'Modifica Serie',
+        weightKgLabel: 'Carico (kg)',
+        repsLabel: 'Ripetizioni',
+        notesOptLabel: 'Note (opzionale)',
+        editNotesPlaceholder: 'es. RPE 8, drop set',
+        deleteBtn: 'Elimina',
+        saveBtn: 'Salva',
+        newExTitle: 'Nuovo Esercizio',
+        newExNameLabel: 'Nome Esercizio',
+        newExNamePlaceholder: 'es. Lat machine presa inversa',
+        newExGroupLabel: 'Gruppo Muscolare',
+        newExWeightLabel: 'Peso Iniziale (kg, opzionale)',
+        newExWeightPlaceholder: 'es. 20',
+        cancelBtn: 'Annulla',
+        addExBtn: 'Aggiungi Esercizio',
+        ultimaLabel: 'Ultima:',
+        noneLabel: 'Nessuna',
+        rename: 'Rinomina',
+        changeGroup: 'Cambia gruppo',
+        archive: 'Archivia',
+        weightBox: 'Carico',
+        repsBox: 'Ripetizioni',
+        notesTriggerPlaceholder: 'Note (es. cedimento, drop set, sensazioni)...',
+        logSetBtn: 'Salva Serie',
+        setNotesTitle: 'Note Serie',
+        clearBtn: 'Svuota',
+        doneBtn: 'Fatto',
+        backupModalTitle: 'Backup Locale & Ripristino',
+        backupSaveBtn: 'Salva Backup (gym-log-backup.json)',
+        changeFolderBtn: 'Cambia Cartella di Destinazione',
+        backupRestoreBtn: 'Ripristina da File (.json)',
+        welcomeTitle: 'Benvenuto in Gym Log',
+        pickFolderBtn: 'Scegli Cartella Backup',
+        startTrainingBtn: 'Inizia ad Allenarti',
+        restorePromptBtn: 'Hai già un Backup? Ripristinalo',
+        allSessionsPrompt: 'Tutte le sedute (tocca per modificare)',
+        closeBtn: 'Chiudi',
+        prLabel: 'PR Massimale',
+        lastSessionLabel: 'Ultima Seduta',
+        today: 'Oggi',
+        yesterday: 'Ieri',
+        noSessions: 'Nessuna sessione',
+        lastYesterday: 'Ultimo: ieri',
+        lastDaysAgo: (d) => `Ultimo: ${d} gg fa`,
+        exCount: (n) => n === 1 ? '1 esercizio' : `${n} esercizi`,
+        setsToday: (n) => n === 1 ? '1 serie oggi' : `${n} serie oggi`,
+        todayPill: (n) => n === 1 ? 'Oggi · 1 serie' : `Oggi · ${n} serie`,
+        todayExercisePill: (n, fmt) => `Oggi: ${n} serie (${fmt})`,
+        todayCountText: (n) => `${n} serie completate oggi`,
+        noSetsTodayHtml: 'Nessuna serie registrata oggi.<br>Seleziona un gruppo muscolare per iniziare!',
+        noSetsEver: 'Nessuna serie ancora registrata.',
+        noSessionsMatch: (q) => `Nessuna seduta trovata per "${q}".`,
+        setsMeta: (n) => `${n} serie`,
+        workoutFallback: 'Allenamento',
+        noExFoundFor: (q) => `Nessun esercizio trovato per “${q}”.`,
+        clearSearchBtn: 'Pulisci ricerca',
+        noExInGroup: 'Nessun esercizio in questo gruppo.',
+        addExShortBtn: 'Aggiungi esercizio',
+        tapToLogTitle: 'Tocca per registrare la serie',
+        noArchivedHtml: 'Nessun esercizio archiviato.<br>Puoi archiviare un esercizio dal menu <strong>&hellip;</strong> dentro la sua scheda.',
+        restoreBtn: 'Ripristina',
+        restoredToast: (n) => `Ripristinato: ${n}`,
+        themeToast: (l) => `Tema: ${l}`,
+        langToast: (l) => `Lingua: ${l}`,
+        csvDone: 'Esportazione CSV completata!',
+        mdDone: 'Esportazione Markdown completata!',
+        exportErr: (m) => 'Errore esportazione: ' + m,
+        noSessionsForEx: 'Nessuna seduta registrata per questo esercizio',
+        sparkTitle: (n) => `Media/serie (kg &times; reps, ultime ${n})`,
+        setSavedToast: (n, w, r) => `Serie #${n} salvata (${w} kg × ${r})`,
+        deleteSetConfirm: 'Vuoi davvero eliminare questa serie registrata?',
+        setDeletedToast: 'Serie eliminata',
+        invalidSetAlert: 'Inserisci valori validi per peso e ripetizioni.',
+        setUpdatedToast: 'Serie aggiornata!',
+        firstLaunchPickerHint: 'Scegli una cartella sul tuo dispositivo dove salvare i backup automatici con 1 clic.',
+        firstLaunchIosHint: 'Su iPhone/iPad tutti i dati restano salvati offline nell\'app. Quando premi <strong>Backup</strong> puoi salvarlo subito su iCloud Drive o File.',
+        folderSetToast: (n) => `Cartella impostata: ${n}`,
+        folderPickCancelled: 'Selezione cartella annullata',
+        neverExecuted: 'Mai eseguito',
+        selectedFolder: (f) => `Cartella selezionata: <strong>${f}</strong>`,
+        noFolderSelected: 'Nessuna cartella selezionata',
+        iosDest: 'Destinazione iOS: <strong>Salva su File (iCloud Drive)</strong>',
+        backupInfoHtml: (folderStr, lastStr, setsCount) => `${folderStr}<br>Ultimo backup: <strong>${lastStr}</strong><br>Totale serie salvate: <strong>${setsCount}</strong>`,
+        folderUpdatedToast: (n) => `Cartella aggiornata: ${n}`,
+        folderErrToast: 'Errore selezione cartella',
+        savedInToast: (f, fn) => `Salvato in "${f}/${fn}"`,
+        backupReadyToast: (fn) => `Backup pronto: ${fn}`,
+        backupSaveErr: (m) => 'Errore durante il salvataggio del backup: ' + m,
+        restoreConfirm: 'Attenzione: stai per sovrascrivere tutti gli esercizi e i dati attualmente presenti nell\'app con quelli del file di backup. Continuare?',
+        restoredCountToast: (exC, sC) => `Ripristinati ${exC} esercizi e ${sC} serie!`,
+        restoreErrAlert: (m) => 'Impossibile importare il file: ' + m,
+        movedToToast: (g) => `Spostato in: ${g}`,
+        invalidNameToast: 'Inserisci un nome valido!',
+        renamedToast: 'Esercizio rinominato!',
+        archivedToast: (n) => `Archiviato: ${n}`,
+        undoLabel: 'Annulla',
+        deleteExConfirmSets: (n, c) => `Eliminare "${n}" e tutte le sue ${c} serie dallo storico?`,
+        deleteExConfirm: (n) => `Eliminare l'esercizio "${n}"?`,
+        deletedToast: (n) => `Eliminato: ${n}`,
+        enterExNameToast: 'Inserisci il nome dell\'esercizio!',
+        exExistsToast: 'Esercizio già presente!',
+        addedExToast: (n, g) => `Aggiunto: ${n} (${g})!`,
+        avgPerSetUnit: 'kg/serie'
+      },
+      en: {
+        portraitTitle: 'Portrait Mode Only',
+        portraitSub: 'Rotate your device back to portrait to use Gym Log.',
+        settings: 'Settings',
+        theme: 'Theme',
+        language: 'Language',
+        archivedExercises: 'Archived exercises',
+        backup: 'Backup',
+        export: 'Export',
+        back: '‹ Back',
+        groups: 'Groups',
+        newBtn: 'New',
+        newExAria: 'New exercise',
+        groupsHubTitle: 'Muscle Groups',
+        groupsHubSub: 'Select a muscle group to log sets',
+        todaySetsTitle: "Today's Sets",
+        todaySetsBtnTitle: "View today's logged sets",
+        searchExPlaceholder: 'Search exercises...',
+        searchHistPlaceholder: 'Search exercise, group, or date...',
+        clearSearchAria: 'Clear search',
+        tabLog: 'Log',
+        tabHistory: 'History',
+        editSetTitle: 'Edit Set',
+        weightKgLabel: 'Weight (kg)',
+        repsLabel: 'Reps',
+        notesOptLabel: 'Notes (optional)',
+        editNotesPlaceholder: 'e.g. RPE 8, drop set',
+        deleteBtn: 'Delete',
+        saveBtn: 'Save',
+        newExTitle: 'New Exercise',
+        newExNameLabel: 'Exercise Name',
+        newExNamePlaceholder: 'e.g. Lat Pulldown',
+        newExGroupLabel: 'Muscle Group',
+        newExWeightLabel: 'Starting Weight (kg, optional)',
+        newExWeightPlaceholder: 'e.g. 20',
+        cancelBtn: 'Cancel',
+        addExBtn: 'Add Exercise',
+        ultimaLabel: 'Last:',
+        noneLabel: 'None',
+        rename: 'Rename',
+        changeGroup: 'Move to group',
+        archive: 'Archive',
+        weightBox: 'Weight',
+        repsBox: 'Reps',
+        notesTriggerPlaceholder: 'Notes (e.g. failure, drop set, RPE)...',
+        logSetBtn: 'Log Set',
+        setNotesTitle: 'Set Notes',
+        clearBtn: 'Clear',
+        doneBtn: 'Done',
+        backupModalTitle: 'Backup & Restore',
+        backupSaveBtn: 'Save Backup (gym-log-backup.json)',
+        changeFolderBtn: 'Change Backup Folder',
+        backupRestoreBtn: 'Restore from File (.json)',
+        welcomeTitle: 'Welcome to Gym Log',
+        pickFolderBtn: 'Choose Backup Folder',
+        startTrainingBtn: 'Start Training',
+        restorePromptBtn: 'Have a backup? Restore it',
+        allSessionsPrompt: 'All sessions (tap to edit)',
+        closeBtn: 'Close',
+        prLabel: 'All-Time PR',
+        lastSessionLabel: 'Last Session',
+        today: 'Today',
+        yesterday: 'Yesterday',
+        noSessions: 'Not logged yet',
+        lastYesterday: 'Last: yesterday',
+        lastDaysAgo: (d) => `Last: ${d}d ago`,
+        exCount: (n) => n === 1 ? '1 exercise' : `${n} exercises`,
+        setsToday: (n) => n === 1 ? '1 set today' : `${n} sets today`,
+        todayPill: (n) => n === 1 ? 'Today · 1 set' : `Today · ${n} sets`,
+        todayExercisePill: (n, fmt) => `Today: ${n} ${n === 1 ? 'set' : 'sets'} (${fmt})`,
+        todayCountText: (n) => `${n} ${n === 1 ? 'set' : 'sets'} logged today`,
+        noSetsTodayHtml: 'No sets logged today.<br>Select a muscle group to get started!',
+        noSetsEver: 'No workouts logged yet.',
+        noSessionsMatch: (q) => `No sessions found for "${q}".`,
+        setsMeta: (n) => n === 1 ? '1 set' : `${n} sets`,
+        workoutFallback: 'Workout',
+        noExFoundFor: (q) => `No exercises found for “${q}”.`,
+        clearSearchBtn: 'Clear search',
+        noExInGroup: 'No exercises in this group.',
+        addExShortBtn: 'Add exercise',
+        tapToLogTitle: 'Tap to log set',
+        noArchivedHtml: 'No archived exercises.<br>You can archive an exercise from the <strong>&hellip;</strong> menu inside its sheet.',
+        restoreBtn: 'Restore',
+        restoredToast: (n) => `Restored: ${n}`,
+        themeToast: (l) => `Theme: ${l}`,
+        langToast: (l) => `Language: ${l}`,
+        csvDone: 'CSV exported!',
+        mdDone: 'Markdown exported!',
+        exportErr: (m) => 'Export error: ' + m,
+        noSessionsForEx: 'No sessions logged for this exercise',
+        sparkTitle: (n) => `Avg/set (kg &times; reps, last ${n})`,
+        setSavedToast: (n, w, r) => `Set #${n} logged (${w} kg × ${r})`,
+        deleteSetConfirm: 'Delete this logged set?',
+        setDeletedToast: 'Set deleted',
+        invalidSetAlert: 'Enter valid values for weight and reps.',
+        setUpdatedToast: 'Set updated!',
+        firstLaunchPickerHint: 'Choose a folder on your device for 1-tap local backups.',
+        firstLaunchIosHint: 'All data stays offline on your device. Tap <strong>Backup</strong> anytime to save directly to iCloud Drive or Files.',
+        folderSetToast: (n) => `Folder set: ${n}`,
+        folderPickCancelled: 'Folder selection cancelled',
+        neverExecuted: 'Never',
+        selectedFolder: (f) => `Selected folder: <strong>${f}</strong>`,
+        noFolderSelected: 'No folder selected',
+        iosDest: 'iOS destination: <strong>Save to Files (iCloud Drive)</strong>',
+        backupInfoHtml: (folderStr, lastStr, setsCount) => `${folderStr}<br>Last backup: <strong>${lastStr}</strong><br>Total logged sets: <strong>${setsCount}</strong>`,
+        folderUpdatedToast: (n) => `Folder updated: ${n}`,
+        folderErrToast: 'Folder selection failed',
+        savedInToast: (f, fn) => `Saved to "${f}/${fn}"`,
+        backupReadyToast: (fn) => `Backup ready: ${fn}`,
+        backupSaveErr: (m) => 'Backup error: ' + m,
+        restoreConfirm: 'Warning: this will overwrite all current exercises and workout history with the backup file. Continue?',
+        restoredCountToast: (exC, sC) => `Restored ${exC} exercises and ${sC} sets!`,
+        restoreErrAlert: (m) => 'Unable to import file: ' + m,
+        movedToToast: (g) => `Moved to: ${g}`,
+        invalidNameToast: 'Enter a valid name!',
+        renamedToast: 'Exercise renamed!',
+        archivedToast: (n) => `Archived: ${n}`,
+        undoLabel: 'Undo',
+        deleteExConfirmSets: (n, c) => `Delete "${n}" and all ${c} logged sets from history?`,
+        deleteExConfirm: (n) => `Delete exercise "${n}"?`,
+        deletedToast: (n) => `Deleted: ${n}`,
+        enterExNameToast: 'Enter an exercise name!',
+        exExistsToast: 'Exercise already exists!',
+        addedExToast: (n, g) => `Added: ${n} (${g})!`,
+        avgPerSetUnit: 'kg/set'
+      }
+    };
+
+    function t(key, ...args) {
+      const dict = I18N[currentLang] || I18N.it;
+      const val = dict[key] !== undefined ? dict[key] : I18N.it[key];
+      return typeof val === 'function' ? val(...args) : val;
+    }
+
+    function applyStaticTranslations() {
+      document.documentElement.lang = currentLang;
+      const setTxt = (id, key) => { const el = document.getElementById(id); if (el) el.innerText = t(key); };
+      const setPh = (id, key) => { const el = document.getElementById(id); if (el) el.placeholder = t(key); };
+      const setAria = (id, key) => { const el = document.getElementById(id); if (el) el.setAttribute('aria-label', t(key)); };
+
+      setTxt('orientationLockTitle', 'portraitTitle');
+      setTxt('orientationLockSub', 'portraitSub');
+      setTxt('settingsLabelTheme', 'theme');
+      setTxt('settingsLabelLanguage', 'language');
+      setTxt('settingsLangCode', currentLang === 'en' ? 'EN' : 'IT'); // fallback below
+      const langBadge = document.getElementById('settingsLangCode');
+      if (langBadge) langBadge.innerText = currentLang.toUpperCase();
+      setTxt('settingsLabelArchived', 'archivedExercises');
+      setTxt('settingsLabelBackup', 'backup');
+      setTxt('settingsLabelExport', 'export');
+      setTxt('settingsBackExport', 'back');
+      setTxt('settingsBackTheme', 'back');
+      setTxt('settingsBackLang', 'back');
+
+      const settingsBtn = document.getElementById('settingsBtn');
+      if (settingsBtn) {
+        settingsBtn.title = t('settings');
+        settingsBtn.setAttribute('aria-label', t('settings'));
+      }
+
+      setTxt('headerBackGroupsLabel', 'groups');
+      setTxt('headerNewExLabel', 'newBtn');
+      setAria('headerNewExBtn', 'newExAria');
+      setTxt('groupsHubTitle', 'groupsHubTitle');
+      setTxt('groupsHubSub', 'groupsHubSub'); // fallback check below
+      const hubSubEl = document.getElementById('groupsHubSubtitle');
+      if (hubSubEl) hubSubEl.innerText = t('groupsHubSub');
+      const todayPill = document.getElementById('todaySummaryPill');
+      if (todayPill) todayPill.title = t('todaySetsBtnTitle');
+      setTxt('todaySetsModalTitle', 'todaySetsTitle');
+      setAria('todaySetsCloseBtn', 'closeBtn');
+
+      document.querySelectorAll('[data-group-title]').forEach(el => {
+        el.innerText = tGroup(el.getAttribute('data-group-title'));
+      });
+      const groupSelect = document.getElementById('newExGroupSelect');
+      if (groupSelect) {
+        Array.from(groupSelect.options).forEach(opt => {
+          opt.textContent = tGroup(opt.value);
+        });
+      }
+
+      setPh('searchInput', 'searchExPlaceholder');
+      setPh('historySearchInput', 'searchHistPlaceholder');
+      setAria('historySearchClearBtn', 'clearSearchAria');
+      setTxt('modeBtnLog', 'tabLog');
+      setTxt('modeBtnHistory', 'tabHistory');
+
+      setTxt('editSetModalTitle', 'editSetTitle');
+      setTxt('editSetWeightLabel', 'weightKgLabel');
+      setTxt('editSetRepsLabel', 'repsLabel');
+      setTxt('editSetNotesLabel', 'notesOptLabel');
+      setPh('editSetNotesInput', 'editNotesPlaceholder');
+      setTxt('editSetDeleteBtn', 'deleteBtn');
+      setTxt('editSetSaveBtn', 'saveBtn');
+
+      setTxt('newExModalTitle', 'newExTitle');
+      setTxt('newExNameLabel', 'newExNameLabel');
+      setPh('newExNameInput', 'newExNamePlaceholder');
+      setTxt('newExGroupLabel', 'newExGroupLabel');
+      setTxt('newExWeightLabel', 'newExWeightLabel');
+      setPh('newExWeightInput', 'newExWeightPlaceholder');
+      setTxt('newExCancelBtn', 'cancelBtn');
+      setTxt('newExSaveBtn', 'addExBtn');
+
+      setTxt('sheetStatsUltimaLabel', 'ultimaLabel');
+      setTxt('sheetMenuRenameLabel', 'rename');
+      setTxt('sheetMenuGroupLabel', 'changeGroup');
+      setTxt('sheetMenuArchiveLabel', 'archive');
+      setTxt('sheetMenuDeleteLabel', 'deleteBtn');
+      setTxt('sheetMenuBackLabel', 'back');
+      setTxt('sheetWeightBoxLabel', 'weightBox');
+      setTxt('sheetRepsBoxLabel', 'repsBox');
+      setTxt('sheetSaveBtnText', 'logSetBtn');
+      setTxt('sheetNoteModalTitle', 'setNotesTitle');
+      setPh('sheetNoteModalInput', 'editNotesPlaceholder');
+      setTxt('sheetNoteClearBtn', 'clearBtn');
+      setTxt('sheetNoteDoneBtn', 'doneBtn');
+
+      setTxt('backupModalTitle', 'backupModalTitle');
+      setTxt('backupSaveBtn', 'backupSaveBtn');
+      setTxt('changeFolderBtn', 'changeFolderBtn');
+      setTxt('backupRestoreBtn', 'backupRestoreBtn');
+      setTxt('firstLaunchTitle', 'welcomeTitle');
+      setTxt('firstLaunchPickFolderBtn', 'pickFolderBtn');
+      setTxt('firstLaunchStartBtn', 'startTrainingBtn');
+      setTxt('firstLaunchRestoreBtn', 'restorePromptBtn');
+      setTxt('histProgTimelineLabel', 'allSessionsPrompt');
+      setTxt('histDetailCloseBtn', 'closeBtn');
+      setTxt('archivedModalTitle', 'archivedExercises');
+      setTxt('archivedCloseBtn', 'closeBtn');
+      const noteTxt = document.getElementById('sheetNoteTriggerText');
+      if (noteTxt && !activeSheetNote) noteTxt.innerText = t('notesTriggerPlaceholder');
+    }
+
+    function applyLanguage(lang, persist = true) {
+      currentLang = lang === 'en' ? 'en' : 'it';
+      if (persist) {
+        try { localStorage.setItem('gym_lang', currentLang); } catch (e) {}
+        if (typeof GymDB !== 'undefined' && GymDB.setSetting) {
+          GymDB.setSetting('appLang', currentLang).catch(() => {});
+        }
+      }
+      applyStaticTranslations();
+      if (typeof updateTopHeaderView === 'function') updateTopHeaderView();
+      if (typeof updateUIState === 'function') updateUIState();
+      if (typeof renderExercises === 'function') renderExercises();
+      if (typeof renderHistoryView === 'function') renderHistoryView();
+      if (activeHistoryProgressKey && typeof renderExerciseProgressModal === 'function') renderExerciseProgressModal();
+      if (activeHistoryDetail && typeof renderHistoryDetailModal === 'function') renderHistoryDetailModal();
+      if (activeSheetExId && typeof updateActiveSheetMeta === 'function') {
+        const ex = exercises.find(e => e.id === activeSheetExId);
+        if (ex) updateActiveSheetMeta(ex);
+      }
+    }
+
     const ACCENT_THEMES = {
-      red:    { id: 'red',    label: 'Rosso',     hex: '#FF453A', glow: 'rgba(255, 69, 58, 0.35)',  soft: 'rgba(255, 69, 58, 0.14)',  cta: '#FFFFFF' },
-      orange: { id: 'orange', label: 'Arancione', hex: '#FF9F0A', glow: 'rgba(255, 159, 10, 0.35)', soft: 'rgba(255, 159, 10, 0.14)', cta: '#000000' },
-      yellow: { id: 'yellow', label: 'Giallo',    hex: '#FFD60A', glow: 'rgba(255, 214, 10, 0.32)', soft: 'rgba(255, 214, 10, 0.14)', cta: '#000000' },
-      green:  { id: 'green',  label: 'Verde',     hex: '#30D158', glow: 'rgba(48, 209, 88, 0.35)',  soft: 'rgba(48, 209, 88, 0.14)',  cta: '#000000' },
-      blue:   { id: 'blue',   label: 'Blu',       hex: '#0A84FF', glow: 'rgba(10, 132, 255, 0.35)', soft: 'rgba(10, 132, 255, 0.14)', cta: '#FFFFFF' },
-      purple: { id: 'purple', label: 'Viola',     hex: '#BF5AF2', glow: 'rgba(191, 90, 242, 0.35)', soft: 'rgba(191, 90, 242, 0.14)', cta: '#FFFFFF' }
+      red:    { id: 'red',    label: 'Rosso',     labelEn: 'Red',    hex: '#FF453A', glow: 'rgba(255, 69, 58, 0.35)',  soft: 'rgba(255, 69, 58, 0.14)',  cta: '#FFFFFF' },
+      orange: { id: 'orange', label: 'Arancione', labelEn: 'Orange', hex: '#FF9F0A', glow: 'rgba(255, 159, 10, 0.35)', soft: 'rgba(255, 159, 10, 0.14)', cta: '#000000' },
+      yellow: { id: 'yellow', label: 'Giallo',    labelEn: 'Yellow', hex: '#FFD60A', glow: 'rgba(255, 214, 10, 0.32)', soft: 'rgba(255, 214, 10, 0.14)', cta: '#000000' },
+      green:  { id: 'green',  label: 'Verde',     labelEn: 'Green',  hex: '#30D158', glow: 'rgba(48, 209, 88, 0.35)',  soft: 'rgba(48, 209, 88, 0.14)',  cta: '#000000' },
+      blue:   { id: 'blue',   label: 'Blu',       labelEn: 'Blue',   hex: '#0A84FF', glow: 'rgba(10, 132, 255, 0.35)', soft: 'rgba(10, 132, 255, 0.14)', cta: '#FFFFFF' },
+      purple: { id: 'purple', label: 'Viola',     labelEn: 'Purple', hex: '#BF5AF2', glow: 'rgba(191, 90, 242, 0.35)', soft: 'rgba(191, 90, 242, 0.14)', cta: '#FFFFFF' }
     };
     let currentAccentTheme = localStorage.getItem('gym_accent_theme') || 'blue';
     if (!ACCENT_THEMES[currentAccentTheme]) currentAccentTheme = 'blue';
@@ -1995,9 +2466,11 @@
       const mainView = document.getElementById('settingsMenuMain');
       const themeView = document.getElementById('settingsMenuThemes');
       const exportView = document.getElementById('settingsMenuExport');
+      const langView = document.getElementById('settingsMenuLanguage');
       if (mainView) mainView.style.display = 'flex';
       if (themeView) themeView.style.display = 'none';
       if (exportView) exportView.style.display = 'none';
+      if (langView) langView.style.display = 'none';
     }
 
     function openExportSubmenu(event) {
@@ -2006,9 +2479,48 @@
       const mainView = document.getElementById('settingsMenuMain');
       const themeView = document.getElementById('settingsMenuThemes');
       const exportView = document.getElementById('settingsMenuExport');
+      const langView = document.getElementById('settingsMenuLanguage');
       if (mainView) mainView.style.display = 'none';
       if (themeView) themeView.style.display = 'none';
+      if (langView) langView.style.display = 'none';
       if (exportView) exportView.style.display = 'flex';
+    }
+
+    function openLanguageSubmenu(event) {
+      if (event) event.stopPropagation();
+      haptic();
+      const list = document.getElementById('settingsMenuLanguageList');
+      if (list) {
+        const langs = [
+          { id: 'it', label: 'Italiano' },
+          { id: 'en', label: 'English' }
+        ];
+        list.innerHTML = langs.map(l => {
+          const isCurrent = l.id === currentLang;
+          return `
+            <button type="button" class="sheet-dropdown-item ${isCurrent ? 'is-selected' : ''}" onclick="selectLanguage('${l.id}', event)">
+              <span>${l.label}</span>
+              ${isCurrent ? '<span>&#10003;</span>' : ''}
+            </button>
+          `;
+        }).join('');
+      }
+      const mainView = document.getElementById('settingsMenuMain');
+      const themeView = document.getElementById('settingsMenuThemes');
+      const exportView = document.getElementById('settingsMenuExport');
+      const langView = document.getElementById('settingsMenuLanguage');
+      if (mainView) mainView.style.display = 'none';
+      if (themeView) themeView.style.display = 'none';
+      if (exportView) exportView.style.display = 'none';
+      if (langView) langView.style.display = 'flex';
+    }
+
+    function selectLanguage(lang, event) {
+      if (event) event.stopPropagation();
+      haptic();
+      applyLanguage(lang, true);
+      closeSettingsMenu();
+      showToast(t('langToast', lang === 'en' ? 'English' : 'Italiano'));
     }
 
     async function handleExportData(format, event) {
@@ -2017,15 +2529,15 @@
       closeSettingsMenu();
       try {
         if (format === 'csv') {
-          await GymBackup.exportCSV();
-          showToast('Esportazione CSV completata!');
+          await GymBackup.exportCSV(currentLang);
+          showToast(t('csvDone'));
         } else {
-          await GymBackup.exportMarkdown();
-          showToast('Esportazione Markdown completata!');
+          await GymBackup.exportMarkdown(currentLang);
+          showToast(t('mdDone'));
         }
       } catch (e) {
         if (e && e.name === 'AbortError') return;
-        showToast('Errore esportazione: ' + (e.message || e));
+        showToast(t('exportErr', e.message || e));
       }
     }
 
@@ -2047,16 +2559,16 @@
       if (!container) return;
       const archived = exercises.filter(e => e.archived === true).sort((a, b) => a.name.localeCompare(b.name));
       if (archived.length === 0) {
-        container.innerHTML = '<div class="today-empty">Nessun esercizio archiviato.<br>Puoi archiviare un esercizio dal menu <strong>&hellip;</strong> dentro la sua scheda.</div>';
+        container.innerHTML = `<div class="today-empty">${t('noArchivedHtml')}</div>`;
         return;
       }
       container.innerHTML = archived.map(ex => `
         <div class="today-set-item">
           <div class="today-set-info">
             <div class="archived-ex-name">${escapeHtml(ex.name)}</div>
-            <div class="archived-ex-meta">${escapeHtml(ex.group)}${ex.pr !== null ? ` &bull; PR ${ex.pr} kg` : ''}</div>
+            <div class="archived-ex-meta">${escapeHtml(tGroup(ex.group))}${ex.pr !== null ? ` &bull; PR ${ex.pr} kg` : ''}</div>
           </div>
-          <button type="button" class="archived-restore-btn" data-exid="${escapeHtml(ex.id)}" onclick="restoreArchivedExercise(this.dataset.exid)">Ripristina</button>
+          <button type="button" class="archived-restore-btn" data-exid="${escapeHtml(ex.id)}" onclick="restoreArchivedExercise(this.dataset.exid)">${t('restoreBtn')}</button>
         </div>
       `).join('');
     }
@@ -2068,7 +2580,7 @@
       await GymDB.saveExercise({ ...ex, archived: false });
       await refreshStateFromDB();
       renderArchivedExercisesList();
-      showToast(`Ripristinato: ${ex.name}`);
+      showToast(t('restoredToast', ex.name));
     }
 
     function updateArchivedBadgeCount() {
@@ -2083,13 +2595,14 @@
       haptic();
       const list = document.getElementById('settingsMenuThemesList');
       if (list) {
-        list.innerHTML = Object.values(ACCENT_THEMES).map(t => {
-          const isCurrent = t.id === currentAccentTheme;
+        list.innerHTML = Object.values(ACCENT_THEMES).map(tItem => {
+          const isCurrent = tItem.id === currentAccentTheme;
+          const lbl = currentLang === 'en' ? tItem.labelEn : tItem.label;
           return `
-            <button type="button" class="sheet-dropdown-item ${isCurrent ? 'is-selected' : ''}" onclick="selectAccentTheme('${t.id}', event)">
+            <button type="button" class="sheet-dropdown-item ${isCurrent ? 'is-selected' : ''}" onclick="selectAccentTheme('${tItem.id}', event)">
               <span style="display:inline-flex; align-items:center; gap:9px;">
-                <span class="theme-color-dot" style="background:${t.hex};"></span>
-                <span>${t.label}</span>
+                <span class="theme-color-dot" style="background:${tItem.hex};"></span>
+                <span>${lbl}</span>
               </span>
               ${isCurrent ? '<span>&#10003;</span>' : ''}
             </button>
@@ -2098,7 +2611,11 @@
       }
       const mainView = document.getElementById('settingsMenuMain');
       const themeView = document.getElementById('settingsMenuThemes');
+      const exportView = document.getElementById('settingsMenuExport');
+      const langView = document.getElementById('settingsMenuLanguage');
       if (mainView) mainView.style.display = 'none';
+      if (exportView) exportView.style.display = 'none';
+      if (langView) langView.style.display = 'none';
       if (themeView) themeView.style.display = 'flex';
     }
 
@@ -2107,8 +2624,9 @@
       haptic();
       applyAccentTheme(themeId, true);
       closeSettingsMenu();
-      const label = (ACCENT_THEMES[themeId] || ACCENT_THEMES.blue).label;
-      showToast(`Tema: ${label}`);
+      const themeObj = ACCENT_THEMES[themeId] || ACCENT_THEMES.blue;
+      const label = currentLang === 'en' ? themeObj.labelEn : themeObj.label;
+      showToast(t('themeToast', label));
     }
 
     function openBackupFromSettings() {
@@ -2171,11 +2689,20 @@
 
     async function init() {
       syncHeaderOffset();
+      applyStaticTranslations();
+      if (screen.orientation && typeof screen.orientation.lock === 'function') {
+        screen.orientation.lock('portrait-primary').catch(() => {});
+      }
       await GymDB.open();
       const savedTheme = await GymDB.getSetting('accentTheme');
       if (savedTheme && ACCENT_THEMES[savedTheme]) {
         applyAccentTheme(savedTheme, false);
         try { localStorage.setItem('gym_accent_theme', savedTheme); } catch (e) {}
+      }
+      const savedLang = await GymDB.getSetting('appLang');
+      if (savedLang === 'en' || savedLang === 'it') {
+        applyLanguage(savedLang, false);
+        try { localStorage.setItem('gym_lang', savedLang); } catch (e) {}
       }
       let defaultCatalog = [];
       try {
@@ -2245,27 +2772,33 @@
     const MONTHS_IT = ['Gennaio', 'Febbraio', 'Marzo', 'Aprile', 'Maggio', 'Giugno', 'Luglio', 'Agosto', 'Settembre', 'Ottobre', 'Novembre', 'Dicembre'];
     const MONTHS_SHORT_IT = ['Gen', 'Feb', 'Mar', 'Apr', 'Mag', 'Giu', 'Lug', 'Ago', 'Set', 'Ott', 'Nov', 'Dic'];
     const DAYS_SHORT_IT = ['Dom', 'Lun', 'Mar', 'Mer', 'Gio', 'Ven', 'Sab'];
+    const MONTHS_EN = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+    const MONTHS_SHORT_EN = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+    const DAYS_SHORT_EN = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
     function formatNaturalDate(dateStr, includeYearIfDifferent = true) {
       if (!dateStr || !/^\d{4}-\d{2}-\d{2}$/.test(dateStr)) return dateStr || '';
       const [y, m, d] = dateStr.split('-').map(Number);
       const dt = new Date(y, m - 1, d);
-      const dayName = DAYS_SHORT_IT[dt.getDay()];
-      const monName = MONTHS_SHORT_IT[m - 1];
+      const daysArr = currentLang === 'en' ? DAYS_SHORT_EN : DAYS_SHORT_IT;
+      const monthsArr = currentLang === 'en' ? MONTHS_SHORT_EN : MONTHS_SHORT_IT;
+      const dayName = daysArr[dt.getDay()];
+      const monName = monthsArr[m - 1];
       const now = new Date();
       const todayStr = getTodayStr();
       const yestDt = new Date(now.getFullYear(), now.getMonth(), now.getDate() - 1);
       const yestStr = yestDt.getFullYear() + '-' + String(yestDt.getMonth() + 1).padStart(2, '0') + '-' + String(yestDt.getDate()).padStart(2, '0');
       const yrSuffix = (includeYearIfDifferent && y !== now.getFullYear()) ? ` ${y}` : '';
       const base = `${dayName} ${d} ${monName}${yrSuffix}`;
-      if (dateStr === todayStr) return `Oggi · ${dayName} ${d} ${monName}`;
-      if (dateStr === yestStr) return `Ieri · ${dayName} ${d} ${monName}`;
+      if (dateStr === todayStr) return `${t('today')} · ${dayName} ${d} ${monName}`;
+      if (dateStr === yestStr) return `${t('yesterday')} · ${dayName} ${d} ${monName}`;
       return base;
     }
 
     function formatMonthHeader(dateStr) {
       const [y, m] = dateStr.split('-').map(Number);
-      return `${MONTHS_IT[m - 1]} ${y}`;
+      const monthsArr = currentLang === 'en' ? MONTHS_EN : MONTHS_IT;
+      return `${monthsArr[m - 1]} ${y}`;
     }
 
     function toggleHistoryDateCard(dateStr) {
@@ -2365,7 +2898,7 @@
       return `
         <div class="progress-spark-card">
           <div class="progress-spark-header">
-            <span>Media/serie (kg &times; reps, ultime ${points.length})</span>
+            <span>${t('sparkTitle', points.length)}</span>
             <span>${realMin} &ndash; ${realMax} kg</span>
           </div>
           <svg viewBox="0 0 ${w} ${h}" width="100%" height="76" style="display:block; overflow:visible;">
@@ -2392,7 +2925,7 @@
       const { exSets } = getExKeySetsAndMeta(activeSheetExId);
       if (exSets.length === 0) {
         haptic();
-        showToast('Nessuna seduta registrata per questo esercizio');
+        showToast(t('noSessionsForEx'));
         return;
       }
       openExerciseProgressModal(activeSheetExId);
@@ -2421,7 +2954,7 @@
       }
 
       document.getElementById('histProgTitle').innerText = name;
-      document.getElementById('histProgGroup').innerText = group || 'Esercizio';
+      document.getElementById('histProgGroup').innerText = group ? tGroup(group) : '';
 
       const byDate = {};
       for (const s of exSets) {
@@ -2448,25 +2981,29 @@
       const lastAvg = getAvgSetVolume(lastSets);
       const lastFormatted = GymDB.formatDaySets(lastSets);
 
+      // Delta in kg dell'ultima seduta rispetto al PR massimale
       let deltaHtml = '';
-      if (datesDesc.length >= 2) {
-        const prevAvg = getAvgSetVolume(byDate[datesDesc[1]]);
-        const diff = Number((lastAvg - prevAvg).toFixed(1));
-        if (diff > 0) deltaHtml = `<span class="progress-delta-badge up">+${diff}</span>`;
-        else if (diff < 0) deltaHtml = `<span class="progress-delta-badge down">${diff}</span>`;
-        else deltaHtml = `<span class="progress-delta-badge flat">=</span>`;
+      if (prVal > 0 || lastMax > 0) {
+        const diffFromPr = Number((lastMax - prVal).toFixed(2));
+        if (diffFromPr === 0) {
+          deltaHtml = `<span class="progress-delta-badge flat">= PR</span>`;
+        } else if (diffFromPr < 0) {
+          deltaHtml = `<span class="progress-delta-badge down">${diffFromPr} kg</span>`;
+        } else {
+          deltaHtml = `<span class="progress-delta-badge up">+${diffFromPr} kg</span>`;
+        }
       }
 
       document.getElementById('histProgKpis').innerHTML = `
         <div class="progress-kpi-box">
-          <div class="progress-kpi-label">PR Massimale</div>
+          <div class="progress-kpi-label">${t('prLabel')}</div>
           <div class="progress-kpi-val">${prVal} kg</div>
           <div class="progress-kpi-sub">${prDate ? escapeHtml(formatNaturalDate(prDate)) : '-'}</div>
         </div>
         <div class="progress-kpi-box">
-          <div class="progress-kpi-label">Ultima Seduta</div>
+          <div class="progress-kpi-label">${t('lastSessionLabel')}</div>
           <div class="progress-kpi-val">${lastMax} kg ${deltaHtml}</div>
-          <div class="progress-kpi-sub">${escapeHtml(lastFormatted)} &middot; ${lastAvg} kg/serie</div>
+          <div class="progress-kpi-sub">${escapeHtml(lastFormatted)} &middot; ${lastAvg} ${t('avgPerSetUnit')}</div>
         </div>
       `;
 
@@ -2569,7 +3106,7 @@
       const q = (document.getElementById('historySearchInput')?.value || '').trim().toLowerCase();
 
       if (allSets.length === 0) {
-        container.innerHTML = '<div class="today-empty" style="margin-top:20px;">Nessuna serie ancora registrata.</div>';
+        container.innerHTML = `<div class="today-empty" style="margin-top:20px;">${t('noSetsEver')}</div>`;
         return;
       }
 
@@ -2587,12 +3124,13 @@
         if (dateStr.includes(q) || natural.includes(q) || month.includes(q)) return true;
         return byDateAll[dateStr].some(s =>
           (s.exerciseName || '').toLowerCase().includes(q) ||
-          (s.group || '').toLowerCase().includes(q)
+          (s.group || '').toLowerCase().includes(q) ||
+          tGroup(s.group || '').toLowerCase().includes(q)
         );
       }).sort((a, b) => b.localeCompare(a));
 
       if (matchingDates.length === 0) {
-        container.innerHTML = '<div class="today-empty" style="margin-top:20px;">Nessuna seduta trovata per "' + escapeHtml(q) + '".</div>';
+        container.innerHTML = `<div class="today-empty" style="margin-top:20px;">${escapeHtml(t('noSessionsMatch', q))}</div>`;
         return;
       }
 
@@ -2627,7 +3165,7 @@
           byEx[key].sets.push(s);
         }
 
-        const groupsLabel = groupsSeen.length > 0 ? groupsSeen.join(' · ') : 'Allenamento';
+        const groupsLabel = groupsSeen.length > 0 ? groupsSeen.map(g => tGroup(g)).join(' · ') : t('workoutFallback');
         const exRowsHtml = Object.values(byEx).map(exObj => {
           const formatted = GymDB.formatDaySets(exObj.sets);
           return `
@@ -2651,7 +3189,7 @@
                 <div class="history-groups-line">${escapeHtml(groupsLabel)}</div>
               </div>
               <div style="display:flex; align-items:center; gap:8px; flex-shrink:0;">
-                <span class="history-date-meta">${daySets.length} serie</span>
+                <span class="history-date-meta">${t('setsMeta', daySets.length)}</span>
                 <svg class="history-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                   <polyline points="9 18 15 12 9 6"></polyline>
                 </svg>
@@ -2692,7 +3230,7 @@
       document.getElementById('groupsHubView').style.display = 'none';
       document.getElementById('exercisesContainer').style.display = 'block';
       const labelEl = document.getElementById('activeDistrettoLabel');
-      if (labelEl) labelEl.innerText = group;
+      if (labelEl) labelEl.innerText = tGroup(group);
       document.getElementById('searchInput').value = '';
       updateTopHeaderView();
 
@@ -2765,7 +3303,7 @@
 
     function updateActiveSheetMeta(ex) {
       if (!ex) return;
-      const lastStr = ex.last_weight !== null ? `${ex.last_weight} kg` : 'Nessuna';
+      const lastStr = ex.last_weight !== null ? `${ex.last_weight} kg` : t('noneLabel');
       const prStr = ex.pr !== null ? `${ex.pr} kg` : '-';
       document.getElementById('sheetExTitle').innerText = ex.name;
       document.getElementById('sheetStatsUltimaWeight').innerText = lastStr;
@@ -2788,7 +3326,7 @@
       const todayPill = document.getElementById('sheetTodayPill');
       if (todayPill) {
         if (exToday.length > 0) {
-          todayPill.innerText = `Oggi: ${exToday.length} serie (${GymDB.formatDaySets(exToday)})`;
+          todayPill.innerText = t('todayExercisePill', exToday.length, GymDB.formatDaySets(exToday));
           todayPill.style.display = 'inline-block';
         } else {
           todayPill.style.display = 'none';
@@ -2807,7 +3345,7 @@
         txtEl.innerText = activeSheetNote;
         trigger.classList.add('has-note');
       } else {
-        txtEl.innerText = 'Note (es. cedimento, drop set, sensazioni)...';
+        txtEl.innerText = t('notesTriggerPlaceholder');
         trigger.classList.remove('has-note');
       }
     }
@@ -3047,7 +3585,7 @@
       setSheetNote('');
 
       const todayCountForEx = todayLogs.filter(s => s.exerciseId === exId).length;
-      showToast(`Serie #${todayCountForEx} salvata (${val.weight} kg × ${val.reps})`);
+      showToast(t('setSavedToast', todayCountForEx, val.weight, val.reps));
 
       const card = document.getElementById('card-' + exId);
       if (card) {
@@ -3141,9 +3679,9 @@
 
         const metaEl = document.getElementById('groupMeta_' + safeKey);
         if (metaEl) {
-          const exCountLabel = activeExs.length === 1 ? '1 esercizio' : `${activeExs.length} esercizi`;
+          const exCountLabel = t('exCount', activeExs.length);
           if (todaySetsCount > 0) {
-            const setLabel = todaySetsCount === 1 ? '1 serie oggi' : `${todaySetsCount} serie oggi`;
+            const setLabel = t('setsToday', todaySetsCount);
             metaEl.innerText = `${exCountLabel} · ${setLabel}`;
             metaEl.classList.add('is-today');
           } else {
@@ -3159,18 +3697,18 @@
         if (subEl) {
           subEl.classList.remove('is-today', 'is-latest');
           if (!latestDateStr) {
-            subEl.innerText = 'Nessuna sessione';
+            subEl.innerText = t('noSessions');
           } else {
             const target = new Date(latestDateStr + 'T00:00:00');
             const diffDays = Math.round((today.getTime() - target.getTime()) / (1000 * 60 * 60 * 24));
             if (diffDays <= 0) {
-              subEl.innerText = 'Oggi';
+              subEl.innerText = t('today');
               subEl.classList.add('is-today');
             } else {
               if (diffDays === 1) {
-                subEl.innerText = 'Ultimo: ieri';
+                subEl.innerText = t('lastYesterday');
               } else {
-                subEl.innerText = `Ultimo: ${diffDays} gg fa`;
+                subEl.innerText = t('lastDaysAgo', diffDays);
               }
               if (isOldest) {
                 subEl.classList.add('is-latest');
@@ -3189,12 +3727,11 @@
       updateArchivedBadgeCount();
       const todayPill = document.getElementById('todaySummaryPill');
       if (todayPill) {
-        const n = todayLogs.length;
-        todayPill.innerText = n === 1 ? 'Oggi · 1 serie' : `Oggi · ${n} serie`;
+        todayPill.innerText = t('todayPill', todayLogs.length);
       }
       const countEl = document.getElementById('todayCount');
       if (countEl) {
-        countEl.innerText = `${todayLogs.length} serie completate oggi`;
+        countEl.innerText = t('todayCountText', todayLogs.length);
       }
     }
 
@@ -3218,12 +3755,13 @@
       if (!container) return;
 
       if (todayLogs.length === 0) {
-        container.innerHTML = '<div class="today-empty">Nessuna serie registrata oggi.<br>Seleziona un gruppo muscolare per iniziare!</div>';
+        container.innerHTML = `<div class="today-empty">${t('noSetsTodayHtml')}</div>`;
         return;
       }
 
+      const timeLocale = currentLang === 'en' ? 'en-US' : 'it-IT';
       container.innerHTML = todayLogs.map((log) => {
-        const timeStr = log.timestamp ? new Date(log.timestamp).toLocaleTimeString('it-IT', {hour: '2-digit', minute: '2-digit'}) : '';
+        const timeStr = log.timestamp ? new Date(log.timestamp).toLocaleTimeString(timeLocale, {hour: '2-digit', minute: '2-digit'}) : '';
         return `
           <div class="today-set-item">
             <div class="today-set-info">
@@ -3242,13 +3780,13 @@
 
     async function deleteSetById(logId) {
       haptic();
-      if (!confirm('Vuoi davvero eliminare questa serie registrata?')) return;
+      if (!confirm(t('deleteSetConfirm'))) return;
       await GymDB.deleteSet(logId);
       await refreshStateFromDB();
       renderTodaySetsList();
       refreshOpenHistoryModals();
       closeEditSetModal();
-      showToast('Serie eliminata');
+      showToast(t('setDeletedToast'));
     }
 
     let editingLogId = null;
@@ -3286,7 +3824,7 @@
       const newNotes = document.getElementById('editSetNotesInput').value.trim();
 
       if (isNaN(newWeight) || isNaN(newReps) || newReps <= 0) {
-        alert('Inserisci valori validi per peso e ripetizioni.');
+        alert(t('invalidSetAlert'));
         return;
       }
 
@@ -3296,7 +3834,7 @@
       closeEditSetModal();
       renderTodaySetsList();
       refreshOpenHistoryModals();
-      showToast('Serie aggiornata!');
+      showToast(t('setUpdatedToast'));
     }
 
     function deleteEditingSet() {
@@ -3310,9 +3848,9 @@
       const folderBox = document.getElementById('firstLaunchFolderHint');
       if (folderBox) {
         if (GymBackup.supportsDirectoryPicker()) {
-          folderBox.innerHTML = 'Scegli una cartella sul tuo dispositivo dove salvare i backup automatici con 1 clic.';
+          folderBox.innerHTML = t('firstLaunchPickerHint');
         } else {
-          folderBox.innerHTML = 'Su iPhone/iPad tutti i dati restano salvati offline nell\'app. Quando premi <strong>Backup</strong> puoi salvarli su <strong>iCloud Drive / File</strong> nella cartella che preferisci.';
+          folderBox.innerHTML = t('firstLaunchIosHint');
         }
       }
       const btnPick = document.getElementById('firstLaunchPickFolderBtn');
@@ -3324,13 +3862,13 @@
 
     async function pickFolderFromFirstLaunch() {
       try {
-        const res = await GymBackup.pickBackupFolder();
+        const res = await GymBackup.pickBackupFolder(currentLang);
         if (res.supported) {
-          showToast(`Cartella impostata: ${res.name}`);
+          showToast(t('folderSetToast', res.name));
         }
         await completeFirstLaunch();
       } catch (e) {
-        if (e.name !== 'AbortError') showToast('Selezione cartella annullata');
+        if (e.name !== 'AbortError') showToast(t('folderPickCancelled'));
       }
     }
 
@@ -3344,12 +3882,13 @@
       const lastBackup = await GymDB.getSetting('lastBackupAt');
       const folderName = await GymDB.getSetting('backupFolderName');
       const infoEl = document.getElementById('backupStatusDetail');
+      const dateLocale = currentLang === 'en' ? 'en-US' : 'it-IT';
       if (infoEl) {
-        const lastStr = lastBackup ? new Date(lastBackup).toLocaleString('it-IT') : 'Mai eseguito';
+        const lastStr = lastBackup ? new Date(lastBackup).toLocaleString(dateLocale) : t('neverExecuted');
         const folderStr = GymBackup.supportsDirectoryPicker()
-          ? (folderName ? `Cartella selezionata: <strong>${escapeHtml(folderName)}</strong>` : 'Nessuna cartella selezionata')
-          : 'Destinazione iOS: <strong>Salva su File (iCloud Drive)</strong>';
-        infoEl.innerHTML = `${folderStr}<br>Ultimo backup: <strong>${lastStr}</strong><br>Totale serie salvate: <strong>${allSets.length}</strong>`;
+          ? (folderName ? t('selectedFolder', escapeHtml(folderName)) : t('noFolderSelected'))
+          : t('iosDest');
+        infoEl.innerHTML = t('backupInfoHtml', folderStr, lastStr, allSets.length);
       }
       const pickBtn = document.getElementById('changeFolderBtn');
       if (pickBtn) {
@@ -3364,29 +3903,29 @@
 
     async function handlePickBackupFolder() {
       try {
-        const res = await GymBackup.pickBackupFolder();
+        const res = await GymBackup.pickBackupFolder(currentLang);
         if (res.supported) {
-          showToast(`Cartella aggiornata: ${res.name}`);
+          showToast(t('folderUpdatedToast', res.name));
           openBackupModal();
         }
       } catch (e) {
-        if (e.name !== 'AbortError') showToast('Errore selezione cartella');
+        if (e.name !== 'AbortError') showToast(t('folderErrToast'));
       }
     }
 
     async function handleSaveBackup() {
       haptic();
       try {
-        const res = await GymBackup.saveBackup();
+        const res = await GymBackup.saveBackup(currentLang);
         if (res.method === 'directory') {
-          showToast(`Salvato in "${res.folderName}/${res.filename}"`);
+          showToast(t('savedInToast', res.folderName, res.filename));
         } else {
-          showToast(`Backup pronto: ${res.filename}`);
+          showToast(t('backupReadyToast', res.filename));
         }
         openBackupModal();
       } catch (e) {
         if (e.name !== 'AbortError') {
-          alert('Errore durante il salvataggio del backup: ' + e.message);
+          alert(t('backupSaveErr', e.message));
         }
       }
     }
@@ -3398,7 +3937,7 @@
     async function handleRestoreFileSelected(event) {
       const file = event.target.files?.[0];
       if (!file) return;
-      const ok = confirm('Attenzione: stai per sovrascrivere tutti gli esercizi e i dati attualmente presenti nell\'app con quelli del file JSON selezionato. Continuare?');
+      const ok = confirm(t('restoreConfirm'));
       if (!ok) {
         event.target.value = '';
         return;
@@ -3410,9 +3949,9 @@
         closeBackupModal();
         document.getElementById('firstLaunchModal').style.display = 'none';
         await GymDB.setSetting('firstLaunchDone', true);
-        showToast(`Ripristinati ${res.exercisesCount} esercizi e ${res.setsCount} serie!`);
+        showToast(t('restoredCountToast', res.exercisesCount, res.setsCount));
       } catch (e) {
-        alert('Impossibile importare il file: ' + e.message);
+        alert(t('restoreErrAlert', e.message));
       } finally {
         event.target.value = '';
       }
@@ -3460,7 +3999,7 @@
           const safeGroupArg = g.replace(/'/g, "\\'");
           return `
             <button type="button" class="sheet-dropdown-item ${isCurrent ? 'is-selected' : ''}" onclick="changeActiveExerciseGroup('${safeGroupArg}', event)">
-              <span>${escapeHtml(g)}</span>
+              <span>${escapeHtml(tGroup(g))}</span>
               ${isCurrent ? '<span>&#10003;</span>' : ''}
             </button>
           `;
@@ -3485,7 +4024,7 @@
 
       await GymDB.updateExerciseAndSets({ ...ex, group: newGroup });
       await refreshStateFromDB();
-      showToast(`Spostato in: ${newGroup}`);
+      showToast(t('movedToToast', tGroup(newGroup)));
     }
 
     function closeSheetMoreMenu() {
@@ -3545,7 +4084,7 @@
 
       const newName = inputEl.value.trim();
       if (!newName) {
-        showToast('Inserisci un nome valido!');
+        showToast(t('invalidNameToast'));
         inputEl.focus();
         return;
       }
@@ -3560,7 +4099,7 @@
           await GymDB.updateExerciseAndSets({ ...ex, name: newName });
           await refreshStateFromDB();
           titleEl.innerText = newName;
-          showToast('Esercizio rinominato!');
+          showToast(t('renamedToast'));
         }
       } finally {
         isCommittingRename = false;
@@ -3576,13 +4115,13 @@
       await GymDB.saveExercise({ ...targetEx, archived: true });
       closeExerciseSheet(true);
       await refreshStateFromDB();
-      showToast(`Archiviato: ${targetEx.name}`, {
-        actionLabel: 'Annulla',
+      showToast(t('archivedToast', targetEx.name), {
+        actionLabel: t('undoLabel'),
         duration: 4200,
         onAction: async () => {
           await GymDB.saveExercise({ ...targetEx, archived: false });
           await refreshStateFromDB();
-          showToast(`Ripristinato: ${targetEx.name}`);
+          showToast(t('restoredToast', targetEx.name));
         }
       });
     }
@@ -3594,15 +4133,15 @@
       if (!ex) return;
       const exSetsCount = allSets.filter(s => s.exerciseId === ex.id).length;
       const msg = exSetsCount > 0
-        ? `Eliminare "${ex.name}" e tutte le sue ${exSetsCount} serie dallo storico?`
-        : `Eliminare l'esercizio "${ex.name}"?`;
+        ? t('deleteExConfirmSets', ex.name, exSetsCount)
+        : t('deleteExConfirm', ex.name);
       if (!confirm(msg)) return;
 
       await GymDB.deleteExerciseAndSets(ex.id);
       delete currentValues[ex.id];
       closeExerciseSheet();
       await refreshStateFromDB();
-      showToast(`Eliminato: ${ex.name}`);
+      showToast(t('deletedToast', ex.name));
     }
 
     function escapeHtml(str) {
@@ -3630,15 +4169,15 @@
         if (query) {
           list.innerHTML = `
             <div class="today-empty" style="margin-top:16px;">
-              <div>Nessun esercizio trovato per &ldquo;${escapeHtml(query)}&rdquo;.</div>
-              <button type="button" class="modal-btn-cancel" style="margin-top:12px; padding:8px 16px;" onclick="document.getElementById('searchInput').value=''; renderExercises();">Pulisci ricerca</button>
+              <div>${escapeHtml(t('noExFoundFor', query))}</div>
+              <button type="button" class="modal-btn-cancel" style="margin-top:12px; padding:8px 16px;" onclick="document.getElementById('searchInput').value=''; renderExercises();">${t('clearSearchBtn')}</button>
             </div>
           `;
         } else {
           list.innerHTML = `
             <div class="today-empty" style="margin-top:16px;">
-              <div>Nessun esercizio in questo gruppo.</div>
-              <button type="button" class="modal-btn-confirm" style="margin-top:12px; padding:10px 18px;" onclick="openNewExerciseModal()">Aggiungi esercizio</button>
+              <div>${t('noExInGroup')}</div>
+              <button type="button" class="modal-btn-confirm" style="margin-top:12px; padding:10px 18px;" onclick="openNewExerciseModal()">${t('addExShortBtn')}</button>
             </div>
           `;
         }
@@ -3650,7 +4189,7 @@
         const prStr = ex.pr !== null ? `${ex.pr} kg` : '-';
 
         return `
-          <div class="ex-card" id="card-${ex.id}" onclick="openExerciseSheet('${ex.id}')" role="button" tabindex="0" title="Tocca per registrare la serie">
+          <div class="ex-card" id="card-${ex.id}" onclick="openExerciseSheet('${ex.id}')" role="button" tabindex="0" title="${t('tapToLogTitle')}">
             <div class="ex-header">
               <div class="ex-title">${escapeHtml(ex.name)}</div>
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="opacity:0.6; flex-shrink:0;">
@@ -3659,7 +4198,7 @@
             </div>
 
             <div class="ex-stats" id="stats-${ex.id}">
-              <span>Ultima: <strong>${lastStr}</strong> ${ex.last_reps ? `(${ex.last_reps})` : ''}</span>
+              <span>${t('ultimaLabel')} <strong>${lastStr}</strong> ${ex.last_reps ? `(${ex.last_reps})` : ''}</span>
               <span>PR: <strong>${prStr}</strong></span>
             </div>
           </div>
@@ -3668,7 +4207,7 @@
     }
 
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('sw.js?v=35', {scope: './'}).then(reg => {
+      navigator.serviceWorker.register('sw.js?v=36', {scope: './'}).then(reg => {
         reg.update();
       }).catch(() => {});
     }
@@ -3757,13 +4296,13 @@
       const initialWeight = parseFloat(weightInput.value) || 20;
 
       if (!name) {
-        showToast('Inserisci il nome dell\'esercizio!');
+        showToast(t('enterExNameToast'));
         nameInput.focus();
         return;
       }
 
       if (exercises.some(e => e.name.toLowerCase() === name.toLowerCase())) {
-        showToast('Esercizio già presente!');
+        showToast(t('exExistsToast'));
         return;
       }
 
@@ -3785,7 +4324,7 @@
 
       closeNewExerciseModal();
       haptic();
-      showToast(`Aggiunto: ${name} (${group})!`);
+      showToast(t('addedExToast', name, tGroup(group)));
 
       if (currentFilter !== group) {
         openMuscleGroup(group, false);
@@ -3808,17 +4347,13 @@
             <line x1="16" y1="17" x2="8" y2="17"></line>
             <polyline points="10 9 9 9 8 9"></polyline>
           </svg>
-          Serie Completate Oggi
+          <span id="todaySetsModalTitle">Serie Completate Oggi</span>
         </h3>
-        <button type="button" class="modal-close-btn" onclick="closeTodaySetsModal()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+        <button type="button" class="modal-close-btn" id="todaySetsCloseBtn" onclick="closeTodaySetsModal()" aria-label="Chiudi"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
       </div>
 
       <div class="today-sets-list" id="todaySetsListContainer">
         <!-- Generato dinamicamente via JS -->
-      </div>
-
-      <div class="modal-actions">
-        <button type="button" class="modal-btn-confirm" onclick="closeTodaySetsModal()">Chiudi</button>
       </div>
     </div>
   </div>
@@ -3831,7 +4366,7 @@
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
             <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path>
           </svg>
-          Modifica Serie
+          <span id="editSetModalTitle">Modifica Serie</span>
         </h3>
         <button type="button" class="modal-close-btn" onclick="closeEditSetModal()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
       </div>
@@ -3839,23 +4374,23 @@
       <div style="font-size: 0.95rem; font-weight: 700; color: var(--accent); margin-bottom: 4px;" id="editExName">Esercizio</div>
 
       <div class="modal-field">
-        <label for="editSetWeightInput">Carico (kg)</label>
+        <label for="editSetWeightInput" id="editSetWeightLabel">Carico (kg)</label>
         <input type="number" id="editSetWeightInput" step="0.5" min="0">
       </div>
 
       <div class="modal-field">
-        <label for="editSetRepsInput">Ripetizioni</label>
+        <label for="editSetRepsInput" id="editSetRepsLabel">Ripetizioni</label>
         <input type="number" id="editSetRepsInput" step="1" min="1">
       </div>
 
       <div class="modal-field">
-        <label for="editSetNotesInput">Note (opzionale)</label>
+        <label for="editSetNotesInput" id="editSetNotesLabel">Note (opzionale)</label>
         <input type="text" id="editSetNotesInput" placeholder="es. RPE 8, drop set">
       </div>
 
       <div class="modal-actions">
-        <button type="button" class="modal-btn-cancel" style="color:var(--danger); border-color:rgba(255,69,58,0.35);" onclick="deleteEditingSet()">Elimina</button>
-        <button type="button" class="modal-btn-confirm" onclick="saveEditedSet()">Salva</button>
+        <button type="button" class="modal-btn-cancel" id="editSetDeleteBtn" style="color:var(--danger); border-color:rgba(255,69,58,0.35);" onclick="deleteEditingSet()">Elimina</button>
+        <button type="button" class="modal-btn-confirm" id="editSetSaveBtn" onclick="saveEditedSet()">Salva</button>
       </div>
     </div>
   </div>
@@ -3869,18 +4404,18 @@
             <line x1="12" y1="5" x2="12" y2="19"></line>
             <line x1="5" y1="12" x2="19" y2="12"></line>
           </svg>
-          Nuovo Esercizio
+          <span id="newExModalTitle">Nuovo Esercizio</span>
         </h3>
         <button type="button" class="modal-close-btn" onclick="closeNewExerciseModal()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
       </div>
 
       <div class="modal-field">
-        <label for="newExNameInput">Nome Esercizio</label>
+        <label for="newExNameInput" id="newExNameLabel">Nome Esercizio</label>
         <input type="text" id="newExNameInput" placeholder="es. Lat machine presa inversa" autocomplete="off">
       </div>
 
       <div class="modal-field">
-        <label for="newExGroupSelect">Gruppo Muscolare</label>
+        <label for="newExGroupSelect" id="newExGroupLabel">Gruppo Muscolare</label>
         <select id="newExGroupSelect">
           <option value="Petto">Petto</option>
           <option value="Spalle">Spalle</option>
@@ -3893,13 +4428,13 @@
       </div>
 
       <div class="modal-field">
-        <label for="newExWeightInput">Peso Iniziale (kg, opzionale)</label>
+        <label for="newExWeightInput" id="newExWeightLabel">Peso Iniziale (kg, opzionale)</label>
         <input type="number" id="newExWeightInput" placeholder="es. 20" step="0.5" min="0">
       </div>
 
       <div class="modal-actions">
-        <button type="button" class="modal-btn-cancel" onclick="closeNewExerciseModal()">Annulla</button>
-        <button type="button" class="modal-btn-confirm" onclick="saveNewExercise()">Aggiungi Esercizio</button>
+        <button type="button" class="modal-btn-cancel" id="newExCancelBtn" onclick="closeNewExerciseModal()">Annulla</button>
+        <button type="button" class="modal-btn-confirm" id="newExSaveBtn" onclick="saveNewExercise()">Aggiungi Esercizio</button>
       </div>
     </div>
   </div>
@@ -3916,7 +4451,7 @@
         <div class="sheet-title-name" id="sheetExTitle" style="word-break:break-word;">Esercizio</div>
         <input type="text" id="sheetExTitleInput" class="sheet-title-input" style="display:none;" enterkeyhint="done" autocomplete="off" autocorrect="off" autocapitalize="sentences" onkeydown="handleSheetTitleKeydown(event)" aria-label="Nuovo nome esercizio">
         <button type="button" class="sheet-title-stats" onclick="openActiveSheetProgress()" title="Vedi grafico e storico esercizio">
-          <span class="sheet-stats-ultima-wrap"><span class="sheet-stats-ultima-label">Ultima:</span> <strong class="sheet-stats-ultima-strong"><span id="sheetStatsUltimaWeight" class="sheet-stats-ultima-weight">-</span><span id="sheetStatsUltimaReps" class="sheet-stats-ultima-reps"></span></strong></span>
+          <span class="sheet-stats-ultima-wrap"><span class="sheet-stats-ultima-label" id="sheetStatsUltimaLabel">Ultima:</span> <strong class="sheet-stats-ultima-strong"><span id="sheetStatsUltimaWeight" class="sheet-stats-ultima-weight">-</span><span id="sheetStatsUltimaReps" class="sheet-stats-ultima-reps"></span></strong></span>
           <span class="sheet-stats-pr-wrap">PR: <strong id="sheetStatsPR">-</strong></span>
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="opacity:0.65; flex-shrink:0;" aria-hidden="true"><polyline points="9 18 15 12 9 6"></polyline></svg>
         </button>
@@ -3935,13 +4470,13 @@
             <button type="button" class="sheet-dropdown-item" onclick="startInlineRenameExercise()">
               <span class="sheet-dropdown-item-left">
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
-                <span>Rinomina</span>
+                <span id="sheetMenuRenameLabel">Rinomina</span>
               </span>
             </button>
             <button type="button" class="sheet-dropdown-item" onclick="openGroupSubmenu(event)">
               <span class="sheet-dropdown-item-left">
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
-                <span>Cambia gruppo</span>
+                <span id="sheetMenuGroupLabel">Cambia gruppo</span>
               </span>
               <span style="opacity:0.6; font-size:1rem; line-height:1;">&rsaquo;</span>
             </button>
@@ -3949,19 +4484,19 @@
             <button type="button" class="sheet-dropdown-item" onclick="archiveActiveExercise()">
               <span class="sheet-dropdown-item-left">
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg>
-                <span>Archivia</span>
+                <span id="sheetMenuArchiveLabel">Archivia</span>
               </span>
             </button>
             <button type="button" class="sheet-dropdown-item danger" onclick="deleteActiveExercise()">
               <span class="sheet-dropdown-item-left">
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>
-                <span>Elimina</span>
+                <span id="sheetMenuDeleteLabel">Elimina</span>
               </span>
             </button>
           </div>
           <div id="sheetMenuGroups" class="sheet-dropdown-subview" style="display:none;">
             <button type="button" class="sheet-dropdown-item sheet-dropdown-back" onclick="showMainDropdownMenu(event)">
-              <span>&lsaquo; Indietro</span>
+              <span id="sheetMenuBackLabel">&lsaquo; Indietro</span>
             </button>
             <div class="sheet-dropdown-divider"></div>
             <div id="sheetMenuGroupsList" style="display:flex; flex-direction:column; gap:2px;"></div>
@@ -3974,7 +4509,7 @@
     <div class="sheet-stepper-grid">
       <!-- Box 1: CARICO (Sopra) -->
       <div class="sheet-stepper-box">
-        <div class="sheet-box-label">Carico</div>
+        <div class="sheet-box-label" id="sheetWeightBoxLabel">Carico</div>
         <div class="sheet-box-controls">
           <button type="button" class="sheet-big-btn" onclick="sheetModWeight(-1)" aria-label="Meno 1 kg">−</button>
           <button type="button" class="sheet-box-val" id="sheetWeightVal" onclick="startInlineValueEdit('weight')" title="Tocca per inserire il carico">20 kg</button>
@@ -3990,7 +4525,7 @@
 
       <!-- Box 2: RIPETIZIONI (Sotto) -->
       <div class="sheet-stepper-box">
-        <div class="sheet-box-label">Ripetizioni</div>
+        <div class="sheet-box-label" id="sheetRepsBoxLabel">Ripetizioni</div>
         <div class="sheet-box-controls">
           <button type="button" class="sheet-big-btn" onclick="sheetModReps(-1)" aria-label="Meno ripetizioni">−</button>
           <button type="button" class="sheet-box-val" id="sheetRepsVal" onclick="startInlineValueEdit('reps')" title="Tocca per inserire le ripetizioni">10</button>
@@ -4017,12 +4552,12 @@
     </div>
 
     <!-- Pulsantone Salva -->
-    <button type="button" class="sheet-save-btn" onclick="saveCurrentSheetSet()">
+    <button type="button" class="sheet-save-btn" id="sheetSaveBtn" onclick="saveCurrentSheetSet()">
       <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
         <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
         <polyline points="22 4 12 14.01 9 11.01"></polyline>
       </svg>
-      Salva Serie
+      <span id="sheetSaveBtnText">Salva Serie</span>
     </button>
   </div>
 
@@ -4031,7 +4566,7 @@
   <div class="modal-overlay modal-overlay-top" id="sheetNoteModal" style="z-index: 1350;" onclick="if(event.target===this) closeSheetNoteModal()">
     <div class="modal-card">
       <div class="modal-header">
-        <h3>Note Serie</h3>
+        <h3 id="sheetNoteModalTitle">Note Serie</h3>
         <button type="button" class="modal-close-btn" onclick="closeSheetNoteModal()" aria-label="Chiudi note"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
       </div>
 
@@ -4040,8 +4575,8 @@
       </div>
 
       <div class="modal-actions">
-        <button type="button" class="modal-btn-cancel" onclick="clearSheetNoteModal()">Svuota</button>
-        <button type="button" class="modal-btn-confirm" onclick="saveSheetNoteModal()">Fatto</button>
+        <button type="button" class="modal-btn-cancel" id="sheetNoteClearBtn" onclick="clearSheetNoteModal()">Svuota</button>
+        <button type="button" class="modal-btn-confirm" id="sheetNoteDoneBtn" onclick="saveSheetNoteModal()">Fatto</button>
       </div>
     </div>
   </div>
@@ -4050,7 +4585,7 @@
   <div class="modal-overlay" id="backupModal" onclick="if(event.target===this) closeBackupModal()">
     <div class="modal-card">
       <div class="modal-header">
-        <h3>Backup Locale &amp; Ripristino</h3>
+        <h3 id="backupModalTitle">Backup Locale &amp; Ripristino</h3>
         <button type="button" class="modal-close-btn" onclick="closeBackupModal()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
       </div>
 
@@ -4061,13 +4596,13 @@
       <input type="file" id="restoreFileInput" accept=".json,application/json" style="display:none" onchange="handleRestoreFileSelected(event)">
 
       <div style="display:flex; flex-direction:column; gap:10px; margin-top:4px;">
-        <button type="button" class="modal-btn-confirm" style="width:100%;" onclick="handleSaveBackup()">
+        <button type="button" class="modal-btn-confirm" id="backupSaveBtn" style="width:100%;" onclick="handleSaveBackup()">
           Salva Backup (gym-log-backup.json)
         </button>
         <button type="button" class="modal-btn-cancel" id="changeFolderBtn" style="width:100%; display:none;" onclick="handlePickBackupFolder()">
           Cambia Cartella di Destinazione
         </button>
-        <button type="button" class="modal-btn-cancel" style="width:100%;" onclick="triggerRestoreFile()">
+        <button type="button" class="modal-btn-cancel" id="backupRestoreBtn" style="width:100%;" onclick="triggerRestoreFile()">
           Ripristina da File (.json)
         </button>
       </div>
@@ -4078,7 +4613,7 @@
   <div class="modal-overlay" id="firstLaunchModal" style="display:none;">
     <div class="modal-card">
       <div class="modal-header">
-        <h3>Benvenuto in Gym Log</h3>
+        <h3 id="firstLaunchTitle">Benvenuto in Gym Log</h3>
       </div>
 
       <div class="backup-info-box" id="firstLaunchFolderHint">
@@ -4089,10 +4624,10 @@
         <button type="button" class="modal-btn-confirm" id="firstLaunchPickFolderBtn" style="width:100%; display:none;" onclick="pickFolderFromFirstLaunch()">
           Scegli Cartella Backup
         </button>
-        <button type="button" class="modal-btn-confirm" style="width:100%;" onclick="completeFirstLaunch()">
+        <button type="button" class="modal-btn-confirm" id="firstLaunchStartBtn" style="width:100%;" onclick="completeFirstLaunch()">
           Inizia ad Allenarti
         </button>
-        <button type="button" class="modal-btn-cancel" style="width:100%;" onclick="triggerRestoreFile()">
+        <button type="button" class="modal-btn-cancel" id="firstLaunchRestoreBtn" style="width:100%;" onclick="triggerRestoreFile()">
           Hai già un Backup? Ripristinalo
         </button>
       </div>
@@ -4115,7 +4650,7 @@
       <div id="histProgSparkWrap"></div>
 
       <div>
-        <div class="progress-kpi-label" style="margin-bottom:6px;">Tutte le sedute (tocca per modificare)</div>
+        <div class="progress-kpi-label" id="histProgTimelineLabel" style="margin-bottom:6px;">Tutte le sedute (tocca per modificare)</div>
         <div class="progress-sessions-scroll" id="histProgTimeline"></div>
       </div>
     </div>
@@ -4135,7 +4670,7 @@
       <div class="today-sets-list" id="histDetailSetsList"></div>
 
       <div class="modal-actions">
-        <button type="button" class="modal-btn-confirm" onclick="closeHistoryDetailModal()">Chiudi</button>
+        <button type="button" class="modal-btn-confirm" id="histDetailCloseBtn" onclick="closeHistoryDetailModal()">Chiudi</button>
       </div>
     </div>
   </div>
@@ -4144,14 +4679,14 @@
   <div class="modal-overlay" id="archivedExercisesModal" onclick="if(event.target===this) closeArchivedModal()">
     <div class="modal-card">
       <div class="modal-header">
-        <h3>Esercizi Archiviati</h3>
+        <h3 id="archivedModalTitle">Esercizi Archiviati</h3>
         <button type="button" class="modal-close-btn" onclick="closeArchivedModal()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
       </div>
 
       <div class="today-sets-list" id="archivedExercisesList"></div>
 
       <div class="modal-actions">
-        <button type="button" class="modal-btn-confirm" onclick="closeArchivedModal()">Chiudi</button>
+        <button type="button" class="modal-btn-confirm" id="archivedCloseBtn" onclick="closeArchivedModal()">Chiudi</button>
       </div>
     </div>
   </div>
