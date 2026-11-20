@@ -107,8 +107,8 @@
       font-size: 1.15rem;
       font-weight: 700;
       letter-spacing: -0.5px;
-      display: flex;
-      align-items: center;
+      display: inline-flex;
+      align-items: baseline;
       gap: 6px;
       user-select: none;
       -webkit-user-select: none;
@@ -116,10 +116,13 @@
       cursor: default;
     }
 
-    .title-area span {
-      font-size: 0.75rem;
+    .title-area span,
+    .app-version-sub {
+      font-size: 0.68rem;
       color: var(--text-muted);
-      font-weight: 500;
+      font-weight: 700;
+      letter-spacing: 0;
+      opacity: 0.68;
     }
 
     .sync-badge {
@@ -329,15 +332,15 @@
       gap: 6px;
     }
     .modal-field label {
-      font-size: 0.78rem;
+      font-size: 0.76rem;
       font-weight: 700;
       text-transform: uppercase;
       letter-spacing: 0.5px;
-      color: var(--accent);
+      color: var(--text-muted);
     }
     .modal-field input, .modal-field select, .modal-field textarea {
-      background: var(--bg);
-      border: 1px solid var(--card-border);
+      background: var(--input-bg);
+      border: 1px solid rgba(255, 255, 255, 0.12);
       border-radius: 18px;
       padding: 12px 14px;
       color: var(--text);
@@ -1295,12 +1298,14 @@
       background: var(--card-bg);
       border: 1px solid var(--card-border);
       border-radius: 16px;
-      padding: 9px 14px;
+      padding: 11px 14px;
       margin-bottom: 6px;
       cursor: pointer;
       display: flex;
-      flex-direction: column;
-      gap: 2px;
+      flex-direction: row;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 10px;
       -webkit-tap-highlight-color: transparent;
       transition: background 0.15s ease, transform 0.12s ease, border-color 0.15s ease;
     }
@@ -1311,21 +1316,49 @@
     .history-session-card:active {
       transform: scale(0.985);
     }
-    .history-date-title {
-      font-size: 0.92rem;
+    .history-groups-line {
+      font-size: 0.96rem;
       font-weight: 800;
       color: #fff;
-      letter-spacing: -0.01em;
+      letter-spacing: -0.015em;
       line-height: 1.2;
-    }
-    .history-groups-line {
-      font-size: 0.72rem;
-      font-weight: 500;
-      color: var(--text-muted);
-      line-height: 1.25;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
+      min-width: 0;
+      flex: 1;
+    }
+    .history-date-title {
+      font-size: 0.74rem;
+      font-weight: 500;
+      color: var(--text-muted);
+      white-space: nowrap;
+      flex-shrink: 0;
+      font-variant-numeric: tabular-nums;
+    }
+    .session-ex-label {
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      line-height: 1.25;
+      margin-bottom: 2px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .session-sets-primary {
+      font-size: 0.98rem;
+      font-weight: 800;
+      color: #fff;
+      letter-spacing: -0.01em;
+      line-height: 1.25;
+      font-variant-numeric: tabular-nums;
+    }
+    .session-set-prefix {
+      font-size: 0.82rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      margin-right: 4px;
     }
     .session-group-heading {
       font-size: 0.72rem;
@@ -1932,8 +1965,8 @@
       background: rgba(255, 255, 255, 0.08);
     }
   </style>
-  <script src="db.js?v=46"></script>
-  <script src="backup.js?v=46"></script>
+  <script src="db.js?v=47"></script>
+  <script src="backup.js?v=47"></script>
 </head>
 <body>
   <div id="orientationLockOverlay" class="orientation-lock-overlay" aria-live="polite">
@@ -1950,7 +1983,7 @@
   <header>
     <div class="header-top" id="headerRootBar">
       <div class="title-area">
-        <h1 id="gymLogoTitle" onclick="handleLogoTap(event)">Gym Log</h1>
+        <h1 id="gymLogoTitle" onclick="handleLogoTap(event)">Gym Log <span class="app-version-sub">v47</span></h1>
       </div>
       <div class="settings-menu-wrap">
         <button type="button" class="sheet-close-x" id="settingsBtn" onclick="toggleSettingsMenu(event)" title="Impostazioni" aria-label="Impostazioni">
@@ -2006,7 +2039,6 @@
               </span>
               <span style="opacity:0.6; font-size:1rem; line-height:1;">&rsaquo;</span>
             </button>
-            <div style="text-align:center; font-size:0.68rem; color:var(--text-muted); opacity:0.55; padding:4px 0 2px; font-weight:700;">v46</div>
           </div>
           <div id="settingsMenuExport" class="sheet-dropdown-subview" style="display:none;">
             <button type="button" class="sheet-dropdown-item sheet-dropdown-back" onclick="showMainSettingsMenu(event)">
@@ -3234,7 +3266,6 @@
     // =========================================================================
     // SINGLE-MODAL HELPERS (ZERO POPUP-SU-POPUP: RIGHE, MODIFICA & DELETE INLINE)
     // =========================================================================
-    let pendingInlineDeleteKey = null; // "<ctx>:<setId>"
     let pendingFormDeleteCtx = null;   // "<ctx>"
     const progModalState = { mode: 'chart', exKey: null, dateStr: null, editSetId: null };
     const historyModalState = { mode: 'session', dateStr: null, exKey: null, editSetId: null };
@@ -3246,23 +3277,9 @@
       else if (ctx === 'prog') renderExerciseProgressModal();
     }
 
-    function askInlineDeleteSet(ctx, setId, event) {
-      if (event) event.stopPropagation();
-      haptic();
-      pendingInlineDeleteKey = `${ctx}:${setId}`;
-      renderActiveSetModalByCtx(ctx);
-    }
-
-    function cancelInlineDeleteSet(ctx, event) {
-      if (event) event.stopPropagation();
-      pendingInlineDeleteKey = null;
-      renderActiveSetModalByCtx(ctx);
-    }
-
     async function confirmInlineDeleteSet(ctx, setId, event) {
       if (event) event.stopPropagation();
       haptic();
-      pendingInlineDeleteKey = null;
       pendingFormDeleteCtx = null;
       await GymDB.deleteSet(setId);
       await refreshStateFromDB();
@@ -3276,7 +3293,6 @@
 
     function openInlineEditSet(ctx, setId) {
       haptic();
-      pendingInlineDeleteKey = null;
       pendingFormDeleteCtx = null;
       if (ctx === 'today') {
         todayModalState.mode = 'edit';
@@ -3341,32 +3357,15 @@
       showToast(t('setUpdatedToast'));
     }
 
-    function buildClickableSetRowHtml(ctx, log, titleHtml, subHtml) {
-      const isPending = pendingInlineDeleteKey === `${ctx}:${log.id}`;
-      const rightHtml = isPending
-        ? `<div class="inline-confirm-group" onclick="event.stopPropagation()">
-             <button type="button" class="inline-confirm-btn cancel" onclick="cancelInlineDeleteSet('${ctx}', event)">${t('cancelBtn')}</button>
-             <button type="button" class="inline-confirm-btn danger" onclick="confirmInlineDeleteSet('${ctx}', '${log.id}', event)">${t('deleteBtn')}</button>
-           </div>`
-        : `<div class="today-set-actions">
-             <button type="button" class="set-action-btn danger" onclick="askInlineDeleteSet('${ctx}', '${log.id}', event)" title="${t('deleteBtn')}" aria-label="${t('deleteBtn')}">
-               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-                 <polyline points="3 6 5 6 21 6"></polyline>
-                 <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path>
-                 <path d="M10 11v6"></path>
-                 <path d="M14 11v6"></path>
-                 <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"></path>
-               </svg>
-             </button>
-           </div>`;
-
+    function buildClickableSetRowHtml(ctx, log, labelHtml, primaryHtml, noteHtml = '') {
       return `
-        <div class="today-set-item is-clickable" onclick="openInlineEditSet('${ctx}', '${log.id}')" role="button" tabindex="0">
+        <div class="today-set-item is-clickable" onclick="openInlineEditSet('${ctx}', '${log.id}')" role="button" tabindex="0" style="padding: 11px 14px;">
           <div class="today-set-info">
-            <div class="today-set-name">${titleHtml}</div>
-            ${subHtml ? subHtml : ''}
+            ${labelHtml}
+            ${primaryHtml}
+            ${noteHtml}
           </div>
-          ${rightHtml}
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="opacity:0.45; flex-shrink:0;" aria-hidden="true"><polyline points="9 18 15 12 9 6"></polyline></svg>
         </div>
       `;
     }
@@ -3416,7 +3415,6 @@
       progModalState.exKey = exKey;
       progModalState.dateStr = null;
       progModalState.editSetId = null;
-      pendingInlineDeleteKey = null;
       pendingFormDeleteCtx = null;
       renderExerciseProgressModal();
       const modal = document.getElementById('historyExDetailModal');
@@ -3428,13 +3426,11 @@
       if (modal) modal.style.display = 'none';
       activeHistoryProgressKey = null;
       progModalState.mode = 'chart';
-      pendingInlineDeleteKey = null;
       pendingFormDeleteCtx = null;
     }
 
     function backExerciseProgressView() {
       haptic();
-      pendingInlineDeleteKey = null;
       pendingFormDeleteCtx = null;
       if (progModalState.mode === 'edit') {
         progModalState.mode = 'sets';
@@ -3453,7 +3449,6 @@
       progModalState.mode = 'sets';
       progModalState.dateStr = dateStr;
       progModalState.editSetId = null;
-      pendingInlineDeleteKey = null;
       renderExerciseProgressModal();
     }
 
@@ -3513,9 +3508,10 @@
           const listEl = document.getElementById('histProgSetsList');
           if (listEl) {
             listEl.innerHTML = daySets.map((s, idx) => {
-              const titleHtml = `${escapeHtml(t('setNumberLabel', idx + 1))} &middot; ${s.weight} kg &times; ${escapeHtml(String(s.reps))}`;
-              const subHtml = s.notes ? `<div class="today-set-note">${escapeHtml(s.notes)}</div>` : '';
-              return buildClickableSetRowHtml('prog', s, titleHtml, subHtml);
+              const labelHtml = `<div class="session-ex-label">${escapeHtml(t('setNumberLabel', idx + 1))}</div>`;
+              const primaryHtml = `<div class="session-sets-primary">${s.weight} kg &times; ${escapeHtml(String(s.reps))}</div>`;
+              const noteHtml = s.notes ? `<div class="today-set-note">${escapeHtml(s.notes)}</div>` : '';
+              return buildClickableSetRowHtml('prog', s, labelHtml, primaryHtml, noteHtml);
             }).join('');
           }
           return;
@@ -3615,7 +3611,6 @@
       historyModalState.dateStr = dateStr;
       historyModalState.exKey = null;
       historyModalState.editSetId = null;
-      pendingInlineDeleteKey = null;
       pendingFormDeleteCtx = null;
       renderHistoryDetailModal();
       const modal = document.getElementById('historyDetailModal');
@@ -3629,7 +3624,6 @@
       historyModalState.dateStr = dateStr;
       historyModalState.exKey = exKey;
       historyModalState.editSetId = null;
-      pendingInlineDeleteKey = null;
       pendingFormDeleteCtx = null;
       renderHistoryDetailModal();
       const modal = document.getElementById('historyDetailModal');
@@ -3641,13 +3635,11 @@
       historyModalState.mode = 'exercise';
       historyModalState.exKey = decodeURIComponent(exKeyEncoded || '');
       historyModalState.editSetId = null;
-      pendingInlineDeleteKey = null;
       renderHistoryDetailModal();
     }
 
     function backHistoryDetailView() {
       haptic();
-      pendingInlineDeleteKey = null;
       pendingFormDeleteCtx = null;
       if (historyModalState.mode === 'edit') {
         historyModalState.mode = 'exercise';
@@ -3664,7 +3656,6 @@
       if (modal) modal.style.display = 'none';
       activeHistoryDetail = null;
       historyModalState.mode = 'session';
-      pendingInlineDeleteKey = null;
       pendingFormDeleteCtx = null;
     }
 
@@ -3719,9 +3710,10 @@
           if (listWrap) listWrap.style.display = 'block';
           if (listEl) {
             listEl.innerHTML = daySets.map((s, idx) => {
-              const tHtml = `${escapeHtml(t('setNumberLabel', idx + 1))} &middot; ${s.weight} kg &times; ${escapeHtml(String(s.reps))}`;
-              const sHtml = s.notes ? `<div class="today-set-note">${escapeHtml(s.notes)}</div>` : '';
-              return buildClickableSetRowHtml('history', s, tHtml, sHtml);
+              const labelHtml = `<div class="session-ex-label">${escapeHtml(t('setNumberLabel', idx + 1))}</div>`;
+              const primaryHtml = `<div class="session-sets-primary">${s.weight} kg &times; ${escapeHtml(String(s.reps))}</div>`;
+              const noteHtml = s.notes ? `<div class="today-set-note">${escapeHtml(s.notes)}</div>` : '';
+              return buildClickableSetRowHtml('history', s, labelHtml, primaryHtml, noteHtml);
             }).join('');
           }
           return;
@@ -3771,12 +3763,12 @@
           for (const exObj of Object.values(byGroup[g])) {
             const formatted = GymDB.formatDaySets(exObj.sets);
             parts.push(`
-              <div class="today-set-item is-clickable" onclick="selectSessionExercise('${encodeURIComponent(exObj.key)}')" role="button" tabindex="0">
+              <div class="today-set-item is-clickable" onclick="selectSessionExercise('${encodeURIComponent(exObj.key)}')" role="button" tabindex="0" style="padding: 11px 14px;">
                 <div class="today-set-info">
-                  <div class="today-set-name">${escapeHtml(exObj.name)}</div>
-                  <div class="today-set-meta">${escapeHtml(formatted)}</div>
+                  <div class="session-ex-label">${escapeHtml(exObj.name)}</div>
+                  <div class="session-sets-primary">${escapeHtml(formatted)}</div>
                 </div>
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="opacity:0.6; flex-shrink:0;" aria-hidden="true"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="opacity:0.45; flex-shrink:0;" aria-hidden="true"><polyline points="9 18 15 12 9 6"></polyline></svg>
               </div>
             `);
           }
@@ -3846,8 +3838,8 @@
 
         chunks.push(`
           <div class="history-session-card" data-hist-date="${dateStr}" onclick="openSessionModal('${dateStr}')" role="button" tabindex="0">
-            <div class="history-date-title">${escapeHtml(formatNaturalDate(dateStr, true))}</div>
             <div class="history-groups-line">${escapeHtml(groupsLabel)}</div>
+            <div class="history-date-title">${escapeHtml(formatNaturalDate(dateStr, true))}</div>
           </div>
         `);
       }
@@ -4449,7 +4441,6 @@
       haptic();
       todayModalState.mode = 'list';
       todayModalState.editSetId = null;
-      pendingInlineDeleteKey = null;
       pendingFormDeleteCtx = null;
       renderTodaySetsList();
       const modal = document.getElementById('todaySetsModal');
@@ -4460,7 +4451,6 @@
       haptic();
       todayModalState.mode = 'list';
       todayModalState.editSetId = null;
-      pendingInlineDeleteKey = null;
       pendingFormDeleteCtx = null;
       renderTodaySetsList();
     }
@@ -4470,7 +4460,6 @@
       if (modal) modal.style.display = 'none';
       todayModalState.mode = 'list';
       todayModalState.editSetId = null;
-      pendingInlineDeleteKey = null;
       pendingFormDeleteCtx = null;
     }
 
@@ -4521,14 +4510,10 @@
       const timeLocale = currentLang === 'en' ? 'en-US' : 'it-IT';
       container.innerHTML = [...todayLogs].reverse().map((log) => {
         const timeStr = log.timestamp ? new Date(log.timestamp).toLocaleTimeString(timeLocale, {hour: '2-digit', minute: '2-digit'}) : '';
-        const subHtml = `
-          <div class="today-set-meta">
-            <span>${log.weight} kg &times; ${log.reps} reps</span>
-            ${timeStr ? `<span>&bull; ${timeStr}</span>` : ''}
-            ${log.notes ? `<span>&bull; ${escapeHtml(log.notes)}</span>` : ''}
-          </div>
-        `;
-        return buildClickableSetRowHtml('today', log, escapeHtml(log.exerciseName), subHtml);
+        const labelHtml = `<div class="session-ex-label">${escapeHtml(log.exerciseName)}${timeStr ? ` &middot; ${timeStr}` : ''}</div>`;
+        const primaryHtml = `<div class="session-sets-primary">${log.weight} kg &times; ${log.reps} reps</div>`;
+        const noteHtml = log.notes ? `<div class="today-set-note">${escapeHtml(log.notes)}</div>` : '';
+        return buildClickableSetRowHtml('today', log, labelHtml, primaryHtml, noteHtml);
       }).join('');
     }
 
@@ -5245,7 +5230,7 @@
     })();
 
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('sw.js?v=46', {scope: './'}).then(reg => {
+      navigator.serviceWorker.register('sw.js?v=47', {scope: './'}).then(reg => {
         reg.update();
       }).catch(() => {});
     }
