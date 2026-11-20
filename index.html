@@ -86,7 +86,7 @@
       backdrop-filter: blur(20px);
       -webkit-backdrop-filter: blur(20px);
       border-bottom: 1px solid var(--card-border);
-      padding: max(24px, calc(env(safe-area-inset-top, 0px) + 24px)) 16px 12px;
+      padding: max(12px, calc(env(safe-area-inset-top, 0px) + 6px)) 16px 10px;
     }
 
     .header-top {
@@ -257,14 +257,14 @@
     .modal-card {
       background: var(--card-bg);
       border: 1px solid var(--card-border);
-      border-radius: 20px;
+      border-radius: 36px;
       width: 100%;
       max-width: 420px;
-      padding: 24px;
+      padding: 18px;
       box-shadow: 0 16px 40px rgba(0, 0, 0, 0.6);
       display: flex;
       flex-direction: column;
-      gap: 16px;
+      gap: 14px;
       animation: modalSlideUp 0.2s cubic-bezier(0.16, 1, 0.3, 1);
     }
     @keyframes modalSlideUp {
@@ -273,8 +273,14 @@
     }
     .modal-header {
       display: flex;
-      align-items: center;
+      align-items: flex-start;
       justify-content: space-between;
+      gap: 12px;
+    }
+    .modal-header > div:first-child,
+    .modal-header > h3 {
+      padding-top: 4px;
+      min-width: 0;
     }
     .modal-header h3 {
       font-size: 1.15rem;
@@ -288,8 +294,8 @@
       background: rgba(255, 255, 255, 0.08);
       border: 1px solid var(--card-border);
       color: var(--text-muted);
-      width: 34px;
-      height: 34px;
+      width: 36px;
+      height: 36px;
       border-radius: 50%;
       display: inline-flex;
       align-items: center;
@@ -321,8 +327,8 @@
     .modal-field input, .modal-field select {
       background: var(--bg);
       border: 1px solid var(--card-border);
-      border-radius: 10px;
-      padding: 10px 14px;
+      border-radius: 14px;
+      padding: 11px 14px;
       color: var(--text);
       font-size: 1rem;
       outline: none;
@@ -333,13 +339,13 @@
     .modal-actions {
       display: flex;
       gap: 10px;
-      margin-top: 8px;
+      margin-top: 4px;
     }
     .modal-btn-cancel {
       flex: 1;
       background: rgba(255, 255, 255, 0.07);
       border: 1px solid var(--card-border);
-      border-radius: 10px;
+      border-radius: 18px;
       color: var(--text-muted);
       padding: 12px;
       font-size: 0.9rem;
@@ -350,7 +356,7 @@
       flex: 1.4;
       background: var(--accent);
       border: none;
-      border-radius: 10px;
+      border-radius: 18px;
       color: var(--cta-text);
       padding: 12px;
       font-size: 0.9rem;
@@ -369,7 +375,7 @@
     .ex-card {
       background: var(--card-bg);
       border: 1px solid var(--card-border);
-      border-radius: 16px;
+      border-radius: 20px;
       padding: 14px 16px;
       cursor: pointer;
       user-select: none;
@@ -551,7 +557,7 @@
     .sheet-stepper-box {
       background: rgba(255, 255, 255, 0.04);
       border: 1px solid var(--card-border);
-      border-radius: 16px;
+      border-radius: 20px;
       padding: 12px;
       display: flex;
       flex-direction: column;
@@ -575,7 +581,7 @@
     .sheet-big-btn {
       width: 48px;
       height: 48px;
-      border-radius: 14px;
+      border-radius: 12px;
       background: rgba(255, 255, 255, 0.08);
       border: 1px solid var(--card-border);
       color: #fff;
@@ -654,7 +660,7 @@
       flex: 1;
       min-height: 42px;
       padding: 8px 0;
-      border-radius: 10px;
+      border-radius: 12px;
       background: rgba(255, 255, 255, 0.06);
       border: 1px solid var(--card-border);
       color: var(--text-muted);
@@ -684,7 +690,7 @@
       width: 100%;
       background: rgba(255, 255, 255, 0.05);
       border: 1px solid var(--card-border);
-      border-radius: 12px;
+      border-radius: 16px;
       padding: 12px 14px;
       color: var(--text);
       font-size: 1rem;
@@ -702,7 +708,7 @@
       background: var(--accent);
       color: var(--cta-text);
       border: none;
-      border-radius: 14px;
+      border-radius: 18px;
       padding: 15px 20px;
       font-size: 1.05rem;
       font-weight: 800;
@@ -791,8 +797,8 @@
       gap: 12px;
       background: rgba(255, 255, 255, 0.04);
       border: 1px solid var(--card-border);
-      border-radius: 12px;
-      padding: 10px 14px;
+      border-radius: 16px;
+      padding: 12px 14px;
       transition: background 0.2s ease;
     }
     .today-set-item:hover {
@@ -890,7 +896,7 @@
     .group-tile {
       background: var(--card-bg);
       border: 1px solid var(--card-border);
-      border-radius: 16px;
+      border-radius: 20px;
       padding: 14px 16px;
       cursor: pointer;
       position: relative;
@@ -1065,8 +1071,8 @@
     .history-session-card {
       background: var(--card-bg);
       border: 1px solid var(--card-border);
-      border-radius: 16px;
-      padding: 13px 15px;
+      border-radius: 20px;
+      padding: 14px 16px;
       margin-bottom: 10px;
       transition: border-color 0.2s ease;
     }
@@ -1185,8 +1191,8 @@
     .progress-kpi-box {
       background: rgba(255, 255, 255, 0.04);
       border: 1px solid var(--card-border);
-      border-radius: 14px;
-      padding: 11px 12px;
+      border-radius: 18px;
+      padding: 12px 14px;
     }
     .progress-kpi-label {
       font-size: 0.7rem;
@@ -1232,8 +1238,8 @@
     .progress-spark-card {
       background: rgba(255, 255, 255, 0.03);
       border: 1px solid var(--card-border);
-      border-radius: 14px;
-      padding: 10px 12px 8px;
+      border-radius: 18px;
+      padding: 12px 14px 10px;
     }
     .progress-spark-header {
       display: flex;
@@ -1285,8 +1291,8 @@
     .backup-info-box {
       background: rgba(255, 255, 255, 0.04);
       border: 1px solid var(--card-border);
-      border-radius: 12px;
-      padding: 12px 14px;
+      border-radius: 18px;
+      padding: 13px 15px;
       font-size: 0.84rem;
       color: var(--text-muted);
       line-height: 1.45;
@@ -1297,10 +1303,10 @@
     .history-sub-toggle {
       display: grid;
       grid-template-columns: 1fr 1fr;
-      gap: 6px;
+      gap: 4px;
       background: rgba(255, 255, 255, 0.06);
       border: 1px solid var(--card-border);
-      border-radius: 12px;
+      border-radius: 14px;
       padding: 4px;
       margin-bottom: 12px;
     }
@@ -1308,10 +1314,10 @@
       background: transparent;
       border: none;
       color: var(--text-muted);
-      font-size: 0.82rem;
+      font-size: 0.84rem;
       font-weight: 700;
-      padding: 8px 10px;
-      border-radius: 9px;
+      padding: 9px 12px;
+      border-radius: 10px;
       cursor: pointer;
       transition: all 0.2s;
     }
@@ -1319,7 +1325,6 @@
       background: var(--card-bg);
       color: #fff;
       border: 1px solid var(--card-border);
-      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3);
     }
     .sheet-header-actions {
       display: flex;
@@ -1458,8 +1463,8 @@
       }
     }
   </style>
-  <script src="db.js?v=22"></script>
-  <script src="backup.js?v=22"></script>
+  <script src="db.js?v=23"></script>
+  <script src="backup.js?v=23"></script>
 </head>
 <body>
 
@@ -2177,23 +2182,33 @@
       if (dateStr && exKey) openHistoryDetailModal(dateStr, exKey);
     }
 
+    function getSessionVolume(setsList) {
+      let total = 0;
+      for (const s of setsList) {
+        const w = parseFloat(s.weight) || 0;
+        const r = parseInt(s.reps, 10) || 0;
+        total += w * r;
+      }
+      return Number(total.toFixed(1));
+    }
+
     function renderSparklineSvg(points) {
       if (!points || points.length < 2) return '';
       const w = 320;
       const h = 76;
       const padX = 12;
       const padY = 12;
-      const weights = points.map(p => p.maxWeight);
-      let minW = Math.min(...weights);
-      let maxW = Math.max(...weights);
-      if (maxW === minW) {
-        minW = Math.max(0, minW - 5);
-        maxW = maxW + 5;
+      const values = points.map(p => p.value);
+      let minV = Math.min(...values);
+      let maxV = Math.max(...values);
+      if (maxV === minV) {
+        minV = Math.max(0, minV - 10);
+        maxV = maxV + 10;
       }
-      const spanW = maxW - minW;
+      const spanV = maxV - minV;
       const coords = points.map((p, idx) => {
         const x = padX + (idx / (points.length - 1)) * (w - padX * 2);
-        const y = (h - padY) - ((p.maxWeight - minW) / spanW) * (h - padY * 2);
+        const y = (h - padY) - ((p.value - minV) / spanV) * (h - padY * 2);
         return { x: Number(x.toFixed(1)), y: Number(y.toFixed(1)), ...p };
       });
       const polyPoints = coords.map(c => `${c.x},${c.y}`).join(' ');
@@ -2202,13 +2217,13 @@
       const dotsSvg = coords.map(c => `<circle cx="${c.x}" cy="${c.y}" r="3.2" fill="${accentHex}" stroke="#1C1C1E" stroke-width="1.5"></circle>`).join('');
       const firstDate = formatNaturalDate(points[0].dateStr, true);
       const lastDate = formatNaturalDate(points[points.length - 1].dateStr, true);
-      const realMin = Math.min(...weights);
-      const realMax = Math.max(...weights);
+      const realMin = Math.min(...values);
+      const realMax = Math.max(...values);
 
       return `
         <div class="progress-spark-card">
           <div class="progress-spark-header">
-            <span>Andamento carico max (ultime ${points.length} sedute)</span>
+            <span>Volume (kg &times; reps, ultime ${points.length})</span>
             <span>${realMin} &ndash; ${realMax} kg</span>
           </div>
           <svg viewBox="0 0 ${w} ${h}" width="100%" height="76" style="display:block; overflow:visible;">
@@ -2277,14 +2292,15 @@
       const lastDate = datesDesc[0];
       const lastSets = byDate[lastDate].sort((a, b) => (a.timestamp || '').localeCompare(b.timestamp || ''));
       const lastMax = getMaxSetWeight(lastSets);
+      const lastVol = getSessionVolume(lastSets);
       const lastFormatted = GymDB.formatDaySets(lastSets);
 
       let deltaHtml = '';
       if (datesDesc.length >= 2) {
-        const prevMax = getMaxSetWeight(byDate[datesDesc[1]]);
-        const diff = Number((lastMax - prevMax).toFixed(1));
-        if (diff > 0) deltaHtml = `<span class="progress-delta-badge up">+${diff} kg</span>`;
-        else if (diff < 0) deltaHtml = `<span class="progress-delta-badge down">${diff} kg</span>`;
+        const prevVol = getSessionVolume(byDate[datesDesc[1]]);
+        const diff = Number((lastVol - prevVol).toFixed(1));
+        if (diff > 0) deltaHtml = `<span class="progress-delta-badge up">+${diff} vol</span>`;
+        else if (diff < 0) deltaHtml = `<span class="progress-delta-badge down">${diff} vol</span>`;
         else deltaHtml = `<span class="progress-delta-badge flat">=</span>`;
       }
 
@@ -2297,13 +2313,13 @@
         <div class="progress-kpi-box">
           <div class="progress-kpi-label">Ultima Seduta</div>
           <div class="progress-kpi-val">${lastMax} kg ${deltaHtml}</div>
-          <div class="progress-kpi-sub">${escapeHtml(lastFormatted)}</div>
+          <div class="progress-kpi-sub">${escapeHtml(lastFormatted)} &middot; ${lastVol} kg vol</div>
         </div>
       `;
 
       const sparkPoints = datesAsc.slice(-12).map(d => ({
         dateStr: d,
-        maxWeight: getMaxSetWeight(byDate[d])
+        value: getSessionVolume(byDate[d])
       }));
       document.getElementById('histProgSparkWrap').innerHTML = renderSparklineSvg(sparkPoints);
 
@@ -3474,7 +3490,7 @@
     }
 
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('sw.js?v=22', {scope: './'}).then(reg => {
+      navigator.serviceWorker.register('sw.js?v=23', {scope: './'}).then(reg => {
         reg.update();
       }).catch(() => {});
     }
