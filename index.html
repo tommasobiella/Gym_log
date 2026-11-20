@@ -1054,7 +1054,7 @@
       background: var(--card-bg);
       border: 1px solid var(--card-border);
       border-radius: 20px;
-      padding: 14px 16px;
+      padding: 12px 16px;
       cursor: pointer;
       position: relative;
       overflow: hidden;
@@ -1080,19 +1080,20 @@
       min-width: 0;
     }
     .tile-title {
-      font-size: 0.96rem;
+      font-size: 1.06rem;
       font-weight: 800;
+      line-height: 1.18;
       color: #fff;
-      letter-spacing: -0.01em;
+      letter-spacing: -0.015em;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
       max-width: 100%;
     }
     .tile-meta {
-      font-size: 0.75rem;
-      font-weight: 600;
-      line-height: 1.3;
+      font-size: 0.72rem;
+      font-weight: 500;
+      line-height: 1.25;
       color: var(--text-muted);
       white-space: nowrap;
       overflow: hidden;
@@ -1293,47 +1294,100 @@
     .history-session-card {
       background: var(--card-bg);
       border: 1px solid var(--card-border);
-      border-radius: 20px;
-      padding: 14px 16px;
-      margin-bottom: 10px;
-      transition: border-color 0.2s ease;
-    }
-    .history-session-card.expanded {
-      border-color: var(--accent-glow);
-    }
-    .history-date-header {
+      border-radius: 16px;
+      padding: 9px 14px;
+      margin-bottom: 6px;
+      cursor: pointer;
       display: flex;
-      justify-content: space-between;
-      align-items: center;
-      gap: 10px;
-      margin-bottom: 10px;
-      padding-bottom: 8px;
-      border-bottom: 1px solid var(--card-border);
+      flex-direction: column;
+      gap: 2px;
+      -webkit-tap-highlight-color: transparent;
+      transition: background 0.15s ease, transform 0.12s ease, border-color 0.15s ease;
+    }
+    .history-session-card:hover {
+      background: var(--card-hover);
+      border-color: rgba(255, 255, 255, 0.14);
+    }
+    .history-session-card:active {
+      transform: scale(0.985);
     }
     .history-date-title {
-      font-size: 0.96rem;
+      font-size: 0.92rem;
       font-weight: 800;
       color: #fff;
       letter-spacing: -0.01em;
+      line-height: 1.2;
     }
     .history-groups-line {
-      font-size: 0.75rem;
-      font-weight: 600;
+      font-size: 0.72rem;
+      font-weight: 500;
       color: var(--text-muted);
-      margin-top: 2px;
-      line-height: 1.3;
+      line-height: 1.25;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
     }
-    .history-date-meta {
+    .session-group-heading {
+      font-size: 0.72rem;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      color: var(--accent);
+      margin: 8px 2px 2px;
+    }
+    .session-group-heading:first-child {
+      margin-top: 0;
+    }
+    .inline-confirm-group {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      flex-shrink: 0;
+    }
+    .inline-confirm-btn {
+      border: none;
+      border-radius: 999px;
       font-size: 0.74rem;
       font-weight: 700;
-      color: var(--accent);
-      background: var(--accent-soft);
-      padding: 3px 9px;
-      border-radius: 999px;
-      white-space: nowrap;
+      padding: 6px 11px;
+      cursor: pointer;
+      min-height: 32px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .inline-confirm-btn.cancel {
+      background: rgba(255, 255, 255, 0.1);
+      color: var(--text);
+    }
+    .inline-confirm-btn.danger {
+      background: var(--danger);
+      color: #fff;
+    }
+    .modal-back-btn {
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid var(--card-border);
+      color: var(--text-muted);
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      padding: 0;
+      flex-shrink: 0;
+      transition: background 0.15s ease, color 0.15s ease;
+    }
+    .modal-back-btn:active {
+      background: rgba(255, 255, 255, 0.16);
+      color: #fff;
+    }
+    .inline-edit-form {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin-top: 4px;
     }
     .history-clean-row {
       display: flex;
@@ -1878,8 +1932,8 @@
       background: rgba(255, 255, 255, 0.08);
     }
   </style>
-  <script src="db.js?v=45"></script>
-  <script src="backup.js?v=45"></script>
+  <script src="db.js?v=46"></script>
+  <script src="backup.js?v=46"></script>
 </head>
 <body>
   <div id="orientationLockOverlay" class="orientation-lock-overlay" aria-live="polite">
@@ -1952,7 +2006,7 @@
               </span>
               <span style="opacity:0.6; font-size:1rem; line-height:1;">&rsaquo;</span>
             </button>
-            <div style="text-align:center; font-size:0.68rem; color:var(--text-muted); opacity:0.55; padding:4px 0 2px; font-weight:700;">v45</div>
+            <div style="text-align:center; font-size:0.68rem; color:var(--text-muted); opacity:0.55; padding:4px 0 2px; font-weight:700;">v46</div>
           </div>
           <div id="settingsMenuExport" class="sheet-dropdown-subview" style="display:none;">
             <button type="button" class="sheet-dropdown-item sheet-dropdown-back" onclick="showMainSettingsMenu(event)">
@@ -2017,8 +2071,8 @@
   <section id="groupsHubView" style="padding: 8px 16px 6px;">
     <div class="groups-hub-header">
       <div style="min-width:0;">
-        <h2 id="groupsHubTitle" style="font-size: 1.15rem; font-weight: 800; color: #fff; letter-spacing: -0.02em;">Gruppi Muscolari</h2>
-        <p id="groupsHubSubtitle" style="font-size: 0.75rem; color: var(--text-muted); margin-top: 2px;">Seleziona un distretto per aprire gli esercizi</p>
+        <h2 id="groupsHubTitle" style="font-size: 1.24rem; font-weight: 800; color: #fff; letter-spacing: -0.02em; line-height: 1.15;">Gruppi Muscolari</h2>
+        <p id="groupsHubSubtitle" style="font-size: 0.73rem; font-weight: 500; color: var(--text-muted); margin-top: 2px;">Seleziona un distretto per aprire gli esercizi</p>
       </div>
       <button type="button" class="today-summary-pill" id="todaySummaryPill" onclick="openTodaySetsModal()" title="Vedi serie completate oggi">Oggi &middot; 0 serie</button>
     </div>
@@ -2583,14 +2637,6 @@
       setTxt('modeBtnLog', 'tabLog');
       setTxt('modeBtnHistory', 'tabHistory');
 
-      setTxt('editSetModalTitle', 'editSetTitle');
-      setTxt('editSetWeightLabel', 'weightKgLabel');
-      setTxt('editSetRepsLabel', 'repsLabel');
-      setTxt('editSetNotesLabel', 'notesOptLabel');
-      setPh('editSetNotesInput', 'editNotesPlaceholder');
-      setTxt('editSetDeleteBtn', 'deleteBtn');
-      setTxt('editSetSaveBtn', 'saveBtn');
-
       setTxt('newExModalTitle', 'newExTitle');
       setTxt('newExNameLabel', 'newExNameLabel');
       setPh('newExNameInput', 'newExNamePlaceholder');
@@ -3061,16 +3107,6 @@
       return `${monthsArr[m - 1]} ${y}`;
     }
 
-    function toggleHistoryDateCard(dateStr) {
-      haptic();
-      if (expandedHistoryDates.has(dateStr)) {
-        expandedHistoryDates.delete(dateStr);
-      } else {
-        expandedHistoryDates.add(dateStr);
-      }
-      renderHistoryView();
-    }
-
     function onExerciseSearchInput() {
       const input = document.getElementById('searchInput');
       const btn = document.getElementById('exerciseSearchClearBtn');
@@ -3195,6 +3231,173 @@
       `;
     }
 
+    // =========================================================================
+    // SINGLE-MODAL HELPERS (ZERO POPUP-SU-POPUP: RIGHE, MODIFICA & DELETE INLINE)
+    // =========================================================================
+    let pendingInlineDeleteKey = null; // "<ctx>:<setId>"
+    let pendingFormDeleteCtx = null;   // "<ctx>"
+    const progModalState = { mode: 'chart', exKey: null, dateStr: null, editSetId: null };
+    const historyModalState = { mode: 'session', dateStr: null, exKey: null, editSetId: null };
+    const todayModalState = { mode: 'list', editSetId: null };
+
+    function renderActiveSetModalByCtx(ctx) {
+      if (ctx === 'today') renderTodaySetsList();
+      else if (ctx === 'history') renderHistoryDetailModal();
+      else if (ctx === 'prog') renderExerciseProgressModal();
+    }
+
+    function askInlineDeleteSet(ctx, setId, event) {
+      if (event) event.stopPropagation();
+      haptic();
+      pendingInlineDeleteKey = `${ctx}:${setId}`;
+      renderActiveSetModalByCtx(ctx);
+    }
+
+    function cancelInlineDeleteSet(ctx, event) {
+      if (event) event.stopPropagation();
+      pendingInlineDeleteKey = null;
+      renderActiveSetModalByCtx(ctx);
+    }
+
+    async function confirmInlineDeleteSet(ctx, setId, event) {
+      if (event) event.stopPropagation();
+      haptic();
+      pendingInlineDeleteKey = null;
+      pendingFormDeleteCtx = null;
+      await GymDB.deleteSet(setId);
+      await refreshStateFromDB();
+      if (ctx === 'today') todayModalState.mode = 'list';
+      else if (ctx === 'history' && historyModalState.mode === 'edit') historyModalState.mode = 'exercise';
+      else if (ctx === 'prog' && progModalState.mode === 'edit') progModalState.mode = 'sets';
+      renderTodaySetsList();
+      refreshOpenHistoryModals();
+      showToast(t('setDeletedToast'));
+    }
+
+    function openInlineEditSet(ctx, setId) {
+      haptic();
+      pendingInlineDeleteKey = null;
+      pendingFormDeleteCtx = null;
+      if (ctx === 'today') {
+        todayModalState.mode = 'edit';
+        todayModalState.editSetId = setId;
+        renderTodaySetsList();
+      } else if (ctx === 'history') {
+        historyModalState.mode = 'edit';
+        historyModalState.editSetId = setId;
+        renderHistoryDetailModal();
+      } else if (ctx === 'prog') {
+        progModalState.mode = 'edit';
+        progModalState.editSetId = setId;
+        renderExerciseProgressModal();
+      }
+    }
+
+    function askInlineFormDelete(ctx) {
+      haptic();
+      pendingFormDeleteCtx = ctx;
+      renderActiveSetModalByCtx(ctx);
+    }
+
+    function cancelInlineFormDelete(ctx) {
+      pendingFormDeleteCtx = null;
+      renderActiveSetModalByCtx(ctx);
+    }
+
+    async function saveInlineEditedSet(ctx) {
+      haptic();
+      const setId = ctx === 'today' ? todayModalState.editSetId
+        : (ctx === 'history' ? historyModalState.editSetId : progModalState.editSetId);
+      const log = allSets.find(l => l.id === setId);
+      if (!log) return;
+
+      const wEl = document.getElementById(`inlineEditWeight_${ctx}`);
+      const rEl = document.getElementById(`inlineEditReps_${ctx}`);
+      const nEl = document.getElementById(`inlineEditNotes_${ctx}`);
+      const newWeight = parseFloat(wEl ? wEl.value : '');
+      const newReps = parseInt(rEl ? rEl.value : '', 10);
+      const newNotes = nEl ? nEl.value.trim() : '';
+
+      if (isNaN(newWeight) || newWeight < 0 || isNaN(newReps) || newReps <= 0) {
+        showToast(t('invalidSetAlert'));
+        return;
+      }
+
+      await GymDB.updateSet({ ...log, weight: newWeight, reps: String(newReps), notes: newNotes });
+      await refreshStateFromDB();
+      pendingFormDeleteCtx = null;
+      if (ctx === 'today') {
+        todayModalState.mode = 'list';
+        todayModalState.editSetId = null;
+      } else if (ctx === 'history') {
+        historyModalState.mode = 'exercise';
+        historyModalState.editSetId = null;
+      } else if (ctx === 'prog') {
+        progModalState.mode = 'sets';
+        progModalState.editSetId = null;
+      }
+      renderTodaySetsList();
+      refreshOpenHistoryModals();
+      showToast(t('setUpdatedToast'));
+    }
+
+    function buildClickableSetRowHtml(ctx, log, titleHtml, subHtml) {
+      const isPending = pendingInlineDeleteKey === `${ctx}:${log.id}`;
+      const rightHtml = isPending
+        ? `<div class="inline-confirm-group" onclick="event.stopPropagation()">
+             <button type="button" class="inline-confirm-btn cancel" onclick="cancelInlineDeleteSet('${ctx}', event)">${t('cancelBtn')}</button>
+             <button type="button" class="inline-confirm-btn danger" onclick="confirmInlineDeleteSet('${ctx}', '${log.id}', event)">${t('deleteBtn')}</button>
+           </div>`
+        : `<div class="today-set-actions">
+             <button type="button" class="set-action-btn danger" onclick="askInlineDeleteSet('${ctx}', '${log.id}', event)" title="${t('deleteBtn')}" aria-label="${t('deleteBtn')}">
+               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+                 <polyline points="3 6 5 6 21 6"></polyline>
+                 <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path>
+                 <path d="M10 11v6"></path>
+                 <path d="M14 11v6"></path>
+                 <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"></path>
+               </svg>
+             </button>
+           </div>`;
+
+      return `
+        <div class="today-set-item is-clickable" onclick="openInlineEditSet('${ctx}', '${log.id}')" role="button" tabindex="0">
+          <div class="today-set-info">
+            <div class="today-set-name">${titleHtml}</div>
+            ${subHtml ? subHtml : ''}
+          </div>
+          ${rightHtml}
+        </div>
+      `;
+    }
+
+    function buildInlineEditFormHtml(ctx, log) {
+      const isConfirm = pendingFormDeleteCtx === ctx;
+      const actionsHtml = isConfirm
+        ? `<button type="button" class="modal-btn-cancel" onclick="cancelInlineFormDelete('${ctx}')">${t('cancelBtn')}</button>
+           <button type="button" class="modal-btn-confirm" style="background:var(--danger); color:#fff;" onclick="confirmInlineDeleteSet('${ctx}', '${log.id}', event)">${t('deleteBtn')}</button>`
+        : `<button type="button" class="modal-btn-cancel" style="color:var(--danger); border-color:rgba(255,69,58,0.35);" onclick="askInlineFormDelete('${ctx}')">${t('deleteBtn')}</button>
+           <button type="button" class="modal-btn-confirm" onclick="saveInlineEditedSet('${ctx}')">${t('saveBtn')}</button>`;
+
+      return `
+        <div class="inline-edit-form">
+          <div class="modal-field">
+            <label for="inlineEditWeight_${ctx}">${t('weightKgLabel')}</label>
+            <input type="number" id="inlineEditWeight_${ctx}" step="0.5" min="0" value="${escapeHtml(String(log.weight))}">
+          </div>
+          <div class="modal-field">
+            <label for="inlineEditReps_${ctx}">${t('repsLabel')}</label>
+            <input type="number" id="inlineEditReps_${ctx}" step="1" min="1" value="${escapeHtml(String(log.reps))}">
+          </div>
+          <div class="modal-field">
+            <label for="inlineEditNotes_${ctx}">${t('notesOptLabel')}</label>
+            <input type="text" id="inlineEditNotes_${ctx}" placeholder="${escapeHtml(t('editNotesPlaceholder'))}" value="${escapeHtml(log.notes || '')}">
+          </div>
+          <div class="modal-actions">${actionsHtml}</div>
+        </div>
+      `;
+    }
+
     function openActiveSheetProgress() {
       if (!activeSheetExId) return;
       const { exSets } = getExKeySetsAndMeta(activeSheetExId);
@@ -3209,6 +3412,12 @@
     function openExerciseProgressModal(exKey) {
       haptic();
       activeHistoryProgressKey = exKey;
+      progModalState.mode = 'chart';
+      progModalState.exKey = exKey;
+      progModalState.dateStr = null;
+      progModalState.editSetId = null;
+      pendingInlineDeleteKey = null;
+      pendingFormDeleteCtx = null;
       renderExerciseProgressModal();
       const modal = document.getElementById('historyExDetailModal');
       if (modal) modal.style.display = 'flex';
@@ -3218,6 +3427,34 @@
       const modal = document.getElementById('historyExDetailModal');
       if (modal) modal.style.display = 'none';
       activeHistoryProgressKey = null;
+      progModalState.mode = 'chart';
+      pendingInlineDeleteKey = null;
+      pendingFormDeleteCtx = null;
+    }
+
+    function backExerciseProgressView() {
+      haptic();
+      pendingInlineDeleteKey = null;
+      pendingFormDeleteCtx = null;
+      if (progModalState.mode === 'edit') {
+        progModalState.mode = 'sets';
+        progModalState.editSetId = null;
+      } else {
+        progModalState.mode = 'chart';
+        progModalState.dateStr = null;
+      }
+      renderExerciseProgressModal();
+    }
+
+    function openProgressDateSets(el) {
+      haptic();
+      const dateStr = el.dataset.date || '';
+      if (!dateStr) return;
+      progModalState.mode = 'sets';
+      progModalState.dateStr = dateStr;
+      progModalState.editSetId = null;
+      pendingInlineDeleteKey = null;
+      renderExerciseProgressModal();
     }
 
     function renderExerciseProgressModal() {
@@ -3228,8 +3465,73 @@
         return;
       }
 
-      document.getElementById('histProgTitle').innerText = name;
-      document.getElementById('histProgGroup').innerText = group ? tGroup(group) : '';
+      const backBtn = document.getElementById('histProgBackBtn');
+      const titleEl = document.getElementById('histProgTitle');
+      const groupEl = document.getElementById('histProgGroup');
+      const chartView = document.getElementById('histProgChartView');
+      const setsView = document.getElementById('histProgSetsView');
+      const editView = document.getElementById('histProgEditView');
+
+      if (progModalState.mode === 'edit') {
+        const log = allSets.find(s => s.id === progModalState.editSetId);
+        if (!log) {
+          progModalState.mode = 'sets';
+        } else {
+          if (backBtn) backBtn.style.display = 'inline-flex';
+          if (titleEl) titleEl.innerText = t('editSetTitle');
+          if (groupEl) {
+            groupEl.innerText = `${name} · ${formatNaturalDate(log.date, true)}`;
+            groupEl.style.color = 'var(--accent)';
+          }
+          if (chartView) chartView.style.display = 'none';
+          if (setsView) setsView.style.display = 'none';
+          if (editView) {
+            editView.style.display = 'block';
+            editView.innerHTML = buildInlineEditFormHtml('prog', log);
+          }
+          return;
+        }
+      }
+
+      if (progModalState.mode === 'sets' && progModalState.dateStr) {
+        const daySets = exSets
+          .filter(s => s.date === progModalState.dateStr)
+          .sort((a, b) => (a.timestamp || '').localeCompare(b.timestamp || ''));
+        if (daySets.length === 0) {
+          progModalState.mode = 'chart';
+          progModalState.dateStr = null;
+        } else {
+          if (backBtn) backBtn.style.display = 'inline-flex';
+          if (titleEl) titleEl.innerText = name;
+          if (groupEl) {
+            groupEl.innerText = formatNaturalDate(progModalState.dateStr, true);
+            groupEl.style.color = 'var(--accent)';
+          }
+          if (chartView) chartView.style.display = 'none';
+          if (editView) editView.style.display = 'none';
+          if (setsView) setsView.style.display = 'block';
+          const listEl = document.getElementById('histProgSetsList');
+          if (listEl) {
+            listEl.innerHTML = daySets.map((s, idx) => {
+              const titleHtml = `${escapeHtml(t('setNumberLabel', idx + 1))} &middot; ${s.weight} kg &times; ${escapeHtml(String(s.reps))}`;
+              const subHtml = s.notes ? `<div class="today-set-note">${escapeHtml(s.notes)}</div>` : '';
+              return buildClickableSetRowHtml('prog', s, titleHtml, subHtml);
+            }).join('');
+          }
+          return;
+        }
+      }
+
+      // Default: mode === 'chart'
+      if (backBtn) backBtn.style.display = 'none';
+      if (titleEl) titleEl.innerText = name;
+      if (groupEl) {
+        groupEl.innerText = group ? tGroup(group) : '';
+        groupEl.style.color = 'var(--text-muted)';
+      }
+      if (chartView) chartView.style.display = 'flex';
+      if (setsView) setsView.style.display = 'none';
+      if (editView) editView.style.display = 'none';
 
       const byDate = {};
       for (const s of exSets) {
@@ -3292,7 +3594,7 @@
         const daySets = byDate[dateStr].sort((a, b) => (a.timestamp || '').localeCompare(b.timestamp || ''));
         const formatted = GymDB.formatDaySets(daySets);
         return `
-          <div class="history-clean-row" data-date="${escapeHtml(dateStr)}" data-exkey="${encodeURIComponent(activeHistoryProgressKey)}" onclick="openHistoryDetailFromEl(this)">
+          <div class="history-clean-row" data-date="${escapeHtml(dateStr)}" onclick="openProgressDateSets(this)">
             <div class="history-row-left">
               <div class="history-ex-name">${escapeHtml(formatNaturalDate(dateStr))}</div>
             </div>
@@ -3306,67 +3608,185 @@
       document.getElementById('histProgTimeline').innerHTML = timelineHtml;
     }
 
-    function openHistoryDetailModal(dateStr, exKey) {
+    function openSessionModal(dateStr) {
       haptic();
-      activeHistoryDetail = { dateStr, exKey };
+      activeHistoryDetail = { dateStr };
+      historyModalState.mode = 'session';
+      historyModalState.dateStr = dateStr;
+      historyModalState.exKey = null;
+      historyModalState.editSetId = null;
+      pendingInlineDeleteKey = null;
+      pendingFormDeleteCtx = null;
       renderHistoryDetailModal();
       const modal = document.getElementById('historyDetailModal');
       if (modal) modal.style.display = 'flex';
+    }
+
+    function openHistoryDetailModal(dateStr, exKey) {
+      haptic();
+      activeHistoryDetail = { dateStr, exKey };
+      historyModalState.mode = 'exercise';
+      historyModalState.dateStr = dateStr;
+      historyModalState.exKey = exKey;
+      historyModalState.editSetId = null;
+      pendingInlineDeleteKey = null;
+      pendingFormDeleteCtx = null;
+      renderHistoryDetailModal();
+      const modal = document.getElementById('historyDetailModal');
+      if (modal) modal.style.display = 'flex';
+    }
+
+    function selectSessionExercise(exKeyEncoded) {
+      haptic();
+      historyModalState.mode = 'exercise';
+      historyModalState.exKey = decodeURIComponent(exKeyEncoded || '');
+      historyModalState.editSetId = null;
+      pendingInlineDeleteKey = null;
+      renderHistoryDetailModal();
+    }
+
+    function backHistoryDetailView() {
+      haptic();
+      pendingInlineDeleteKey = null;
+      pendingFormDeleteCtx = null;
+      if (historyModalState.mode === 'edit') {
+        historyModalState.mode = 'exercise';
+        historyModalState.editSetId = null;
+      } else {
+        historyModalState.mode = 'session';
+        historyModalState.exKey = null;
+      }
+      renderHistoryDetailModal();
     }
 
     function closeHistoryDetailModal() {
       const modal = document.getElementById('historyDetailModal');
       if (modal) modal.style.display = 'none';
       activeHistoryDetail = null;
-    }
-
-    function renderSetRowActionsHtml(setId) {
-      return `
-        <div class="today-set-actions">
-          <button type="button" class="set-action-btn danger" onclick="event.stopPropagation(); deleteSetById('${setId}')" title="${t('deleteBtn')}" aria-label="${t('deleteBtn')}">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-              <polyline points="3 6 5 6 21 6"></polyline>
-              <path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path>
-              <path d="M10 11v6"></path>
-              <path d="M14 11v6"></path>
-              <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"></path>
-            </svg>
-          </button>
-        </div>
-      `;
+      historyModalState.mode = 'session';
+      pendingInlineDeleteKey = null;
+      pendingFormDeleteCtx = null;
     }
 
     function renderHistoryDetailModal() {
-      if (!activeHistoryDetail) return;
-      const { dateStr, exKey } = activeHistoryDetail;
-      const daySets = allSets
-        .filter(s => s.date === dateStr && (s.exerciseId || s.exerciseName) === exKey)
+      if (!activeHistoryDetail && !historyModalState.dateStr) return;
+      const dateStr = historyModalState.dateStr || (activeHistoryDetail && activeHistoryDetail.dateStr);
+      const backBtn = document.getElementById('histDetailBackBtn');
+      const titleEl = document.getElementById('histDetailTitle');
+      const dateEl = document.getElementById('histDetailDate');
+      const listWrap = document.getElementById('histDetailListWrap');
+      const listEl = document.getElementById('histDetailSetsList');
+      const editWrap = document.getElementById('histDetailEditWrap');
+
+      const allDaySets = allSets
+        .filter(s => s.date === dateStr)
         .sort((a, b) => (a.timestamp || '').localeCompare(b.timestamp || ''));
 
-      if (daySets.length === 0) {
+      if (allDaySets.length === 0) {
         closeHistoryDetailModal();
         return;
       }
 
-      const exMeta = exercises.find(e => e.id === exKey || e.name === exKey);
-      document.getElementById('histDetailTitle').innerText = exMeta ? exMeta.name : daySets[0].exerciseName;
-      document.getElementById('histDetailDate').innerText = formatNaturalDate(dateStr, true);
+      if (historyModalState.mode === 'edit') {
+        const log = allSets.find(s => s.id === historyModalState.editSetId);
+        if (!log) {
+          historyModalState.mode = 'exercise';
+        } else {
+          if (backBtn) backBtn.style.display = 'inline-flex';
+          if (titleEl) titleEl.innerText = t('editSetTitle');
+          if (dateEl) dateEl.innerText = `${log.exerciseName} · ${formatNaturalDate(dateStr, true)}`;
+          if (listWrap) listWrap.style.display = 'none';
+          if (editWrap) {
+            editWrap.style.display = 'block';
+            editWrap.innerHTML = buildInlineEditFormHtml('history', log);
+          }
+          return;
+        }
+      }
 
-      document.getElementById('histDetailSetsList').innerHTML = daySets.map((s, idx) => {
-        return `
-          <div class="today-set-item is-clickable" onclick="openEditSetModal('${s.id}')" role="button" tabindex="0">
-            <div class="today-set-info">
-              <div class="today-set-name">${escapeHtml(t('setNumberLabel', idx + 1))} &middot; ${s.weight} kg &times; ${escapeHtml(String(s.reps))}</div>
-              ${s.notes ? `<div class="today-set-note">${escapeHtml(s.notes)}</div>` : ''}
-            </div>
-            ${renderSetRowActionsHtml(s.id)}
-          </div>
-        `;
-      }).join('');
+      if (historyModalState.mode === 'exercise' && historyModalState.exKey) {
+        const exKey = historyModalState.exKey;
+        const daySets = allDaySets.filter(s => (s.exerciseId || s.exerciseName) === exKey);
+        if (daySets.length === 0) {
+          historyModalState.mode = 'session';
+          historyModalState.exKey = null;
+        } else {
+          const exMeta = exercises.find(e => e.id === exKey || e.name === exKey);
+          if (backBtn) backBtn.style.display = 'inline-flex';
+          if (titleEl) titleEl.innerText = exMeta ? exMeta.name : daySets[0].exerciseName;
+          if (dateEl) dateEl.innerText = formatNaturalDate(dateStr, true);
+          if (editWrap) editWrap.style.display = 'none';
+          if (listWrap) listWrap.style.display = 'block';
+          if (listEl) {
+            listEl.innerHTML = daySets.map((s, idx) => {
+              const tHtml = `${escapeHtml(t('setNumberLabel', idx + 1))} &middot; ${s.weight} kg &times; ${escapeHtml(String(s.reps))}`;
+              const sHtml = s.notes ? `<div class="today-set-note">${escapeHtml(s.notes)}</div>` : '';
+              return buildClickableSetRowHtml('history', s, tHtml, sHtml);
+            }).join('');
+          }
+          return;
+        }
+      }
+
+      // Default: mode === 'session' -> esercizi della giornata divisi per gruppo muscolare
+      if (backBtn) backBtn.style.display = 'none';
+      if (titleEl) titleEl.innerText = formatNaturalDate(dateStr, true);
+      if (dateEl) {
+        const totalMeta = t('setsMeta', allDaySets.length);
+        dateEl.innerText = totalMeta;
+      }
+      if (editWrap) editWrap.style.display = 'none';
+      if (listWrap) listWrap.style.display = 'block';
+
+      const groupsOrder = ['Petto', 'Spalle', 'Tricipiti', 'Schiena', 'Bicipiti', 'Gambe', 'Core / Addome'];
+      const byGroup = {};
+      for (const s of allDaySets) {
+        const key = s.exerciseId || s.exerciseName;
+        const exMeta = exercises.find(e => e.id === s.exerciseId);
+        const grp = (exMeta ? exMeta.group : s.group) || 'Altro';
+        if (!byGroup[grp]) byGroup[grp] = {};
+        if (!byGroup[grp][key]) {
+          byGroup[grp][key] = {
+            key,
+            name: exMeta ? exMeta.name : s.exerciseName,
+            sets: []
+          };
+        }
+        byGroup[grp][key].sets.push(s);
+      }
+
+      const orderedGroups = Object.keys(byGroup).sort((a, b) => {
+        const ia = groupsOrder.indexOf(a);
+        const ib = groupsOrder.indexOf(b);
+        if (ia !== -1 && ib !== -1) return ia - ib;
+        if (ia !== -1) return -1;
+        if (ib !== -1) return 1;
+        return a.localeCompare(b);
+      });
+
+      if (listEl) {
+        const parts = [];
+        for (const g of orderedGroups) {
+          parts.push(`<div class="session-group-heading">${escapeHtml(tGroup(g))}</div>`);
+          for (const exObj of Object.values(byGroup[g])) {
+            const formatted = GymDB.formatDaySets(exObj.sets);
+            parts.push(`
+              <div class="today-set-item is-clickable" onclick="selectSessionExercise('${encodeURIComponent(exObj.key)}')" role="button" tabindex="0">
+                <div class="today-set-info">
+                  <div class="today-set-name">${escapeHtml(exObj.name)}</div>
+                  <div class="today-set-meta">${escapeHtml(formatted)}</div>
+                </div>
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="opacity:0.6; flex-shrink:0;" aria-hidden="true"><polyline points="9 18 15 12 9 6"></polyline></svg>
+              </div>
+            `);
+          }
+        }
+        listEl.innerHTML = parts.join('');
+      }
     }
 
     function refreshOpenHistoryModals() {
-      if (activeHistoryDetail) renderHistoryDetailModal();
+      if (activeHistoryDetail || historyModalState.dateStr) renderHistoryDetailModal();
       if (activeHistoryProgressKey) renderExerciseProgressModal();
     }
 
@@ -3380,7 +3800,7 @@
         return;
       }
 
-      // VISTA PER SEDUTA (Diario allenamenti raggruppato per mese, collassabile di default)
+      // VISTA PER SEDUTA (Card compatte divise per mese; click apre il popup della seduta)
       const byDateAll = {};
       for (const s of allSets) {
         if (!byDateAll[s.date]) byDateAll[s.date] = [];
@@ -3415,59 +3835,19 @@
         }
 
         const daySets = byDateAll[dateStr].sort((a, b) => (a.timestamp || '').localeCompare(b.timestamp || ''));
-        const isExpanded = expandedHistoryDates.has(dateStr);
-
-        const byEx = {};
         const groupsSeen = [];
         for (const s of daySets) {
-          const key = s.exerciseId || s.exerciseName;
           const exMeta = exercises.find(e => e.id === s.exerciseId);
           const grp = exMeta ? exMeta.group : (s.group || '');
           if (grp && !groupsSeen.includes(grp)) groupsSeen.push(grp);
-          if (!byEx[key]) {
-            byEx[key] = {
-              key: key,
-              name: exMeta ? exMeta.name : s.exerciseName,
-              group: grp,
-              sets: []
-            };
-          }
-          byEx[key].sets.push(s);
         }
 
         const groupsLabel = groupsSeen.length > 0 ? groupsSeen.map(g => tGroup(g)).join(' · ') : t('workoutFallback');
-        const exRowsHtml = Object.values(byEx).map(exObj => {
-          const formatted = GymDB.formatDaySets(exObj.sets);
-          return `
-            <div class="history-clean-row" data-date="${escapeHtml(dateStr)}" data-exkey="${encodeURIComponent(exObj.key)}" onclick="openHistoryDetailFromEl(this)">
-              <div class="history-row-left">
-                <div class="history-ex-name">${escapeHtml(exObj.name)}</div>
-              </div>
-              <div class="history-row-right">
-                <span class="history-ex-sets">${escapeHtml(formatted)}</span>
-                <svg class="history-row-chevron" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
-              </div>
-            </div>
-          `;
-        }).join('');
 
         chunks.push(`
-          <div class="history-session-card ${isExpanded ? 'expanded' : ''}" data-hist-date="${dateStr}">
-            <div class="history-date-header history-collapse-header" onclick="toggleHistoryDateCard('${dateStr}')">
-              <div style="min-width:0; flex:1;">
-                <div class="history-date-title">${escapeHtml(formatNaturalDate(dateStr, true))}</div>
-                <div class="history-groups-line">${escapeHtml(groupsLabel)}</div>
-              </div>
-              <div style="display:flex; align-items:center; gap:8px; flex-shrink:0;">
-                <span class="history-date-meta">${t('setsMeta', daySets.length)}</span>
-                <svg class="history-chevron" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                  <polyline points="9 18 15 12 9 6"></polyline>
-                </svg>
-              </div>
-            </div>
-            <div class="history-collapse-body">
-              ${exRowsHtml}
-            </div>
+          <div class="history-session-card" data-hist-date="${dateStr}" onclick="openSessionModal('${dateStr}')" role="button" tabindex="0">
+            <div class="history-date-title">${escapeHtml(formatNaturalDate(dateStr, true))}</div>
+            <div class="history-groups-line">${escapeHtml(groupsLabel)}</div>
           </div>
         `);
       }
@@ -4067,19 +4447,71 @@
     // =========================================================================
     function openTodaySetsModal() {
       haptic();
+      todayModalState.mode = 'list';
+      todayModalState.editSetId = null;
+      pendingInlineDeleteKey = null;
+      pendingFormDeleteCtx = null;
       renderTodaySetsList();
       const modal = document.getElementById('todaySetsModal');
       if (modal) modal.style.display = 'flex';
     }
 
+    function backTodaySetsToList() {
+      haptic();
+      todayModalState.mode = 'list';
+      todayModalState.editSetId = null;
+      pendingInlineDeleteKey = null;
+      pendingFormDeleteCtx = null;
+      renderTodaySetsList();
+    }
+
     function closeTodaySetsModal() {
       const modal = document.getElementById('todaySetsModal');
       if (modal) modal.style.display = 'none';
+      todayModalState.mode = 'list';
+      todayModalState.editSetId = null;
+      pendingInlineDeleteKey = null;
+      pendingFormDeleteCtx = null;
     }
 
     function renderTodaySetsList() {
       const container = document.getElementById('todaySetsListContainer');
+      const listWrap = document.getElementById('todaySetsListViewWrap');
+      const editWrap = document.getElementById('todaySetsEditViewWrap');
+      const backBtn = document.getElementById('todaySetsBackBtn');
+      const iconEl = document.getElementById('todaySetsHeaderIcon');
+      const titleEl = document.getElementById('todaySetsModalTitle');
+      const subEl = document.getElementById('todaySetsSubTitle');
       if (!container) return;
+
+      if (todayModalState.mode === 'edit') {
+        const log = allSets.find(l => l.id === todayModalState.editSetId);
+        if (!log) {
+          todayModalState.mode = 'list';
+          todayModalState.editSetId = null;
+        } else {
+          if (backBtn) backBtn.style.display = 'inline-flex';
+          if (iconEl) iconEl.style.display = 'none';
+          if (titleEl) titleEl.innerText = t('editSetTitle');
+          if (subEl) {
+            subEl.innerText = log.exerciseName;
+            subEl.style.display = 'block';
+          }
+          if (listWrap) listWrap.style.display = 'none';
+          if (editWrap) {
+            editWrap.style.display = 'block';
+            editWrap.innerHTML = buildInlineEditFormHtml('today', log);
+          }
+          return;
+        }
+      }
+
+      if (backBtn) backBtn.style.display = 'none';
+      if (iconEl) iconEl.style.display = 'inline-block';
+      if (titleEl) titleEl.innerText = t('todaySetsTitle');
+      if (subEl) subEl.style.display = 'none';
+      if (editWrap) editWrap.style.display = 'none';
+      if (listWrap) listWrap.style.display = 'block';
 
       if (todayLogs.length === 0) {
         container.innerHTML = `<div class="today-empty">${t('noSetsTodayHtml')}</div>`;
@@ -4087,22 +4519,17 @@
       }
 
       const timeLocale = currentLang === 'en' ? 'en-US' : 'it-IT';
-      container.innerHTML = todayLogs.map((log) => {
+      container.innerHTML = [...todayLogs].reverse().map((log) => {
         const timeStr = log.timestamp ? new Date(log.timestamp).toLocaleTimeString(timeLocale, {hour: '2-digit', minute: '2-digit'}) : '';
-        return `
-          <div class="today-set-item is-clickable" onclick="openEditSetModal('${log.id}')" role="button" tabindex="0">
-            <div class="today-set-info">
-              <div class="today-set-name">${escapeHtml(log.exerciseName)}</div>
-              <div class="today-set-meta">
-                <span>${log.weight} kg &times; ${log.reps} reps</span>
-                ${timeStr ? `<span>&bull; ${timeStr}</span>` : ''}
-                ${log.notes ? `<span>&bull; ${escapeHtml(log.notes)}</span>` : ''}
-              </div>
-            </div>
-            ${renderSetRowActionsHtml(log.id)}
+        const subHtml = `
+          <div class="today-set-meta">
+            <span>${log.weight} kg &times; ${log.reps} reps</span>
+            ${timeStr ? `<span>&bull; ${timeStr}</span>` : ''}
+            ${log.notes ? `<span>&bull; ${escapeHtml(log.notes)}</span>` : ''}
           </div>
         `;
-      }).reverse().join('');
+        return buildClickableSetRowHtml('today', log, escapeHtml(log.exerciseName), subHtml);
+      }).join('');
     }
 
     let appConfirmResolver = null;
@@ -4142,75 +4569,6 @@
         appConfirmResolver = null;
         r(Boolean(result));
       }
-    }
-
-    async function deleteSetById(logId) {
-      haptic();
-      const ok = await showAppConfirm({
-        title: t('confirmDeleteTitle'),
-        message: t('deleteSetConfirm'),
-        confirmLabel: t('deleteBtn'),
-        danger: true
-      });
-      if (!ok) return;
-      await GymDB.deleteSet(logId);
-      await refreshStateFromDB();
-      renderTodaySetsList();
-      refreshOpenHistoryModals();
-      closeEditSetModal();
-      showToast(t('setDeletedToast'));
-    }
-
-    let editingLogId = null;
-
-    function openEditSetModal(logId) {
-      haptic();
-      const log = allSets.find(l => l.id === logId);
-      if (!log) return;
-
-      editingLogId = logId;
-      document.getElementById('editExName').innerText = `${log.exerciseName} (${log.date})`;
-      document.getElementById('editSetWeightInput').value = log.weight;
-      document.getElementById('editSetRepsInput').value = log.reps;
-      document.getElementById('editSetNotesInput').value = log.notes || '';
-
-      const modal = document.getElementById('editSetModal');
-      if (modal) modal.style.display = 'flex';
-    }
-
-    function closeEditSetModal() {
-      const modal = document.getElementById('editSetModal');
-      if (modal) modal.style.display = 'none';
-      editingLogId = null;
-    }
-
-    async function saveEditedSet() {
-      haptic();
-      if (!editingLogId) return;
-
-      const log = allSets.find(l => l.id === editingLogId);
-      if (!log) return;
-
-      const newWeight = parseFloat(document.getElementById('editSetWeightInput').value);
-      const newReps = parseInt(document.getElementById('editSetRepsInput').value, 10);
-      const newNotes = document.getElementById('editSetNotesInput').value.trim();
-
-      if (isNaN(newWeight) || isNaN(newReps) || newReps <= 0) {
-        showToast(t('invalidSetAlert'));
-        return;
-      }
-
-      const updated = { ...log, weight: newWeight, reps: String(newReps), notes: newNotes };
-      await GymDB.updateSet(updated);
-      await refreshStateFromDB();
-      closeEditSetModal();
-      renderTodaySetsList();
-      refreshOpenHistoryModals();
-      showToast(t('setUpdatedToast'));
-    }
-
-    function deleteEditingSet() {
-      if (editingLogId) deleteSetById(editingLogId);
     }
 
     // =========================================================================
@@ -4887,7 +5245,7 @@
     })();
 
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('sw.js?v=45', {scope: './'}).then(reg => {
+      navigator.serviceWorker.register('sw.js?v=46', {scope: './'}).then(reg => {
         reg.update();
       }).catch(() => {});
     }
@@ -5028,65 +5386,37 @@
       if (scrollEl) scrollEl.scrollTo({ top: 0, behavior: 'smooth' });
     }
   </script>
-    <!-- Modale Visualizza Serie di Oggi -->
+    <!-- Modale Visualizza / Modifica Serie di Oggi (Single-Modal con navigazione interna <) -->
   <div class="modal-overlay" id="todaySetsModal" onclick="if(event.target===this) closeTodaySetsModal()">
     <div class="modal-card">
       <div class="modal-header">
-        <h3>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-            <polyline points="14 2 14 8 20 8"></polyline>
-            <line x1="16" y1="13" x2="8" y2="13"></line>
-            <line x1="16" y1="17" x2="8" y2="17"></line>
-            <polyline points="10 9 9 9 8 9"></polyline>
-          </svg>
-          <span id="todaySetsModalTitle">Serie Completate Oggi</span>
-        </h3>
+        <div style="display:flex; align-items:center; gap:10px; min-width:0;">
+          <button type="button" class="modal-back-btn" id="todaySetsBackBtn" style="display:none;" onclick="backTodaySetsToList()" aria-label="Indietro">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"></polyline></svg>
+          </button>
+          <div style="min-width:0;">
+            <h3 id="todaySetsHeaderTitleWrap">
+              <svg id="todaySetsHeaderIcon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                <polyline points="14 2 14 8 20 8"></polyline>
+                <line x1="16" y1="13" x2="8" y2="13"></line>
+                <line x1="16" y1="17" x2="8" y2="17"></line>
+                <polyline points="10 9 9 9 8 9"></polyline>
+              </svg>
+              <span id="todaySetsModalTitle">Serie Completate Oggi</span>
+            </h3>
+            <div id="todaySetsSubTitle" style="display:none; font-size:0.78rem; color:var(--accent); font-weight:700; margin-top:2px;"></div>
+          </div>
+        </div>
         <button type="button" class="modal-close-btn" id="todaySetsCloseBtn" onclick="closeTodaySetsModal()" aria-label="Chiudi"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
       </div>
 
-      <div class="scroll-fade-wrap">
+      <div id="todaySetsListViewWrap" class="scroll-fade-wrap">
         <div class="today-sets-list" id="todaySetsListContainer">
           <!-- Generato dinamicamente via JS -->
         </div>
       </div>
-    </div>
-  </div>
-
-  <!-- Modale Modifica Singola Serie -->
-  <div class="modal-overlay" id="editSetModal" style="z-index: 1360;" onclick="if(event.target===this) closeEditSetModal()">
-    <div class="modal-card">
-      <div class="modal-header">
-        <h3>
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-            <path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"></path>
-          </svg>
-          <span id="editSetModalTitle">Modifica Serie</span>
-        </h3>
-        <button type="button" class="modal-close-btn" onclick="closeEditSetModal()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
-      </div>
-
-      <div style="font-size: 0.95rem; font-weight: 700; color: var(--accent); margin-bottom: 4px;" id="editExName">Esercizio</div>
-
-      <div class="modal-field">
-        <label for="editSetWeightInput" id="editSetWeightLabel">Carico (kg)</label>
-        <input type="number" id="editSetWeightInput" step="0.5" min="0">
-      </div>
-
-      <div class="modal-field">
-        <label for="editSetRepsInput" id="editSetRepsLabel">Ripetizioni</label>
-        <input type="number" id="editSetRepsInput" step="1" min="1">
-      </div>
-
-      <div class="modal-field">
-        <label for="editSetNotesInput" id="editSetNotesLabel">Note (opzionale)</label>
-        <input type="text" id="editSetNotesInput" placeholder="es. RPE 8, drop set">
-      </div>
-
-      <div class="modal-actions">
-        <button type="button" class="modal-btn-cancel" id="editSetDeleteBtn" style="color:var(--danger); border-color:rgba(255,69,58,0.35);" onclick="deleteEditingSet()">Elimina</button>
-        <button type="button" class="modal-btn-confirm" id="editSetSaveBtn" onclick="saveEditedSet()">Salva</button>
-      </div>
+      <div id="todaySetsEditViewWrap" style="display:none;"></div>
     </div>
   </div>
 
@@ -5289,43 +5619,61 @@
   </div>
 
 
-  <!-- Modale Progressione Esercizio (Storico Per Esercizio) -->
+  <!-- Modale Progressione Esercizio (Single-Modal: Grafico -> Serie Data -> Modifica Serie) -->
   <div class="modal-overlay" id="historyExDetailModal" style="z-index: 1310;" onclick="if(event.target===this) closeExerciseProgressModal()">
     <div class="modal-card" style="max-height:85vh; overflow-y:auto;">
       <div class="modal-header">
-        <div>
-          <h3 id="histProgTitle" style="line-height:1.2;">Esercizio</h3>
-          <div id="histProgGroup" style="font-size:0.78rem; color:var(--text-muted); font-weight:600; margin-top:2px;">Gruppo</div>
+        <div style="display:flex; align-items:center; gap:10px; min-width:0;">
+          <button type="button" class="modal-back-btn" id="histProgBackBtn" style="display:none;" onclick="backExerciseProgressView()" aria-label="Indietro">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"></polyline></svg>
+          </button>
+          <div style="min-width:0;">
+            <h3 id="histProgTitle" style="line-height:1.2;">Esercizio</h3>
+            <div id="histProgGroup" style="font-size:0.78rem; color:var(--text-muted); font-weight:600; margin-top:2px;">Gruppo</div>
+          </div>
         </div>
         <button type="button" class="modal-close-btn" onclick="closeExerciseProgressModal()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
       </div>
 
-      <div class="progress-kpi-grid" id="histProgKpis"></div>
-      <div id="histProgSparkWrap"></div>
+      <div id="histProgChartView" style="display:flex; flex-direction:column; gap:14px;">
+        <div class="progress-kpi-grid" id="histProgKpis"></div>
+        <div id="histProgSparkWrap"></div>
 
-      <div>
-        <div class="progress-kpi-label" id="histProgTimelineLabel" style="margin-bottom:6px;">Tutte le sedute (tocca per modificare)</div>
-        <div class="scroll-fade-wrap">
-          <div class="progress-sessions-scroll" id="histProgTimeline"></div>
+        <div>
+          <div class="progress-kpi-label" id="histProgTimelineLabel" style="margin-bottom:6px;">Tutte le sedute (tocca per modificare)</div>
+          <div class="scroll-fade-wrap">
+            <div class="progress-sessions-scroll" id="histProgTimeline"></div>
+          </div>
         </div>
       </div>
+
+      <div id="histProgSetsView" class="scroll-fade-wrap" style="display:none;">
+        <div class="today-sets-list" id="histProgSetsList"></div>
+      </div>
+      <div id="histProgEditView" style="display:none;"></div>
     </div>
   </div>
 
-  <!-- Modale Dettaglio Serie Seduta (Storico) -->
+  <!-- Modale Dettaglio Seduta Storico (Single-Modal: Esercizi per Gruppo -> Serie -> Modifica) -->
   <div class="modal-overlay" id="historyDetailModal" style="z-index: 1330;" onclick="if(event.target===this) closeHistoryDetailModal()">
     <div class="modal-card">
       <div class="modal-header">
-        <div>
-          <h3 id="histDetailTitle" style="line-height:1.2;">Esercizio</h3>
-          <div id="histDetailDate" style="font-size:0.78rem; color:var(--accent); font-weight:700; margin-top:2px;">Data</div>
+        <div style="display:flex; align-items:center; gap:10px; min-width:0;">
+          <button type="button" class="modal-back-btn" id="histDetailBackBtn" style="display:none;" onclick="backHistoryDetailView()" aria-label="Indietro">
+            <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"></polyline></svg>
+          </button>
+          <div style="min-width:0;">
+            <h3 id="histDetailTitle" style="line-height:1.2;">Seduta</h3>
+            <div id="histDetailDate" style="font-size:0.78rem; color:var(--accent); font-weight:700; margin-top:2px;">Data</div>
+          </div>
         </div>
         <button type="button" class="modal-close-btn" onclick="closeHistoryDetailModal()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
       </div>
 
-      <div class="scroll-fade-wrap">
+      <div id="histDetailListWrap" class="scroll-fade-wrap">
         <div class="today-sets-list" id="histDetailSetsList"></div>
       </div>
+      <div id="histDetailEditWrap" style="display:none;"></div>
     </div>
   </div>
 
