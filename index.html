@@ -1305,7 +1305,7 @@
       flex-direction: row;
       align-items: baseline;
       justify-content: space-between;
-      gap: 10px;
+      gap: 12px;
       -webkit-tap-highlight-color: transparent;
       transition: background 0.15s ease, transform 0.12s ease, border-color 0.15s ease;
     }
@@ -1316,25 +1316,26 @@
     .history-session-card:active {
       transform: scale(0.985);
     }
-    .history-groups-line {
-      font-size: 0.96rem;
+    .history-date-title {
+      font-size: 0.92rem;
       font-weight: 800;
       color: #fff;
-      letter-spacing: -0.015em;
-      line-height: 1.2;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      min-width: 0;
-      flex: 1;
-    }
-    .history-date-title {
-      font-size: 0.74rem;
-      font-weight: 500;
-      color: var(--text-muted);
+      letter-spacing: -0.01em;
       white-space: nowrap;
       flex-shrink: 0;
       font-variant-numeric: tabular-nums;
+    }
+    .history-groups-line {
+      font-size: 0.84rem;
+      font-weight: 600;
+      color: #D1D1D6;
+      line-height: 1.25;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      text-align: right;
+      min-width: 0;
+      flex: 1;
     }
     .session-ex-label {
       font-size: 0.78rem;
@@ -1466,17 +1467,9 @@
       text-align: right;
     }
     .history-ex-sets {
-      font-size: 0.75rem;
-      font-weight: 500;
-      color: var(--text-muted);
-      font-variant-numeric: tabular-nums;
-      white-space: nowrap;
-    }
-    .history-sets-primary {
-      font-size: 0.93rem;
-      font-weight: 800;
-      color: #fff;
-      line-height: 1.25;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #D1D1D6;
       font-variant-numeric: tabular-nums;
     }
     .history-row-chevron {
@@ -1973,8 +1966,8 @@
       background: rgba(255, 255, 255, 0.08);
     }
   </style>
-  <script src="db.js?v=48"></script>
-  <script src="backup.js?v=48"></script>
+  <script src="db.js?v=49"></script>
+  <script src="backup.js?v=49"></script>
 </head>
 <body>
   <div id="orientationLockOverlay" class="orientation-lock-overlay" aria-live="polite">
@@ -1991,7 +1984,7 @@
   <header>
     <div class="header-top" id="headerRootBar">
       <div class="title-area">
-        <h1 id="gymLogoTitle" onclick="handleLogoTap(event)">Gym Log <span class="app-version-sub">v48</span></h1>
+        <h1 id="gymLogoTitle" onclick="handleLogoTap(event)">Gym Log <span class="app-version-sub">v49</span></h1>
       </div>
       <div class="settings-menu-wrap">
         <button type="button" class="sheet-close-x" id="settingsBtn" onclick="toggleSettingsMenu(event)" title="Impostazioni" aria-label="Impostazioni">
@@ -3600,10 +3593,10 @@
         return `
           <div class="history-clean-row" data-date="${escapeHtml(dateStr)}" onclick="openProgressDateSets(this)">
             <div class="history-row-left">
-              <div class="history-sets-primary">${escapeHtml(formatted)}</div>
+              <div class="history-ex-name">${escapeHtml(formatNaturalDate(dateStr))}</div>
             </div>
             <div class="history-row-right">
-              <span class="history-ex-sets">${escapeHtml(formatNaturalDate(dateStr))}</span>
+              <span class="history-ex-sets">${escapeHtml(formatted)}</span>
               <svg class="history-row-chevron" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
             </div>
           </div>
@@ -3846,8 +3839,8 @@
 
         chunks.push(`
           <div class="history-session-card" data-hist-date="${dateStr}" onclick="openSessionModal('${dateStr}')" role="button" tabindex="0">
-            <div class="history-groups-line">${escapeHtml(groupsLabel)}</div>
             <div class="history-date-title">${escapeHtml(formatNaturalDate(dateStr, true))}</div>
+            <div class="history-groups-line">${escapeHtml(groupsLabel)}</div>
           </div>
         `);
       }
@@ -5238,7 +5231,7 @@
     })();
 
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('sw.js?v=48', {scope: './'}).then(reg => {
+      navigator.serviceWorker.register('sw.js?v=49', {scope: './'}).then(reg => {
         reg.update();
       }).catch(() => {});
     }
