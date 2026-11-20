@@ -519,6 +519,9 @@
       align-items: center;
       justify-content: center;
       gap: 10px;
+      max-width: 100%;
+      white-space: nowrap;
+      overflow: hidden;
       background: rgba(255, 255, 255, 0.05);
       border: 1px solid rgba(255, 255, 255, 0.08);
       border-radius: 999px;
@@ -527,6 +530,33 @@
       cursor: pointer;
       font-family: inherit;
       transition: background 0.15s ease, transform 0.12s ease;
+    }
+    .sheet-stats-ultima-wrap {
+      display: inline-flex;
+      align-items: baseline;
+      gap: 4px;
+      min-width: 0;
+      flex-shrink: 1;
+      overflow: hidden;
+    }
+    .sheet-stats-ultima-label,
+    .sheet-stats-pr-wrap,
+    .sheet-stats-ultima-weight {
+      flex-shrink: 0;
+      white-space: nowrap;
+    }
+    .sheet-stats-ultima-strong {
+      display: inline-flex;
+      align-items: baseline;
+      gap: 4px;
+      min-width: 0;
+      overflow: hidden;
+    }
+    .sheet-stats-ultima-reps {
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
     .sheet-title-stats:hover,
     .sheet-title-stats:active {
@@ -1119,6 +1149,9 @@
       color: var(--text-muted);
       margin-top: 2px;
       line-height: 1.3;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
     .history-date-meta {
       font-size: 0.74rem;
@@ -1482,8 +1515,8 @@
       }
     }
   </style>
-  <script src="db.js?v=25"></script>
-  <script src="backup.js?v=25"></script>
+  <script src="db.js?v=26"></script>
+  <script src="backup.js?v=26"></script>
 </head>
 <body>
 
@@ -2494,7 +2527,7 @@
         chunks.push(`
           <div class="history-session-card ${isExpanded ? 'expanded' : ''}" data-hist-date="${dateStr}">
             <div class="history-date-header history-collapse-header" onclick="toggleHistoryDateCard('${dateStr}')">
-              <div style="min-width:0;">
+              <div style="min-width:0; flex:1;">
                 <div class="history-date-title">${escapeHtml(formatNaturalDate(dateStr, true))}</div>
                 <div class="history-groups-line">${escapeHtml(groupsLabel)}</div>
               </div>
@@ -2601,10 +2634,23 @@
 
     function updateActiveSheetMeta(ex) {
       if (!ex) return;
-      const lastStr = ex.last_weight !== null ? `${ex.last_weight} kg` : '-';
+      const lastStr = ex.last_weight !== null ? `${ex.last_weight} kg` : 'Nessuna';
       const prStr = ex.pr !== null ? `${ex.pr} kg` : '-';
       document.getElementById('sheetExTitle').innerText = ex.name;
-      document.getElementById('sheetStatsUltima').innerText = ex.last_weight !== null ? `${lastStr} (${ex.last_reps || '-'})` : 'Nessuna';
+      document.getElementById('sheetStatsUltimaWeight').innerText = lastStr;
+      const repsEl = document.getElementById('sheetStatsUltimaReps');
+      if (repsEl) {
+        if (ex.last_weight !== null && ex.last_reps) {
+          repsEl.innerText = `(${ex.last_reps})`;
+          repsEl.style.display = 'inline';
+        } else if (ex.last_weight !== null) {
+          repsEl.innerText = '(-)';
+          repsEl.style.display = 'inline';
+        } else {
+          repsEl.innerText = '';
+          repsEl.style.display = 'none';
+        }
+      }
       document.getElementById('sheetStatsPR').innerText = prStr;
 
       const exToday = todayLogs.filter(s => s.exerciseId === ex.id);
@@ -3400,7 +3446,7 @@
     }
 
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('sw.js?v=25', {scope: './'}).then(reg => {
+      navigator.serviceWorker.register('sw.js?v=26', {scope: './'}).then(reg => {
         reg.update();
       }).catch(() => {});
     }
@@ -3633,8 +3679,8 @@
         <div class="sheet-title-name" id="sheetExTitle" style="word-break:break-word;">Esercizio</div>
         <input type="text" id="sheetExTitleInput" class="sheet-title-input" style="display:none;" enterkeyhint="done" autocomplete="off" autocorrect="off" autocapitalize="sentences" onkeydown="handleSheetTitleKeydown(event)" aria-label="Nuovo nome esercizio">
         <button type="button" class="sheet-title-stats" onclick="openActiveSheetProgress()" title="Vedi grafico e storico esercizio">
-          <span>Ultima: <strong id="sheetStatsUltima">-</strong></span>
-          <span>PR: <strong id="sheetStatsPR">-</strong></span>
+          <span class="sheet-stats-ultima-wrap"><span class="sheet-stats-ultima-label">Ultima:</span> <strong class="sheet-stats-ultima-strong"><span id="sheetStatsUltimaWeight" class="sheet-stats-ultima-weight">-</span><span id="sheetStatsUltimaReps" class="sheet-stats-ultima-reps"></span></strong></span>
+          <span class="sheet-stats-pr-wrap">PR: <strong id="sheetStatsPR">-</strong></span>
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="opacity:0.65; flex-shrink:0;" aria-hidden="true"><polyline points="9 18 15 12 9 6"></polyline></svg>
         </button>
         <div class="sheet-today-pill" id="sheetTodayPill"></div>
