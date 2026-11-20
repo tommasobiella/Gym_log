@@ -894,6 +894,28 @@
     }
 
     /* Today Sets Modal Styles */
+    .scroll-fade-wrap {
+      position: relative;
+    }
+    .scroll-fade-wrap::before,
+    .scroll-fade-wrap::after {
+      content: '';
+      position: absolute;
+      left: 0;
+      right: 0;
+      pointer-events: none;
+      z-index: 3;
+    }
+    .scroll-fade-wrap::before {
+      top: 0;
+      height: 16px;
+      background: linear-gradient(to bottom, var(--card-bg) 12%, rgba(28, 28, 30, 0) 100%);
+    }
+    .scroll-fade-wrap::after {
+      bottom: 0;
+      height: 18px;
+      background: linear-gradient(to top, var(--card-bg) 12%, rgba(28, 28, 30, 0) 100%);
+    }
     .today-sets-list {
       display: flex;
       flex-direction: column;
@@ -902,10 +924,8 @@
       overflow-y: auto;
       -webkit-overflow-scrolling: touch;
       scrollbar-width: none;
-      padding: 10px 0 12px;
-      margin: 4px 0;
-      -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 14px, #000 calc(100% - 14px), transparent 100%);
-      mask-image: linear-gradient(to bottom, transparent 0, #000 14px, #000 calc(100% - 14px), transparent 100%);
+      padding: 12px 0 14px;
+      margin: 0;
     }
     .today-sets-list::-webkit-scrollbar,
     .progress-sessions-scroll::-webkit-scrollbar {
@@ -1482,9 +1502,7 @@
       -webkit-overflow-scrolling: touch;
       scrollbar-width: none;
       margin-top: 2px;
-      padding: 10px 0 12px;
-      -webkit-mask-image: linear-gradient(to bottom, transparent 0, #000 14px, #000 calc(100% - 14px), transparent 100%);
-      mask-image: linear-gradient(to bottom, transparent 0, #000 14px, #000 calc(100% - 14px), transparent 100%);
+      padding: 12px 0 14px;
     }
     .sahur-overlay {
       position: fixed;
@@ -1828,8 +1846,8 @@
       background: rgba(255, 255, 255, 0.08);
     }
   </style>
-  <script src="db.js?v=43"></script>
-  <script src="backup.js?v=43"></script>
+  <script src="db.js?v=44"></script>
+  <script src="backup.js?v=44"></script>
 </head>
 <body>
   <div id="orientationLockOverlay" class="orientation-lock-overlay" aria-live="polite">
@@ -1902,6 +1920,7 @@
               </span>
               <span style="opacity:0.6; font-size:1rem; line-height:1;">&rsaquo;</span>
             </button>
+            <div style="text-align:center; font-size:0.68rem; color:var(--text-muted); opacity:0.55; padding:4px 0 2px; font-weight:700;">v44</div>
           </div>
           <div id="settingsMenuExport" class="sheet-dropdown-subview" style="display:none;">
             <button type="button" class="sheet-dropdown-item sheet-dropdown-back" onclick="showMainSettingsMenu(event)">
@@ -4767,7 +4786,7 @@
     })();
 
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('sw.js?v=43', {scope: './'}).then(reg => {
+      navigator.serviceWorker.register('sw.js?v=44', {scope: './'}).then(reg => {
         reg.update();
       }).catch(() => {});
     }
@@ -4925,8 +4944,10 @@
         <button type="button" class="modal-close-btn" id="todaySetsCloseBtn" onclick="closeTodaySetsModal()" aria-label="Chiudi"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
       </div>
 
-      <div class="today-sets-list" id="todaySetsListContainer">
-        <!-- Generato dinamicamente via JS -->
+      <div class="scroll-fade-wrap">
+        <div class="today-sets-list" id="todaySetsListContainer">
+          <!-- Generato dinamicamente via JS -->
+        </div>
       </div>
     </div>
   </div>
@@ -5183,7 +5204,9 @@
 
       <div>
         <div class="progress-kpi-label" id="histProgTimelineLabel" style="margin-bottom:6px;">Tutte le sedute (tocca per modificare)</div>
-        <div class="progress-sessions-scroll" id="histProgTimeline"></div>
+        <div class="scroll-fade-wrap">
+          <div class="progress-sessions-scroll" id="histProgTimeline"></div>
+        </div>
       </div>
     </div>
   </div>
@@ -5199,7 +5222,9 @@
         <button type="button" class="modal-close-btn" onclick="closeHistoryDetailModal()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
       </div>
 
-      <div class="today-sets-list" id="histDetailSetsList"></div>
+      <div class="scroll-fade-wrap">
+        <div class="today-sets-list" id="histDetailSetsList"></div>
+      </div>
     </div>
   </div>
 
@@ -5211,7 +5236,9 @@
         <button type="button" class="modal-close-btn" onclick="closeArchivedModal()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
       </div>
 
-      <div class="today-sets-list" id="archivedExercisesList"></div>
+      <div class="scroll-fade-wrap">
+        <div class="today-sets-list" id="archivedExercisesList"></div>
+      </div>
     </div>
   </div>
 
