@@ -1,12 +1,12 @@
 /**
  * Service Worker Gym Log Standalone: Offline-First with Pre-Cache & Auto-Claim
  */
-const CACHE_NAME = 'gym-log-standalone-v19';
+const CACHE_NAME = 'gym-log-standalone-v20';
 const PRECACHE_ASSETS = [
   './',
   './index.html',
-  './db.js?v=19',
-  './backup.js?v=19',
+  './db.js?v=20',
+  './backup.js?v=20',
   './default-exercises.json?v=2',
   './manifest.json',
   './icon-192.svg',

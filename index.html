@@ -46,43 +46,45 @@
 
     html {
       height: 100%;
-      overflow: hidden;
-      overscroll-behavior: none;
+      background-color: var(--bg);
     }
 
     body {
       background-color: var(--bg);
       color: var(--text);
       font-family: var(--font);
-      height: 100%;
-      height: 100dvh;
       margin: 0;
-      display: flex;
-      flex-direction: column;
-      overflow: hidden;
+      padding: 0;
+      min-height: 100%;
       overscroll-behavior: none;
     }
 
     .app-scroll-container {
-      flex: 1;
-      min-height: 0;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
       overflow-y: auto;
       overflow-x: hidden;
       -webkit-overflow-scrolling: touch;
       overscroll-behavior-y: contain;
+      padding-top: calc(env(safe-area-inset-top, 0px) + 74px);
       padding-bottom: calc(92px + env(safe-area-inset-bottom, 0px));
     }
 
     /* Header (inchiodato in alto, calibrato per Dynamic Island / Notch su iPhone) */
     header {
-      flex-shrink: 0;
-      position: relative;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
       z-index: 1000;
       background: var(--header-bg);
       backdrop-filter: blur(20px);
       -webkit-backdrop-filter: blur(20px);
       border-bottom: 1px solid var(--card-border);
-      padding: max(18px, calc(env(safe-area-inset-top, 0px) + 18px)) 16px 10px;
+      padding: max(24px, calc(env(safe-area-inset-top, 0px) + 24px)) 16px 12px;
     }
 
     .header-top {
@@ -425,11 +427,11 @@
       background: var(--card-bg);
       border: 1px solid var(--card-border);
       border-bottom: none;
-      border-top-left-radius: 28px;
-      border-top-right-radius: 28px;
+      border-top-left-radius: 36px;
+      border-top-right-radius: 36px;
       border-bottom-left-radius: 0;
       border-bottom-right-radius: 0;
-      padding: 14px 20px calc(48px + env(safe-area-inset-bottom, 0px));
+      padding: 16px 16px calc(22px + env(safe-area-inset-bottom, 0px));
       z-index: 1210;
       box-shadow: 0 -16px 48px rgba(0, 0, 0, 0.75);
       transform: translateY(100%);
@@ -460,18 +462,23 @@
     }
 
     .sheet-handle-area {
-      width: 100%;
-      padding: 8px 0 12px;
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 120px;
+      padding: 8px 0 10px;
       display: flex;
       justify-content: center;
       cursor: grab;
       touch-action: none;
+      z-index: 2;
     }
     .sheet-handle-bar {
-      width: 44px;
-      height: 5px;
+      width: 40px;
+      height: 4px;
       background: rgba(255, 255, 255, 0.28);
-      border-radius: 3px;
+      border-radius: 999px;
       transition: background 0.2s ease;
     }
     .sheet-handle-area:hover .sheet-handle-bar {
@@ -482,13 +489,14 @@
       display: flex;
       align-items: flex-start;
       justify-content: space-between;
-      gap: 12px;
+      gap: 10px;
       margin-bottom: 16px;
     }
     .sheet-title-info {
       display: flex;
       flex-direction: column;
       gap: 4px;
+      padding-top: 12px;
     }
     .sheet-title-name {
       font-size: 1.25rem;
@@ -520,6 +528,10 @@
       transition: all 0.2s ease;
       line-height: 1;
       padding: 0;
+    }
+    .bottom-sheet .sheet-close-x {
+      width: 40px;
+      height: 40px;
     }
     .sheet-close-x:hover {
       background: rgba(255, 255, 255, 0.18);
@@ -1446,8 +1458,8 @@
       }
     }
   </style>
-  <script src="db.js?v=19"></script>
-  <script src="backup.js?v=19"></script>
+  <script src="db.js?v=20"></script>
+  <script src="backup.js?v=20"></script>
 </head>
 <body>
 
@@ -1979,7 +1991,18 @@
       }
     }
 
+    function syncHeaderOffset() {
+      const hdr = document.querySelector('header');
+      const root = getAppScrollEl();
+      if (hdr && root) {
+        root.style.paddingTop = hdr.offsetHeight + 'px';
+      }
+    }
+
+    window.addEventListener('resize', syncHeaderOffset);
+
     async function init() {
+      syncHeaderOffset();
       await GymDB.open();
       const savedTheme = await GymDB.getSetting('accentTheme');
       if (savedTheme && ACCENT_THEMES[savedTheme]) {
@@ -3451,7 +3474,7 @@
     }
 
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('sw.js?v=19', {scope: './'}).then(reg => {
+      navigator.serviceWorker.register('sw.js?v=20', {scope: './'}).then(reg => {
         reg.update();
       }).catch(() => {});
     }
