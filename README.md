@@ -1,25 +1,52 @@
-# Gym Log (Standalone Offline-First PWA)
+# Gym Log
 
-Web app leggera e offline-first per registrare e consultare i propri allenamenti in palestra su iPhone, Android e desktop.  
-**Zero account, zero server, zero dipendenze esterne**: tutti i dati restano sul dispositivo (`IndexedDB`) con backup e ripristino in un singolo file `.json`.
+Web app offline-first per registrare e analizzare gli allenamenti in palestra su iPhone, Android e desktop.  
+**Zero account, zero server, zero abbonamenti**: tutti i dati restano salvati localmente sul dispositivo tramite `IndexedDB`.
 
-## Funzionalità
+> **App live:** [https://tommasobiella.github.io/Gym_log/](https://tommasobiella.github.io/Gym_log/)
 
-- **Modalità Registra (Scrittura):** navigazione rapida per gruppo muscolare, calcolo automatico di `Ultima serie`, `PR` e giorni dall'ultimo allenamento, inserimento tramite Bottom Sheet iOS con tastoni `±1 kg`, preset `-0,5 / +0,5 / +2,5` e `6 / 9 / 12`, note e swipe down per chiudere.
-- **Modalità Storico (Lettura):** toggle inferiore fisso tra **Per Seduta** (diario mensile collassabile con gruppi muscolari allenati) e **Per Esercizio** (raggruppato per distretto con PR, delta ultima seduta, grafico andamento e dettaglio serie con note individuali), con modifica ed eliminazione di qualsiasi serie passata.
-- **Gestione Esercizi:** catalogo iniziale di esempio completamente modificabile (rinomina inline con `Invio`, spostamento di gruppo, eliminazione) + creazione di nuovi esercizi personalizzati.
-- **Backup & Ripristino (`.json`):** tasto rapido **Backup** in alto a destra per salvare e ripristinare tutto lo storico in un unico file `gym-log-backup.json` (cartella locale su browser desktop/Android compatibili, oppure *Salva su File / iCloud Drive* su iPhone).
+---
 
-## Come installarla su iPhone (PWA)
+## Installazione (consigliata come app su iPhone)
 
-1. Apri il link dell'app in **Safari** (`https://tommasobiella.github.io/Gym_log/`).
-2. Tocca il pulsante **Condividi** (quadrato con freccia verso l'alto) in basso.
-3. Scorri e seleziona **Aggiungi alla schermata Home**.
-4. Apri l'app dall'icona creata sulla Home: da questo momento funziona anche **completamente offline** in palestra.
+1. Apri **[tommasobiella.github.io/Gym_log](https://tommasobiella.github.io/Gym_log/)** in **Safari**.
+2. Tocca **Condividi** (icona con la freccia verso l'alto) nella barra inferiore.
+3. Seleziona **Aggiungi alla schermata Home** e conferma.
+4. Avvia **Gym Log** dalla nuova icona sulla Home: funziona a schermo intero anche **completamente offline**.
 
-## Pubblicare su GitHub Pages
+*(Su Android / Desktop con Chrome o Edge puoi installarla allo stesso modo tramite **Aggiungi a schermata Home** o **Installa app** dalla barra degli indirizzi.)*
 
-1. Carica i file di questa cartella in un repository pubblico su GitHub (branch `main`).
-2. Vai in **Settings $\rightarrow$ Pages**.
-3. In **Build and deployment**, seleziona **Deploy from a branch** $\rightarrow$ `main` $\rightarrow$ `/ (root)` e salva.
-4. Dopo ~30 secondi l'app è live su `https://<tuo-username>.github.io/<nome-repo>/`.
+---
+
+## Come si usa
+
+### 1. Registra (allenamento in tempo reale)
+- **Gruppi Muscolari:** scegli il distretto per vedere gli esercizi assegnati, l'ultima seduta (`Ultimo`) e le eventuali serie registrate oggi.
+- **Inserimento serie:** tocca un esercizio per aprire la scheda dedicata con:
+  - tasti rapidi **Carico** (`±1 kg` e preselettori `-0,5 / +0,5 / +2,5`) e **Ripetizioni** (`±1` e preset `6 / 9 / 12`), oppure tocca direttamente il numero per digitarlo;
+  - campo **Note** (apre una finestra dedicata per annotare sensazioni, cedimento o drop set senza spostare la tastiera);
+  - pulsante **Salva Serie** in basso.
+- **Andamento esercizio & PR:** nella scheda di un esercizio tocca il riepilogo `Ultima · PR` in alto per aprire lo storico specifico con **massimo carico (PR)**, **media volume/serie** ($\text{kg} \times \text{rip}$) e grafico delle ultime sedute.
+- **Gestione esercizi:** dal tasto **Nuovo** aggiungi esercizi personalizzati; dal menu **`...`** nella scheda puoi rinominare l'esercizio, spostarlo in un altro gruppo, archiviarlo o eliminarlo.
+
+### 2. Storico (diario cronologico)
+- Mostra tutte le sedute ordinate per mese e data con i gruppi muscolari allenati e il conteggio delle serie.
+- Espandi una seduta e tocca qualsiasi esercizio per visualizzare, modificare o eliminare le singole serie registrate (carico, ripetizioni, note).
+- Usa la barra di ricerca in alto per filtrare per esercizio, gruppo o data.
+
+### 3. Impostazioni (icona ingranaggio in alto a destra)
+- **Serie completate oggi:** riepilogo rapido e modifica immediata delle serie della giornata corrente.
+- **Esercizi archiviati:** consulta e ripristina in un tocco gli esercizi nascosti.
+- **Colore tema:** scegli l'accento cromatico dell'interfaccia (Blu, Viola, Smeraldo, Ambra, Corallo, Ciano).
+- **Backup Locale & Ripristino (`.json`):** esporta tutto lo storico in `gym-log-backup.json` (su iPhone tramite *Salva su File / iCloud Drive*, o direttamente in una cartella locale sui browser compatibili) e ripristinalo in qualsiasi momento su un altro dispositivo.
+
+---
+
+## Struttura del repository
+
+- `index.html` — Interfaccia, stili e logica applicativa
+- `db.js` — Livello di persistenza locale su `IndexedDB`
+- `backup.js` — Esportazione/importazione JSON e gestione cartella locale
+- `default-exercises.json` — Catalogo iniziale di esercizi precaricati al primo avvio
+- `manifest.json` / `sw.js` — Configurazione PWA e caching offline
+- `icon-192.svg` / `icon-512.svg` — Icone dell'app
