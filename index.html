@@ -402,6 +402,15 @@
       -webkit-tap-highlight-color: transparent;
       transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
       display: flex;
+      flex-direction: row;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+    }
+    .ex-card-main {
+      flex: 1;
+      min-width: 0;
+      display: flex;
       flex-direction: column;
       gap: 2px;
     }
@@ -1720,9 +1729,10 @@
       opacity: 0.96;
     }
     .ex-drag-handle {
+      width: 44px;
+      height: 44px;
       color: var(--text-muted);
-      padding: 8px 2px 8px 14px;
-      margin: -8px -2px -8px 0;
+      margin: -10px -8px -10px 0;
       display: inline-flex;
       align-items: center;
       justify-content: center;
@@ -1737,8 +1747,8 @@
       cursor: grabbing;
     }
   </style>
-  <script src="db.js?v=37"></script>
-  <script src="backup.js?v=37"></script>
+  <script src="db.js?v=38"></script>
+  <script src="backup.js?v=38"></script>
 </head>
 <body>
   <div id="orientationLockOverlay" class="orientation-lock-overlay" aria-live="polite">
@@ -4359,15 +4369,16 @@
 
         return `
           <div class="ex-card ${isReorderMode ? 'is-reorder' : ''}" id="card-${ex.id}" data-exid="${escapeHtml(ex.id)}" onclick="handleExerciseCardClick('${ex.id}')" role="button" tabindex="0" title="${t('tapToLogTitle')}">
-            <div class="ex-header">
-              <div class="ex-title">${escapeHtml(ex.name)}</div>
-              ${rightActionHtml}
+            <div class="ex-card-main">
+              <div class="ex-header">
+                <div class="ex-title">${escapeHtml(ex.name)}</div>
+              </div>
+              <div class="ex-stats" id="stats-${ex.id}">
+                <span>${t('ultimaLabel')} <strong>${lastStr}</strong> ${ex.last_reps ? `(${ex.last_reps})` : ''}</span>
+                <span>PR: <strong>${prStr}</strong></span>
+              </div>
             </div>
-
-            <div class="ex-stats" id="stats-${ex.id}">
-              <span>${t('ultimaLabel')} <strong>${lastStr}</strong> ${ex.last_reps ? `(${ex.last_reps})` : ''}</span>
-              <span>PR: <strong>${prStr}</strong></span>
-            </div>
+            ${rightActionHtml}
           </div>
         `;
       }).join('');
@@ -4485,45 +4496,54 @@
 
       // 2. Drag & Drop reordering via .ex-drag-handle (Touch + Mouse)
       let dragCard = null;
-      let dragLastClientY = 0;
+      let dragStartY = 0;
+      let domOffset = 0;
 
       function startDrag(handle, clientY) {
         const card = handle.closest('.ex-card');
         if (!card) return;
         dragCard = card;
-        dragLastClientY = clientY;
+        dragStartY = clientY;
+        domOffset = 0;
         dragCard.classList.add('is-dragging');
-        dragCard.style.transform = 'scale(1.02)';
+        dragCard.style.transform = 'translate3d(0, 0, 0) scale(1.02)';
       }
 
       function moveDrag(clientY) {
         if (!dragCard) return;
-        const dy = clientY - dragLastClientY;
-        const rect = dragCard.getBoundingClientRect();
-        const cardCenterY = rect.top + rect.height / 2;
 
-        // Swap with previous sibling if dragged above its midpoint
-        const prev = dragCard.previousElementSibling;
-        if (prev && dy < 0) {
+        // Swap with previous sibling if pointer crosses its vertical midpoint
+        let prev = dragCard.previousElementSibling;
+        while (prev) {
           const prevRect = prev.getBoundingClientRect();
-          if (cardCenterY < prevRect.top + prevRect.height / 2) {
+          if (clientY < prevRect.top + prevRect.height / 2) {
+            const beforeTop = dragCard.getBoundingClientRect().top;
             list.insertBefore(dragCard, prev);
-            dragLastClientY = clientY;
+            const afterTop = dragCard.getBoundingClientRect().top;
+            domOffset += (afterTop - beforeTop);
+            prev = dragCard.previousElementSibling;
+          } else {
+            break;
           }
         }
 
-        // Swap with next sibling if dragged below its midpoint
-        const next = dragCard.nextElementSibling;
-        if (next && dy > 0) {
+        // Swap with next sibling if pointer crosses its vertical midpoint
+        let next = dragCard.nextElementSibling;
+        while (next) {
           const nextRect = next.getBoundingClientRect();
-          if (cardCenterY > nextRect.top + nextRect.height / 2) {
+          if (clientY > nextRect.top + nextRect.height / 2) {
+            const beforeTop = dragCard.getBoundingClientRect().top;
             list.insertBefore(next, dragCard);
-            dragLastClientY = clientY;
+            const afterTop = dragCard.getBoundingClientRect().top;
+            domOffset += (afterTop - beforeTop);
+            next = dragCard.nextElementSibling;
+          } else {
+            break;
           }
         }
 
-        const offset = Math.max(-28, Math.min(28, clientY - dragLastClientY));
-        dragCard.style.transform = `translateY(${offset}px) scale(1.02)`;
+        const ty = clientY - dragStartY - domOffset;
+        dragCard.style.transform = `translate3d(0, ${ty}px, 0) scale(1.02)`;
       }
 
       function endDrag() {
@@ -4567,7 +4587,7 @@
     })();
 
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('sw.js?v=37', {scope: './'}).then(reg => {
+      navigator.serviceWorker.register('sw.js?v=38', {scope: './'}).then(reg => {
         reg.update();
       }).catch(() => {});
     }
