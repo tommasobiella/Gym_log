@@ -1630,8 +1630,8 @@
       }
     }
   </style>
-  <script src="db.js?v=34"></script>
-  <script src="backup.js?v=34"></script>
+  <script src="db.js?v=35"></script>
+  <script src="backup.js?v=35"></script>
 </head>
 <body>
 
@@ -3117,7 +3117,7 @@
       const today = new Date();
       today.setHours(0, 0, 0, 0);
 
-      let maxLastDate = null;
+      let minLastDate = null;
       const groupLatestDates = {};
       groups.forEach(g => {
         let latestDateStr = null;
@@ -3128,8 +3128,8 @@
           }
         });
         groupLatestDates[g] = { latestDateStr, activeExs };
-        if (latestDateStr && (!maxLastDate || latestDateStr > maxLastDate)) {
-          maxLastDate = latestDateStr;
+        if (latestDateStr && (!minLastDate || latestDateStr < minLastDate)) {
+          minLastDate = latestDateStr;
         }
       });
 
@@ -3155,7 +3155,7 @@
         const elId = 'groupSub_' + safeKey;
         const subEl = document.getElementById(elId);
         const tileEl = subEl ? subEl.closest('.group-tile') : null;
-        const isLatest = Boolean(latestDateStr && maxLastDate && latestDateStr === maxLastDate);
+        const isOldest = Boolean(latestDateStr && minLastDate && latestDateStr === minLastDate);
         if (subEl) {
           subEl.classList.remove('is-today', 'is-latest');
           if (!latestDateStr) {
@@ -3172,14 +3172,14 @@
               } else {
                 subEl.innerText = `Ultimo: ${diffDays} gg fa`;
               }
-              if (isLatest) {
+              if (isOldest) {
                 subEl.classList.add('is-latest');
               }
             }
           }
         }
         if (tileEl) {
-          tileEl.classList.toggle('is-latest-group', isLatest);
+          tileEl.classList.toggle('is-latest-group', isOldest);
         }
       });
     }
@@ -3668,7 +3668,7 @@
     }
 
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('sw.js?v=34', {scope: './'}).then(reg => {
+      navigator.serviceWorker.register('sw.js?v=35', {scope: './'}).then(reg => {
         reg.update();
       }).catch(() => {});
     }
