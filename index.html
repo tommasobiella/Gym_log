@@ -305,8 +305,8 @@
       background: rgba(255, 255, 255, 0.08);
       border: 1px solid var(--card-border);
       color: var(--text-muted);
-      width: 36px;
-      height: 36px;
+      width: 40px;
+      height: 40px;
       border-radius: 50%;
       display: inline-flex;
       align-items: center;
@@ -601,8 +601,8 @@
       background: rgba(255, 255, 255, 0.08);
       border: 1px solid var(--card-border);
       color: var(--text-muted);
-      width: 36px;
-      height: 36px;
+      width: 40px;
+      height: 40px;
       border-radius: 50%;
       display: inline-flex;
       align-items: center;
@@ -974,9 +974,9 @@
       background: rgba(255, 255, 255, 0.06);
       border: 1px solid var(--card-border);
       color: var(--text-muted);
-      width: 34px;
-      height: 34px;
-      border-radius: 8px;
+      width: 40px;
+      height: 40px;
+      border-radius: 12px;
       display: inline-flex;
       align-items: center;
       justify-content: center;
@@ -1368,11 +1368,11 @@
     }
     .history-search-clear {
       position: absolute;
-      right: 10px;
+      right: 6px;
       top: 50%;
       transform: translateY(-50%);
-      width: 24px;
-      height: 24px;
+      width: 32px;
+      height: 32px;
       border-radius: 50%;
       border: none;
       background: rgba(255, 255, 255, 0.14);
@@ -1747,8 +1747,8 @@
       cursor: grabbing;
     }
     .ex-card-more-btn {
-      width: 36px;
-      height: 36px;
+      width: 40px;
+      height: 40px;
       border-radius: 50%;
       background: rgba(255, 255, 255, 0.06);
       border: 1px solid rgba(255, 255, 255, 0.08);
@@ -1787,9 +1787,13 @@
       z-index: 1200;
       min-width: 195px;
     }
+    :focus-visible {
+      outline: 2px solid var(--accent);
+      outline-offset: 2px;
+    }
   </style>
-  <script src="db.js?v=39"></script>
-  <script src="backup.js?v=39"></script>
+  <script src="db.js?v=40"></script>
+  <script src="backup.js?v=40"></script>
 </head>
 <body>
   <div id="orientationLockOverlay" class="orientation-lock-overlay" aria-live="polite">
@@ -2029,7 +2033,10 @@
           <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
         </svg>
       </span>
-      <input type="text" id="searchInput" placeholder="Cerca esercizio..." oninput="renderExercises()">
+      <input type="text" id="searchInput" placeholder="Cerca esercizio..." oninput="onExerciseSearchInput()" style="padding-right:40px;">
+      <button type="button" id="exerciseSearchClearBtn" class="history-search-clear" onclick="clearExerciseSearch()" aria-label="Pulisci ricerca">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+      </button>
     </div>
     <button type="button" class="btn-reorder-toggle" id="reorderToggleBtn" onclick="toggleReorderMode()" title="Riordina esercizi" aria-label="Riordina esercizi">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
@@ -2268,7 +2275,7 @@
         enterExNameToast: 'Inserisci il nome dell\'esercizio!',
         exExistsToast: 'Esercizio già presente!',
         addedExToast: (n, g) => `Aggiunto: ${n} (${g})!`,
-        avgPerSetUnit: 'kg/serie',
+        avgPerSetUnit: 'vol/serie',
         reorderAria: 'Riordina esercizi',
         doneBtnShort: 'Fine',
         orderSavedToast: 'Ordine aggiornato!',
@@ -2400,7 +2407,7 @@
         enterExNameToast: 'Enter an exercise name!',
         exExistsToast: 'Exercise already exists!',
         addedExToast: (n, g) => `Added: ${n} (${g})!`,
-        avgPerSetUnit: 'kg/set',
+        avgPerSetUnit: 'vol/set',
         reorderAria: 'Reorder exercises',
         doneBtnShort: 'Done',
         orderSavedToast: 'Order updated!',
@@ -2528,9 +2535,8 @@
       setTxt('firstLaunchStartBtn', 'startTrainingBtn');
       setTxt('firstLaunchRestoreBtn', 'restorePromptBtn');
       setTxt('histProgTimelineLabel', 'allSessionsPrompt');
-      setTxt('histDetailCloseBtn', 'closeBtn');
       setTxt('archivedModalTitle', 'archivedExercises');
-      setTxt('archivedCloseBtn', 'closeBtn');
+      setAria('exerciseSearchClearBtn', 'clearSearchAria');
       const noteTxt = document.getElementById('sheetNoteTriggerText');
       if (noteTxt && !activeSheetNote) noteTxt.innerText = t('notesTriggerPlaceholder');
     }
@@ -2965,6 +2971,21 @@
       renderHistoryView();
     }
 
+    function onExerciseSearchInput() {
+      const input = document.getElementById('searchInput');
+      const btn = document.getElementById('exerciseSearchClearBtn');
+      if (btn && input) {
+        btn.style.display = input.value.trim().length > 0 ? 'inline-flex' : 'none';
+      }
+      renderExercises();
+    }
+
+    function clearExerciseSearch() {
+      const input = document.getElementById('searchInput');
+      if (input) input.value = '';
+      onExerciseSearchInput();
+    }
+
     function onHistorySearchInput() {
       const input = document.getElementById('historySearchInput');
       const clearBtn = document.getElementById('historySearchClearBtn');
@@ -3053,7 +3074,7 @@
         <div class="progress-spark-card">
           <div class="progress-spark-header">
             <span>${t('sparkTitle', points.length)}</span>
-            <span>${realMin} &ndash; ${realMax} kg</span>
+            <span>${realMin} &ndash; ${realMax} vol</span>
           </div>
           <svg viewBox="0 0 ${w} ${h}" width="100%" height="76" style="display:block; overflow:visible;">
             <defs>
@@ -4646,10 +4667,23 @@
     })();
 
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('sw.js?v=39', {scope: './'}).then(reg => {
+      navigator.serviceWorker.register('sw.js?v=40', {scope: './'}).then(reg => {
         reg.update();
       }).catch(() => {});
     }
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key !== 'Enter' && e.key !== ' ') return;
+      const target = e.target;
+      if (target && target.getAttribute && target.getAttribute('role') === 'button' && target.tagName !== 'BUTTON') {
+        e.preventDefault();
+        target.click();
+      }
+    });
+    document.querySelectorAll('.group-tile').forEach(el => {
+      el.setAttribute('role', 'button');
+      el.setAttribute('tabindex', '0');
+    });
 
     function syncAppHeaderOffset() {
       const headerEl = document.querySelector('header');
@@ -5066,10 +5100,6 @@
       </div>
 
       <div class="today-sets-list" id="histDetailSetsList"></div>
-
-      <div class="modal-actions">
-        <button type="button" class="modal-btn-confirm" id="histDetailCloseBtn" onclick="closeHistoryDetailModal()">Chiudi</button>
-      </div>
     </div>
   </div>
 
@@ -5082,10 +5112,6 @@
       </div>
 
       <div class="today-sets-list" id="archivedExercisesList"></div>
-
-      <div class="modal-actions">
-        <button type="button" class="modal-btn-confirm" id="archivedCloseBtn" onclick="closeArchivedModal()">Chiudi</button>
-      </div>
     </div>
   </div>
 
