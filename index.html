@@ -574,8 +574,45 @@
       font-weight: 800;
       letter-spacing: -0.5px;
       color: var(--text);
-      min-width: 72px;
+      min-width: 78px;
       text-align: center;
+      font-variant-numeric: tabular-nums;
+      background: transparent;
+      border: 1px solid transparent;
+      border-radius: 10px;
+      padding: 4px 10px;
+      cursor: pointer;
+      transition: background 0.15s ease, border-color 0.15s ease;
+    }
+    .sheet-box-val:hover,
+    .sheet-box-val:active {
+      background: rgba(255, 255, 255, 0.06);
+      border-color: rgba(255, 255, 255, 0.12);
+    }
+    .sheet-val-inline-input {
+      width: 96px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1.5px solid var(--accent);
+      border-radius: 10px;
+      color: #fff;
+      font-size: 1.4rem;
+      font-weight: 800;
+      text-align: center;
+      padding: 3px 6px;
+      outline: none;
+      font-family: inherit;
+      font-variant-numeric: tabular-nums;
+    }
+    .sheet-today-pill {
+      display: none;
+      margin-top: 2px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--accent);
+      background: var(--accent-soft);
+      padding: 3px 10px;
+      border-radius: 999px;
+      align-self: center;
       font-variant-numeric: tabular-nums;
     }
     .sheet-quick-weights {
@@ -1311,6 +1348,18 @@
     .sheet-dropdown-item:active {
       background: rgba(255, 255, 255, 0.1);
     }
+    .sheet-dropdown-item-left {
+      display: inline-flex;
+      align-items: center;
+      gap: 9px;
+    }
+    .sheet-dropdown-item-left svg {
+      opacity: 0.8;
+      flex-shrink: 0;
+    }
+    .sheet-dropdown-item.danger .sheet-dropdown-item-left svg {
+      opacity: 1;
+    }
     .sheet-dropdown-item.danger {
       color: var(--danger);
     }
@@ -1382,8 +1431,8 @@
       }
     }
   </style>
-  <script src="db.js?v=17"></script>
-  <script src="backup.js?v=17"></script>
+  <script src="db.js?v=18"></script>
+  <script src="backup.js?v=18"></script>
 </head>
 <body>
 
@@ -1399,32 +1448,42 @@
             <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
           </svg>
         </button>
-        <div class="sheet-dropdown-menu" id="settingsDropdownMenu" style="min-width: 215px;" onclick="event.stopPropagation()">
+        <div class="sheet-dropdown-menu" id="settingsDropdownMenu" style="min-width: 225px;" onclick="event.stopPropagation()">
           <div id="settingsMenuMain" class="sheet-dropdown-subview">
-            <button type="button" class="sheet-dropdown-item" onclick="openBackupFromSettings()">
-              <span>Backup</span>
-              <span style="opacity:0.6; font-size:1rem; line-height:1;">&rsaquo;</span>
-            </button>
-            <div class="sheet-dropdown-divider"></div>
-            <button type="button" class="sheet-dropdown-item" onclick="openExportSubmenu(event)">
-              <span>Esporta</span>
-              <span style="opacity:0.6; font-size:1rem; line-height:1;">&rsaquo;</span>
-            </button>
-            <div class="sheet-dropdown-divider"></div>
             <button type="button" class="sheet-dropdown-item" onclick="openThemeSubmenu(event)">
-              <span>Tema</span>
+              <span class="sheet-dropdown-item-left">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="13.5" cy="6.5" r=".5" fill="currentColor"/><circle cx="17.5" cy="10.5" r=".5" fill="currentColor"/><circle cx="8.5" cy="7.5" r=".5" fill="currentColor"/><circle cx="6.5" cy="12.5" r=".5" fill="currentColor"/><path d="M12 2C6.5 2 2 6.5 2 12s4.5 10 10 10c.926 0 1.648-.746 1.648-1.688 0-.437-.18-.835-.437-1.125-.29-.289-.438-.652-.438-1.125a1.64 1.64 0 0 1 1.668-1.668h1.996c3.051 0 5.555-2.503 5.555-5.554C21.965 6.012 17.461 2 12 2z"/></svg>
+                <span>Tema</span>
+              </span>
               <span style="display:inline-flex; align-items:center; gap:6px;">
                 <span id="settingsThemePreviewDot" class="theme-color-dot" style="background: var(--accent);"></span>
                 <span style="opacity:0.6; font-size:1rem; line-height:1;">&rsaquo;</span>
               </span>
             </button>
-            <div class="sheet-dropdown-divider"></div>
             <button type="button" class="sheet-dropdown-item" onclick="openArchivedModalFromSettings()">
-              <span>Esercizi archiviati</span>
+              <span class="sheet-dropdown-item-left">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg>
+                <span>Esercizi archiviati</span>
+              </span>
               <span style="display:inline-flex; align-items:center; gap:6px;">
                 <span id="settingsArchivedCount" style="font-size:0.78rem; color:var(--text-muted); font-weight:700;"></span>
                 <span style="opacity:0.6; font-size:1rem; line-height:1;">&rsaquo;</span>
               </span>
+            </button>
+            <div class="sheet-dropdown-divider"></div>
+            <button type="button" class="sheet-dropdown-item" onclick="openBackupFromSettings()">
+              <span class="sheet-dropdown-item-left">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
+                <span>Backup</span>
+              </span>
+              <span style="opacity:0.6; font-size:1rem; line-height:1;">&rsaquo;</span>
+            </button>
+            <button type="button" class="sheet-dropdown-item" onclick="openExportSubmenu(event)">
+              <span class="sheet-dropdown-item-left">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+                <span>Esporta</span>
+              </span>
+              <span style="opacity:0.6; font-size:1rem; line-height:1;">&rsaquo;</span>
             </button>
           </div>
           <div id="settingsMenuExport" class="sheet-dropdown-subview" style="display:none;">
@@ -1619,17 +1678,44 @@
   </div>
 
   <script>
-    function showToast(msg) {
+    let toastHideTimer = null;
+    function showToast(msg, opts = null) {
       let toast = document.getElementById('gymToast');
       if (!toast) {
         toast = document.createElement('div');
         toast.id = 'gymToast';
-        toast.style.cssText = 'position:fixed;bottom:calc(88px + env(safe-area-inset-bottom, 0px));left:50%;transform:translateX(-50%);background:var(--card-bg);border:1px solid var(--accent);color:#fff;padding:12px 20px;border-radius:12px;font-size:14px;font-weight:700;box-shadow:0 8px 24px rgba(0,0,0,0.5);z-index:9999;transition:opacity 0.3s;opacity:0;pointer-events:none;text-align:center;max-width:90vw;';
+        toast.style.cssText = 'position:fixed;bottom:calc(88px + env(safe-area-inset-bottom, 0px));left:50%;transform:translateX(-50%);background:rgba(28,28,30,0.96);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border:1px solid var(--accent);color:#fff;padding:10px 16px;border-radius:14px;font-size:14px;font-weight:700;box-shadow:0 8px 24px rgba(0,0,0,0.5);z-index:9999;transition:opacity 0.25s;opacity:0;pointer-events:none;text-align:center;max-width:90vw;display:inline-flex;align-items:center;gap:12px;';
         document.body.appendChild(toast);
       }
-      toast.innerText = msg;
+      clearTimeout(toastHideTimer);
+      toast.innerHTML = '';
+      const txtSpan = document.createElement('span');
+      txtSpan.innerText = msg;
+      toast.appendChild(txtSpan);
+
+      if (opts && opts.actionLabel && typeof opts.onAction === 'function') {
+        toast.style.pointerEvents = 'auto';
+        const actBtn = document.createElement('button');
+        actBtn.type = 'button';
+        actBtn.innerText = opts.actionLabel;
+        actBtn.style.cssText = 'background:var(--accent);color:var(--cta-text);border:none;border-radius:8px;padding:5px 10px;font-size:12px;font-weight:800;cursor:pointer;flex-shrink:0;';
+        actBtn.onclick = async () => {
+          clearTimeout(toastHideTimer);
+          toast.style.opacity = '0';
+          toast.style.pointerEvents = 'none';
+          await opts.onAction();
+        };
+        toast.appendChild(actBtn);
+      } else {
+        toast.style.pointerEvents = 'none';
+      }
+
       toast.style.opacity = '1';
-      setTimeout(() => { toast.style.opacity = '0'; }, 2600);
+      const duration = (opts && opts.duration) ? opts.duration : 2600;
+      toastHideTimer = setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.pointerEvents = 'none';
+      }, duration);
     }
 
     // State (100% IndexedDB)
@@ -1905,8 +1991,11 @@
     // =========================================================================
     // SWITCH MODALITÀ: REGISTRA (SCRITTURA) <-> STORICO (LETTURA)
     // =========================================================================
+    const tabScrollPos = { log: 0, history: 0 };
+
     function switchAppMode(mode) {
       haptic();
+      tabScrollPos[currentAppMode] = window.scrollY || window.pageYOffset || 0;
       currentAppMode = mode;
       document.getElementById('modeBtnLog').classList.toggle('active', mode === 'log');
       document.getElementById('modeBtnHistory').classList.toggle('active', mode === 'history');
@@ -1930,7 +2019,9 @@
           exercisesCont.style.display = 'block';
         }
       }
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      requestAnimationFrame(() => {
+        window.scrollTo({ top: tabScrollPos[mode] || 0, behavior: 'instant' });
+      });
     }
 
     const HISTORY_GROUPS_ORDER = ['Petto', 'Spalle', 'Tricipiti', 'Schiena', 'Bicipiti', 'Gambe', 'Core / Addome'];
@@ -2545,6 +2636,19 @@
       document.getElementById('sheetExTitle').innerText = ex.name;
       document.getElementById('sheetStatsUltima').innerText = ex.last_weight !== null ? `${lastStr} (${ex.last_reps || '-'})` : 'Nessuna';
       document.getElementById('sheetStatsPR').innerText = prStr;
+
+      const exToday = todayLogs.filter(s => s.exerciseId === ex.id);
+      const todayPill = document.getElementById('sheetTodayPill');
+      if (todayPill) {
+        if (exToday.length > 0) {
+          todayPill.innerText = `Oggi: ${exToday.length} ${exToday.length === 1 ? 'serie' : 'serie'} (${GymDB.formatDaySets(exToday)})`;
+          todayPill.style.display = 'inline-block';
+        } else {
+          todayPill.style.display = 'none';
+        }
+      }
+
+      cancelInlineValueEdits();
       document.getElementById('sheetRepsVal').innerText = val.reps;
       document.getElementById('sheetWeightVal').innerText = val.weight + ' kg';
       document.getElementById('sheetNoteInput').value = '';
@@ -2562,8 +2666,19 @@
       sheet.classList.add('active');
     }
 
-    function closeExerciseSheet() {
+    function isInlineRenaming() {
+      const inputEl = document.getElementById('sheetExTitleInput');
+      return inputEl && inputEl.style.display !== 'none';
+    }
+
+    function closeExerciseSheet(force = true) {
+      if (!force && isInlineRenaming()) {
+        const inputEl = document.getElementById('sheetExTitleInput');
+        if (inputEl) inputEl.focus();
+        return;
+      }
       cancelInlineRenameExercise();
+      cancelInlineValueEdits();
       closeSheetMoreMenu();
       const sheet = document.getElementById('exerciseBottomSheet');
       const backdrop = document.getElementById('sheetBackdrop');
@@ -2579,6 +2694,91 @@
         if (backdrop) backdrop.style.display = 'none';
         activeSheetExId = null;
       }, 280);
+    }
+
+    function cancelInlineValueEdits() {
+      const wVal = document.getElementById('sheetWeightVal');
+      const wIn = document.getElementById('sheetWeightInlineInput');
+      const rVal = document.getElementById('sheetRepsVal');
+      const rIn = document.getElementById('sheetRepsInlineInput');
+      if (wIn) wIn.style.display = 'none';
+      if (wVal) wVal.style.display = 'inline-block';
+      if (rIn) rIn.style.display = 'none';
+      if (rVal) rVal.style.display = 'inline-block';
+    }
+
+    function startInlineValueEdit(type) {
+      haptic();
+      if (!activeSheetExId) return;
+      if (!currentValues[activeSheetExId]) currentValues[activeSheetExId] = { reps: 10, weight: 20 };
+      const val = currentValues[activeSheetExId];
+
+      if (type === 'weight') {
+        const btn = document.getElementById('sheetWeightVal');
+        const inp = document.getElementById('sheetWeightInlineInput');
+        if (!btn || !inp) return;
+        inp.value = val.weight;
+        btn.style.display = 'none';
+        inp.style.display = 'inline-block';
+        inp.focus();
+        inp.select();
+      } else {
+        const btn = document.getElementById('sheetRepsVal');
+        const inp = document.getElementById('sheetRepsInlineInput');
+        if (!btn || !inp) return;
+        inp.value = val.reps;
+        btn.style.display = 'none';
+        inp.style.display = 'inline-block';
+        inp.focus();
+        inp.select();
+      }
+    }
+
+    function handleInlineValueKeydown(event, type) {
+      if (event.key === 'Enter') {
+        event.preventDefault();
+        commitInlineValueEdit(type);
+      } else if (event.key === 'Escape') {
+        event.preventDefault();
+        cancelInlineValueEdits();
+      }
+    }
+
+    function commitInlineValueEdit(type) {
+      if (!activeSheetExId) {
+        cancelInlineValueEdits();
+        return;
+      }
+      if (!currentValues[activeSheetExId]) currentValues[activeSheetExId] = { reps: 10, weight: 20 };
+      if (type === 'weight') {
+        const btn = document.getElementById('sheetWeightVal');
+        const inp = document.getElementById('sheetWeightInlineInput');
+        if (inp) {
+          const parsed = parseFloat(String(inp.value).replace(',', '.'));
+          if (!isNaN(parsed) && parsed >= 0) {
+            currentValues[activeSheetExId].weight = parseFloat(parsed.toFixed(2));
+          }
+          inp.style.display = 'none';
+        }
+        if (btn) {
+          btn.innerText = currentValues[activeSheetExId].weight + ' kg';
+          btn.style.display = 'inline-block';
+        }
+      } else {
+        const btn = document.getElementById('sheetRepsVal');
+        const inp = document.getElementById('sheetRepsInlineInput');
+        if (inp) {
+          const parsed = parseInt(inp.value, 10);
+          if (!isNaN(parsed) && parsed >= 1) {
+            currentValues[activeSheetExId].reps = parsed;
+          }
+          inp.style.display = 'none';
+        }
+        if (btn) {
+          btn.innerText = currentValues[activeSheetExId].reps;
+          btn.style.display = 'inline-block';
+        }
+      }
     }
 
     function sheetModReps(delta) {
@@ -2610,6 +2810,12 @@
     async function saveCurrentSheetSet() {
       haptic();
       if (!activeSheetExId) return;
+      if (document.getElementById('sheetWeightInlineInput')?.style.display !== 'none') {
+        commitInlineValueEdit('weight');
+      }
+      if (document.getElementById('sheetRepsInlineInput')?.style.display !== 'none') {
+        commitInlineValueEdit('reps');
+      }
       const exId = activeSheetExId;
       const ex = exercises.find(e => e.id === exId);
       const val = currentValues[exId];
@@ -3115,10 +3321,19 @@
       if (!activeSheetExId) return;
       const ex = exercises.find(e => e.id === activeSheetExId);
       if (!ex) return;
-      await GymDB.saveExercise({ ...ex, archived: true });
-      closeExerciseSheet();
+      const targetEx = { ...ex };
+      await GymDB.saveExercise({ ...targetEx, archived: true });
+      closeExerciseSheet(true);
       await refreshStateFromDB();
-      showToast(`Archiviato: ${ex.name}`);
+      showToast(`Archiviato: ${targetEx.name}`, {
+        actionLabel: 'Annulla',
+        duration: 4200,
+        onAction: async () => {
+          await GymDB.saveExercise({ ...targetEx, archived: false });
+          await refreshStateFromDB();
+          showToast(`Ripristinato: ${targetEx.name}`);
+        }
+      });
     }
 
     async function deleteActiveExercise() {
@@ -3160,6 +3375,25 @@
         return matchesGroup && matchesQuery;
       });
 
+      if (filtered.length === 0) {
+        if (query) {
+          list.innerHTML = `
+            <div class="today-empty" style="margin-top:16px;">
+              <div>Nessun esercizio trovato per &ldquo;${escapeHtml(query)}&rdquo;.</div>
+              <button type="button" class="modal-btn-cancel" style="margin-top:12px; padding:8px 16px;" onclick="document.getElementById('searchInput').value=''; renderExercises();">Pulisci ricerca</button>
+            </div>
+          `;
+        } else {
+          list.innerHTML = `
+            <div class="today-empty" style="margin-top:16px;">
+              <div>Nessun esercizio in questo gruppo.</div>
+              <button type="button" class="modal-btn-confirm" style="margin-top:12px; padding:10px 18px;" onclick="openNewExerciseModal()">Aggiungi esercizio</button>
+            </div>
+          `;
+        }
+        return;
+      }
+
       list.innerHTML = filtered.map(ex => {
         const lastStr = ex.last_weight !== null ? `${ex.last_weight} kg` : '-';
         const prStr = ex.pr !== null ? `${ex.pr} kg` : '-';
@@ -3183,7 +3417,7 @@
     }
 
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('sw.js?v=17', {scope: './'}).then(reg => {
+      navigator.serviceWorker.register('sw.js?v=18', {scope: './'}).then(reg => {
         reg.update();
       }).catch(() => {});
     }
@@ -3354,7 +3588,6 @@
 
       <div class="modal-actions">
         <button type="button" class="modal-btn-cancel" style="color:var(--danger); border-color:rgba(255,69,58,0.35);" onclick="deleteEditingSet()">Elimina</button>
-        <button type="button" class="modal-btn-cancel" onclick="closeEditSetModal()">Annulla</button>
         <button type="button" class="modal-btn-confirm" onclick="saveEditedSet()">Salva</button>
       </div>
     </div>
@@ -3404,21 +3637,22 @@
     </div>
   </div>
   <!-- Bottom Sheet Layer: Interfaccia Dettaglio e Registrazione Serie -->
-  <div class="sheet-backdrop" id="sheetBackdrop" onclick="closeExerciseSheet()"></div>
+  <div class="sheet-backdrop" id="sheetBackdrop" onclick="closeExerciseSheet(false)"></div>
   <div class="bottom-sheet" id="exerciseBottomSheet" style="display:none;" role="dialog" aria-modal="true">
     <div class="sheet-handle-area" id="sheetDragHandle" title="Trascina verso il basso per chiudere">
       <div class="sheet-handle-bar"></div>
     </div>
 
     <div class="sheet-header-row">
-      <button type="button" class="sheet-close-x" onclick="closeExerciseSheet()" title="Chiudi scheda" aria-label="Chiudi" style="flex-shrink:0;">&times;</button>
+      <button type="button" class="sheet-close-x" onclick="closeExerciseSheet(true)" title="Chiudi scheda" aria-label="Chiudi" style="flex-shrink:0;">&times;</button>
       <div class="sheet-title-info" style="flex:1; min-width:0; text-align:center;">
         <div class="sheet-title-name" id="sheetExTitle" style="word-break:break-word;">Esercizio</div>
-        <input type="text" id="sheetExTitleInput" class="sheet-title-input" style="display:none;" enterkeyhint="done" autocomplete="off" autocorrect="off" autocapitalize="sentences" onkeydown="handleSheetTitleKeydown(event)" onblur="cancelInlineRenameExercise()" aria-label="Nuovo nome esercizio">
+        <input type="text" id="sheetExTitleInput" class="sheet-title-input" style="display:none;" enterkeyhint="done" autocomplete="off" autocorrect="off" autocapitalize="sentences" onkeydown="handleSheetTitleKeydown(event)" aria-label="Nuovo nome esercizio">
         <div class="sheet-title-stats" style="justify-content:center;">
           <span>Ultima: <strong id="sheetStatsUltima">-</strong></span>
           <span>PR: <strong id="sheetStatsPR">-</strong></span>
         </div>
+        <div class="sheet-today-pill" id="sheetTodayPill"></div>
       </div>
       <div class="sheet-more-wrap">
         <button type="button" class="sheet-close-x" id="sheetMoreBtn" onclick="toggleSheetMoreMenu(event)" title="Opzioni esercizio" aria-label="Opzioni esercizio">
@@ -3428,21 +3662,33 @@
             <circle cx="19" cy="12" r="2.2"></circle>
           </svg>
         </button>
-        <div class="sheet-dropdown-menu" id="sheetDropdownMenu" onclick="event.stopPropagation()">
+        <div class="sheet-dropdown-menu" id="sheetDropdownMenu" style="min-width: 195px;" onclick="event.stopPropagation()">
           <div id="sheetMenuMain" class="sheet-dropdown-subview">
             <button type="button" class="sheet-dropdown-item" onclick="startInlineRenameExercise()">
-              <span>Rinomina</span>
+              <span class="sheet-dropdown-item-left">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
+                <span>Rinomina</span>
+              </span>
             </button>
             <button type="button" class="sheet-dropdown-item" onclick="openGroupSubmenu(event)">
-              <span>Cambia gruppo</span>
+              <span class="sheet-dropdown-item-left">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+                <span>Cambia gruppo</span>
+              </span>
               <span style="opacity:0.6; font-size:1rem; line-height:1;">&rsaquo;</span>
             </button>
-            <button type="button" class="sheet-dropdown-item" onclick="archiveActiveExercise()">
-              <span>Archivia</span>
-            </button>
             <div class="sheet-dropdown-divider"></div>
+            <button type="button" class="sheet-dropdown-item" onclick="archiveActiveExercise()">
+              <span class="sheet-dropdown-item-left">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg>
+                <span>Archivia</span>
+              </span>
+            </button>
             <button type="button" class="sheet-dropdown-item danger" onclick="deleteActiveExercise()">
-              <span>Elimina</span>
+              <span class="sheet-dropdown-item-left">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>
+                <span>Elimina</span>
+              </span>
             </button>
           </div>
           <div id="sheetMenuGroups" class="sheet-dropdown-subview" style="display:none;">
@@ -3463,7 +3709,8 @@
         <div class="sheet-box-label">Carico</div>
         <div class="sheet-box-controls">
           <button type="button" class="sheet-big-btn" onclick="sheetModWeight(-1)" aria-label="Meno 1 kg">−</button>
-          <span class="sheet-box-val" id="sheetWeightVal">20 kg</span>
+          <button type="button" class="sheet-box-val" id="sheetWeightVal" onclick="startInlineValueEdit('weight')" title="Tocca per inserire il carico">20 kg</button>
+          <input type="number" id="sheetWeightInlineInput" class="sheet-val-inline-input" style="display:none;" inputmode="decimal" step="0.5" min="0" enterkeyhint="done" onkeydown="handleInlineValueKeydown(event, 'weight')" onblur="commitInlineValueEdit('weight')" aria-label="Carico in kg">
           <button type="button" class="sheet-big-btn" onclick="sheetModWeight(1)" aria-label="Più 1 kg">+</button>
         </div>
         <div class="sheet-quick-weights">
@@ -3478,7 +3725,8 @@
         <div class="sheet-box-label">Ripetizioni</div>
         <div class="sheet-box-controls">
           <button type="button" class="sheet-big-btn" onclick="sheetModReps(-1)" aria-label="Meno ripetizioni">−</button>
-          <span class="sheet-box-val" id="sheetRepsVal">10</span>
+          <button type="button" class="sheet-box-val" id="sheetRepsVal" onclick="startInlineValueEdit('reps')" title="Tocca per inserire le ripetizioni">10</button>
+          <input type="number" id="sheetRepsInlineInput" class="sheet-val-inline-input" style="display:none;" inputmode="numeric" step="1" min="1" enterkeyhint="done" onkeydown="handleInlineValueKeydown(event, 'reps')" onblur="commitInlineValueEdit('reps')" aria-label="Ripetizioni">
           <button type="button" class="sheet-big-btn" onclick="sheetModReps(1)" aria-label="Più ripetizioni">+</button>
         </div>
         <div class="sheet-quick-weights">
@@ -3496,10 +3744,9 @@
 
     <!-- Pulsantone Salva -->
     <button type="button" class="sheet-save-btn" onclick="saveCurrentSheetSet()">
-      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
-        <polyline points="17 21 17 13 7 13 7 21"></polyline>
-        <polyline points="7 3 7 8 15 8"></polyline>
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+        <polyline points="22 4 12 14.01 9 11.01"></polyline>
       </svg>
       Salva Serie
     </button>
