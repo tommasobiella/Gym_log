@@ -1569,8 +1569,8 @@
       transform: rotate(90deg);
     }
   </style>
-  <script src="db.js?v=13"></script>
-  <script src="backup.js?v=13"></script>
+  <script src="db.js?v=14"></script>
+  <script src="backup.js?v=14"></script>
 </head>
 <body>
 
@@ -1599,6 +1599,11 @@
                 <span id="settingsThemePreviewDot" class="theme-color-dot" style="background: var(--accent);"></span>
                 <span style="opacity:0.6; font-size:1rem; line-height:1;">&rsaquo;</span>
               </span>
+            </button>
+            <div class="sheet-dropdown-divider"></div>
+            <button type="button" class="sheet-dropdown-item" onclick="toggleHapticSetting(event)">
+              <span>Vibrazione</span>
+              <span id="settingsHapticState" style="font-size:0.8rem; font-weight:700; color:var(--accent);">On</span>
             </button>
           </div>
           <div id="settingsMenuThemes" class="sheet-dropdown-subview" style="display:none;">
@@ -1845,6 +1850,7 @@
     }
 
     applyAccentTheme(currentAccentTheme, false);
+    updateHapticUI();
 
     function toggleSettingsMenu(event) {
       if (event) event.stopPropagation();
@@ -2605,8 +2611,26 @@
       }, { passive: true });
     })();
 
+    let hapticEnabled = localStorage.getItem('gym_haptic_enabled') !== 'false';
+
+    function updateHapticUI() {
+      const el = document.getElementById('settingsHapticState');
+      if (el) {
+        el.innerText = hapticEnabled ? 'On' : 'Off';
+        el.style.color = hapticEnabled ? 'var(--accent)' : 'var(--text-muted)';
+      }
+    }
+
+    function toggleHapticSetting(event) {
+      if (event) event.stopPropagation();
+      hapticEnabled = !hapticEnabled;
+      try { localStorage.setItem('gym_haptic_enabled', String(hapticEnabled)); } catch (e) {}
+      updateHapticUI();
+      if (hapticEnabled) haptic();
+    }
+
     function haptic() {
-      if (navigator.vibrate) navigator.vibrate(10);
+      if (hapticEnabled && navigator.vibrate) navigator.vibrate(10);
     }
 
     // =========================================================================
@@ -3252,7 +3276,7 @@
     }
 
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('sw.js?v=13', {scope: './'}).then(reg => {
+      navigator.serviceWorker.register('sw.js?v=14', {scope: './'}).then(reg => {
         reg.update();
       }).catch(() => {});
     }
