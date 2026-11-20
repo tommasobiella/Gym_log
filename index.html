@@ -1746,9 +1746,50 @@
       color: var(--accent);
       cursor: grabbing;
     }
+    .ex-card-more-btn {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      color: var(--text-muted);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      flex-shrink: 0;
+      -webkit-tap-highlight-color: transparent;
+      transition: background 0.15s ease, color 0.15s ease, transform 0.12s ease;
+    }
+    .ex-card-more-btn:active {
+      background: rgba(255, 255, 255, 0.14);
+      color: var(--text);
+      transform: scale(0.92);
+    }
+    .sheet-context-ultima {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 4px;
+      margin-top: 6px;
+      font-size: 0.78rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      font-variant-numeric: tabular-nums;
+      pointer-events: none;
+    }
+    .sheet-context-ultima strong {
+      color: var(--text);
+      font-weight: 700;
+    }
+    .card-options-menu {
+      position: fixed;
+      z-index: 1200;
+      min-width: 195px;
+    }
   </style>
-  <script src="db.js?v=38"></script>
-  <script src="backup.js?v=38"></script>
+  <script src="db.js?v=39"></script>
+  <script src="backup.js?v=39"></script>
 </head>
 <body>
   <div id="orientationLockOverlay" class="orientation-lock-overlay" aria-live="polite">
@@ -2230,7 +2271,10 @@
         avgPerSetUnit: 'kg/serie',
         reorderAria: 'Riordina esercizi',
         doneBtnShort: 'Fine',
-        orderSavedToast: 'Ordine aggiornato!'
+        orderSavedToast: 'Ordine aggiornato!',
+        exOptionsAria: 'Opzioni esercizio',
+        openProgressAria: 'Vedi grafico e storico',
+        renameExTitle: 'Rinomina Esercizio'
       },
       en: {
         portraitTitle: 'Portrait Mode Only',
@@ -2359,7 +2403,10 @@
         avgPerSetUnit: 'kg/set',
         reorderAria: 'Reorder exercises',
         doneBtnShort: 'Done',
-        orderSavedToast: 'Order updated!'
+        orderSavedToast: 'Order updated!',
+        exOptionsAria: 'Exercise options',
+        openProgressAria: 'View progress chart',
+        renameExTitle: 'Rename Exercise'
       }
     };
 
@@ -2450,11 +2497,20 @@
       setTxt('newExSaveBtn', 'addExBtn');
 
       setTxt('sheetStatsUltimaLabel', 'ultimaLabel');
-      setTxt('sheetMenuRenameLabel', 'rename');
-      setTxt('sheetMenuGroupLabel', 'changeGroup');
-      setTxt('sheetMenuArchiveLabel', 'archive');
-      setTxt('sheetMenuDeleteLabel', 'deleteBtn');
-      setTxt('sheetMenuBackLabel', 'back');
+      setTxt('cardMenuRenameLabel', 'rename');
+      setTxt('cardMenuGroupLabel', 'changeGroup');
+      setTxt('cardMenuArchiveLabel', 'archive');
+      setTxt('cardMenuDeleteLabel', 'deleteBtn');
+      setTxt('cardMenuBackLabel', 'back');
+      setTxt('renameExModalTitle', 'renameExTitle');
+      setTxt('renameExNameLabel', 'newExNameLabel');
+      setTxt('renameExCancelBtn', 'cancelBtn');
+      setTxt('renameExSaveBtn', 'saveBtn');
+      const sheetChartBtn = document.getElementById('sheetProgressBtn');
+      if (sheetChartBtn) {
+        sheetChartBtn.title = t('openProgressAria');
+        sheetChartBtn.setAttribute('aria-label', t('openProgressAria'));
+      }
       setTxt('sheetWeightBoxLabel', 'weightBox');
       setTxt('sheetRepsBoxLabel', 'repsBox');
       setTxt('sheetSaveBtnText', 'logSetBtn');
@@ -3403,10 +3459,11 @@
     function updateActiveSheetMeta(ex) {
       if (!ex) return;
       const lastStr = ex.last_weight !== null ? `${ex.last_weight} kg` : t('noneLabel');
-      const prStr = ex.pr !== null ? `${ex.pr} kg` : '-';
       document.getElementById('sheetExTitle').innerText = ex.name;
-      document.getElementById('sheetStatsUltimaWeight').innerText = lastStr;
+      const ultimaWrap = document.getElementById('sheetContextUltima');
+      const ultimaWEl = document.getElementById('sheetStatsUltimaWeight');
       const repsEl = document.getElementById('sheetStatsUltimaReps');
+      if (ultimaWEl) ultimaWEl.innerText = lastStr;
       if (repsEl) {
         if (ex.last_weight !== null && ex.last_reps) {
           repsEl.innerText = `(${ex.last_reps})`;
@@ -3419,17 +3476,18 @@
           repsEl.style.display = 'none';
         }
       }
-      document.getElementById('sheetStatsPR').innerText = prStr;
 
       const exToday = todayLogs.filter(s => s.exerciseId === ex.id);
       const todayPill = document.getElementById('sheetTodayPill');
-      if (todayPill) {
-        if (exToday.length > 0) {
+      if (exToday.length > 0) {
+        if (ultimaWrap) ultimaWrap.style.display = 'none';
+        if (todayPill) {
           todayPill.innerText = t('todayExercisePill', exToday.length, GymDB.formatDaySets(exToday));
           todayPill.style.display = 'inline-block';
-        } else {
-          todayPill.style.display = 'none';
         }
+      } else {
+        if (todayPill) todayPill.style.display = 'none';
+        if (ultimaWrap) ultimaWrap.style.display = 'inline-flex';
       }
     }
 
@@ -3494,9 +3552,7 @@
       document.getElementById('sheetRepsVal').innerText = val.reps;
       document.getElementById('sheetWeightVal').innerText = val.weight + ' kg';
       setSheetNote('');
-
-      cancelInlineRenameExercise();
-      closeSheetMoreMenu();
+      closeCardOptionsMenu();
       const sheet = document.getElementById('exerciseBottomSheet');
       const backdrop = document.getElementById('sheetBackdrop');
       backdrop.style.display = 'block';
@@ -3509,20 +3565,12 @@
     }
 
     function isInlineRenaming() {
-      const inputEl = document.getElementById('sheetExTitleInput');
-      return inputEl && inputEl.style.display !== 'none';
+      return false;
     }
 
     function closeExerciseSheet(force = true) {
-      if (!force && isInlineRenaming()) {
-        const inputEl = document.getElementById('sheetExTitleInput');
-        if (inputEl) inputEl.focus();
-        return;
-      }
-      cancelInlineRenameExercise();
       cancelInlineValueEdits();
       closeSheetNoteModal();
-      closeSheetMoreMenu();
       const sheet = document.getElementById('exerciseBottomSheet');
       const backdrop = document.getElementById('sheetBackdrop');
       if (!sheet) return;
@@ -4057,47 +4105,65 @@
     }
 
     // =========================================================================
-    // MODIFICA INLINE / CAMBIA GRUPPO / ELIMINA + MENU A TENDINA (...)
+    // MENU OPZIONI ESERCIZIO SU CARD (...) + RINOMINA / GRUPPO / ARCHIVIA / ELIMINA
     // =========================================================================
     const SHEET_MUSCLE_GROUPS = ['Petto', 'Spalle', 'Tricipiti', 'Schiena', 'Bicipiti', 'Gambe', 'Core / Addome'];
-    let isCommittingRename = false;
+    let activeOptionExId = null;
 
-    function toggleSheetMoreMenu(event) {
+    function openCardOptionsMenu(btnEl, event) {
       if (event) event.stopPropagation();
       haptic();
-      const menu = document.getElementById('sheetDropdownMenu');
+      const exId = btnEl && btnEl.dataset ? btnEl.dataset.exid : null;
+      if (!exId) return;
+
+      const menu = document.getElementById('cardOptionsMenu');
       if (!menu) return;
-      const willOpen = !menu.classList.contains('open');
-      if (willOpen) {
-        showMainDropdownMenu();
-        menu.classList.add('open');
-      } else {
-        menu.classList.remove('open');
+
+      if (menu.classList.contains('open') && activeOptionExId === exId) {
+        closeCardOptionsMenu();
+        return;
       }
+
+      activeOptionExId = exId;
+      showCardMainMenu();
+
+      // Posiziona vicino al bottone ... cliccato restando dentro lo schermo
+      const rect = btnEl.getBoundingClientRect();
+      menu.classList.add('open');
+      const menuW = menu.offsetWidth || 195;
+      const menuH = menu.offsetHeight || 200;
+      const right = Math.max(12, window.innerWidth - rect.right);
+      let top = rect.bottom + 6;
+      if (top + menuH > window.innerHeight - 24) {
+        top = Math.max(16, rect.top - menuH - 6);
+      }
+      menu.style.right = right + 'px';
+      menu.style.left = 'auto';
+      menu.style.top = top + 'px';
     }
 
-    function showMainDropdownMenu(event) {
+    function showCardMainMenu(event) {
       if (event) event.stopPropagation();
-      const mainView = document.getElementById('sheetMenuMain');
-      const groupView = document.getElementById('sheetMenuGroups');
+      const mainView = document.getElementById('cardMenuMain');
+      const groupView = document.getElementById('cardMenuGroups');
       if (mainView) mainView.style.display = 'flex';
       if (groupView) groupView.style.display = 'none';
     }
 
-    function openGroupSubmenu(event) {
+    function openCardGroupSubmenu(event) {
       if (event) event.stopPropagation();
       haptic();
-      if (!activeSheetExId) return;
-      const ex = exercises.find(e => e.id === activeSheetExId);
+      if (!activeOptionExId) return;
+      const ex = exercises.find(e => e.id === activeOptionExId);
       if (!ex) return;
 
-      const list = document.getElementById('sheetMenuGroupsList');
+      const list = document.getElementById('cardMenuGroupsList');
       if (list) {
         list.innerHTML = SHEET_MUSCLE_GROUPS.map(g => {
           const isCurrent = ex.group === g;
           const safeGroupArg = g.replace(/'/g, "\\'");
           return `
-            <button type="button" class="sheet-dropdown-item ${isCurrent ? 'is-selected' : ''}" onclick="changeActiveExerciseGroup('${safeGroupArg}', event)">
+            <button type="button" class="sheet-dropdown-item ${isCurrent ? 'is-selected' : ''}" onclick="changeCardExerciseGroup('${safeGroupArg}', event)">
               <span>${escapeHtml(tGroup(g))}</span>
               ${isCurrent ? '<span>&#10003;</span>' : ''}
             </button>
@@ -4105,20 +4171,20 @@
         }).join('');
       }
 
-      const mainView = document.getElementById('sheetMenuMain');
-      const groupView = document.getElementById('sheetMenuGroups');
+      const mainView = document.getElementById('cardMenuMain');
+      const groupView = document.getElementById('cardMenuGroups');
       if (mainView) mainView.style.display = 'none';
       if (groupView) groupView.style.display = 'flex';
     }
 
-    async function changeActiveExerciseGroup(newGroup, event) {
+    async function changeCardExerciseGroup(newGroup, event) {
       if (event) event.stopPropagation();
       haptic();
-      if (!activeSheetExId) return;
-      const ex = exercises.find(e => e.id === activeSheetExId);
+      if (!activeOptionExId) return;
+      const ex = exercises.find(e => e.id === activeOptionExId);
       if (!ex) return;
 
-      closeSheetMoreMenu();
+      closeCardOptionsMenu();
       if (ex.group === newGroup) return;
 
       await GymDB.updateExerciseAndSets({ ...ex, group: newGroup });
@@ -4126,93 +4192,82 @@
       showToast(t('movedToToast', tGroup(newGroup)));
     }
 
-    function closeSheetMoreMenu() {
-      const menu = document.getElementById('sheetDropdownMenu');
+    function closeCardOptionsMenu() {
+      const menu = document.getElementById('cardOptionsMenu');
       if (menu) menu.classList.remove('open');
-      showMainDropdownMenu();
+      showCardMainMenu();
     }
 
     document.addEventListener('click', (e) => {
-      if (!e.target.closest('.sheet-more-wrap')) {
-        closeSheetMoreMenu();
+      if (!e.target.closest('#cardOptionsMenu') && !e.target.closest('.ex-card-more-btn')) {
+        closeCardOptionsMenu();
       }
     });
 
-    function startInlineRenameExercise() {
-      closeSheetMoreMenu();
-      if (!activeSheetExId) return;
-      const ex = exercises.find(e => e.id === activeSheetExId);
+    function openRenameExerciseModal() {
+      const targetId = activeOptionExId;
+      closeCardOptionsMenu();
+      if (!targetId) return;
+      const ex = exercises.find(e => e.id === targetId);
       if (!ex) return;
+      activeOptionExId = targetId;
 
-      const titleEl = document.getElementById('sheetExTitle');
-      const inputEl = document.getElementById('sheetExTitleInput');
-      if (!titleEl || !inputEl) return;
-
-      isCommittingRename = false;
-      inputEl.value = ex.name;
-      titleEl.style.display = 'none';
-      inputEl.style.display = 'block';
-      inputEl.focus();
-      inputEl.select();
+      const modal = document.getElementById('renameExerciseModal');
+      const input = document.getElementById('renameExerciseInput');
+      if (!modal || !input) return;
+      input.value = ex.name;
+      modal.classList.add('active');
+      input.focus();
+      try { input.select(); } catch (_) {}
     }
 
-    function cancelInlineRenameExercise() {
-      if (isCommittingRename) return;
-      const titleEl = document.getElementById('sheetExTitle');
-      const inputEl = document.getElementById('sheetExTitleInput');
-      if (inputEl) inputEl.style.display = 'none';
-      if (titleEl) titleEl.style.display = 'block';
+    function closeRenameExerciseModal() {
+      const modal = document.getElementById('renameExerciseModal');
+      const input = document.getElementById('renameExerciseInput');
+      if (input) input.blur();
+      if (modal) modal.classList.remove('active');
     }
 
-    function handleSheetTitleKeydown(event) {
+    function handleRenameKeydown(event) {
       if (event.key === 'Enter') {
         event.preventDefault();
-        commitInlineRenameExercise();
+        saveRenamedExercise();
       } else if (event.key === 'Escape') {
         event.preventDefault();
-        cancelInlineRenameExercise();
+        closeRenameExerciseModal();
       }
     }
 
-    async function commitInlineRenameExercise() {
-      if (isCommittingRename || !activeSheetExId) return;
-      const ex = exercises.find(e => e.id === activeSheetExId);
-      const titleEl = document.getElementById('sheetExTitle');
-      const inputEl = document.getElementById('sheetExTitleInput');
-      if (!ex || !titleEl || !inputEl) return;
+    async function saveRenamedExercise() {
+      if (!activeOptionExId) return;
+      const ex = exercises.find(e => e.id === activeOptionExId);
+      const input = document.getElementById('renameExerciseInput');
+      if (!ex || !input) return;
 
-      const newName = inputEl.value.trim();
+      const newName = input.value.trim();
       if (!newName) {
         showToast(t('invalidNameToast'));
-        inputEl.focus();
+        input.focus();
         return;
       }
 
-      isCommittingRename = true;
-      inputEl.style.display = 'none';
-      titleEl.style.display = 'block';
-      inputEl.blur();
-
-      try {
-        if (newName !== ex.name) {
-          await GymDB.updateExerciseAndSets({ ...ex, name: newName });
-          await refreshStateFromDB();
-          titleEl.innerText = newName;
-          showToast(t('renamedToast'));
-        }
-      } finally {
-        isCommittingRename = false;
+      closeRenameExerciseModal();
+      if (newName !== ex.name) {
+        await GymDB.updateExerciseAndSets({ ...ex, name: newName });
+        await refreshStateFromDB();
+        haptic();
+        showToast(t('renamedToast'));
       }
     }
 
-    async function archiveActiveExercise() {
-      closeSheetMoreMenu();
-      if (!activeSheetExId) return;
-      const ex = exercises.find(e => e.id === activeSheetExId);
+    async function archiveOptionExercise() {
+      const targetId = activeOptionExId;
+      closeCardOptionsMenu();
+      if (!targetId) return;
+      const ex = exercises.find(e => e.id === targetId);
       if (!ex) return;
       const targetEx = { ...ex };
       await GymDB.saveExercise({ ...targetEx, archived: true });
-      closeExerciseSheet(true);
       await refreshStateFromDB();
       showToast(t('archivedToast', targetEx.name), {
         actionLabel: t('undoLabel'),
@@ -4225,10 +4280,11 @@
       });
     }
 
-    async function deleteActiveExercise() {
-      closeSheetMoreMenu();
-      if (!activeSheetExId) return;
-      const ex = exercises.find(e => e.id === activeSheetExId);
+    async function deleteOptionExercise() {
+      const targetId = activeOptionExId;
+      closeCardOptionsMenu();
+      if (!targetId) return;
+      const ex = exercises.find(e => e.id === targetId);
       if (!ex) return;
       const exSetsCount = allSets.filter(s => s.exerciseId === ex.id).length;
       const msg = exSetsCount > 0
@@ -4238,7 +4294,6 @@
 
       await GymDB.deleteExerciseAndSets(ex.id);
       delete currentValues[ex.id];
-      closeExerciseSheet();
       await refreshStateFromDB();
       showToast(t('deletedToast', ex.name));
     }
@@ -4363,9 +4418,13 @@
                  <line x1="4" y1="17" x2="20" y2="17"></line>
                </svg>
              </div>`
-          : `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="opacity:0.6; flex-shrink:0;">
-               <polyline points="9 18 15 12 9 6"></polyline>
-             </svg>`;
+          : `<button type="button" class="ex-card-more-btn" data-exid="${escapeHtml(ex.id)}" onclick="openCardOptionsMenu(this, event)" aria-label="${t('exOptionsAria')}" title="${t('exOptionsAria')}">
+               <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+                 <circle cx="5" cy="12" r="2.2"></circle>
+                 <circle cx="12" cy="12" r="2.2"></circle>
+                 <circle cx="19" cy="12" r="2.2"></circle>
+               </svg>
+             </button>`;
 
         return `
           <div class="ex-card ${isReorderMode ? 'is-reorder' : ''}" id="card-${ex.id}" data-exid="${escapeHtml(ex.id)}" onclick="handleExerciseCardClick('${ex.id}')" role="button" tabindex="0" title="${t('tapToLogTitle')}">
@@ -4426,7 +4485,7 @@
 
       list.addEventListener('touchstart', (e) => {
         if (isReorderMode || e.touches.length !== 1) return;
-        if (e.target.closest('.ex-drag-handle')) return;
+        if (e.target.closest('.ex-drag-handle') || e.target.closest('.ex-card-more-btn')) return;
         const card = e.target.closest('.ex-card[data-exid]');
         if (!card) return;
 
@@ -4467,7 +4526,7 @@
       // Desktop mouse support for long-press
       list.addEventListener('mousedown', (e) => {
         if (isReorderMode || e.button !== 0) return;
-        if (e.target.closest('.ex-drag-handle')) return;
+        if (e.target.closest('.ex-drag-handle') || e.target.closest('.ex-card-more-btn')) return;
         const card = e.target.closest('.ex-card[data-exid]');
         if (!card) return;
         cancelLongPress();
@@ -4587,7 +4646,7 @@
     })();
 
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('sw.js?v=38', {scope: './'}).then(reg => {
+      navigator.serviceWorker.register('sw.js?v=39', {scope: './'}).then(reg => {
         reg.update();
       }).catch(() => {});
     }
@@ -4829,60 +4888,19 @@
       <button type="button" class="sheet-close-x" onclick="closeExerciseSheet(true)" title="Chiudi scheda" aria-label="Chiudi" style="flex-shrink:0;"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
       <div class="sheet-title-info" style="flex:1; min-width:0; text-align:center;">
         <div class="sheet-title-name" id="sheetExTitle" style="word-break:break-word;">Esercizio</div>
-        <input type="text" id="sheetExTitleInput" class="sheet-title-input" style="display:none;" enterkeyhint="done" autocomplete="off" autocorrect="off" autocapitalize="sentences" onkeydown="handleSheetTitleKeydown(event)" aria-label="Nuovo nome esercizio">
-        <button type="button" class="sheet-title-stats" onclick="openActiveSheetProgress()" title="Vedi grafico e storico esercizio">
-          <span class="sheet-stats-ultima-wrap"><span class="sheet-stats-ultima-label" id="sheetStatsUltimaLabel">Ultima:</span> <strong class="sheet-stats-ultima-strong"><span id="sheetStatsUltimaWeight" class="sheet-stats-ultima-weight">-</span><span id="sheetStatsUltimaReps" class="sheet-stats-ultima-reps"></span></strong></span>
-          <span class="sheet-stats-pr-wrap">PR: <strong id="sheetStatsPR">-</strong></span>
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" style="opacity:0.65; flex-shrink:0;" aria-hidden="true"><polyline points="9 18 15 12 9 6"></polyline></svg>
-        </button>
+        <div class="sheet-context-ultima" id="sheetContextUltima">
+          <span id="sheetStatsUltimaLabel">Ultima:</span>
+          <strong><span id="sheetStatsUltimaWeight">-</span><span id="sheetStatsUltimaReps" style="margin-left:3px; color:var(--text-muted); font-weight:600;"></span></strong>
+        </div>
         <div class="sheet-today-pill" id="sheetTodayPill"></div>
       </div>
-      <div class="sheet-more-wrap">
-        <button type="button" class="sheet-close-x" id="sheetMoreBtn" onclick="toggleSheetMoreMenu(event)" title="Opzioni esercizio" aria-label="Opzioni esercizio">
-          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
-            <circle cx="5" cy="12" r="2.2"></circle>
-            <circle cx="12" cy="12" r="2.2"></circle>
-            <circle cx="19" cy="12" r="2.2"></circle>
-          </svg>
-        </button>
-        <div class="sheet-dropdown-menu" id="sheetDropdownMenu" style="min-width: 195px;" onclick="event.stopPropagation()">
-          <div id="sheetMenuMain" class="sheet-dropdown-subview">
-            <button type="button" class="sheet-dropdown-item" onclick="startInlineRenameExercise()">
-              <span class="sheet-dropdown-item-left">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
-                <span id="sheetMenuRenameLabel">Rinomina</span>
-              </span>
-            </button>
-            <button type="button" class="sheet-dropdown-item" onclick="openGroupSubmenu(event)">
-              <span class="sheet-dropdown-item-left">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
-                <span id="sheetMenuGroupLabel">Cambia gruppo</span>
-              </span>
-              <span style="opacity:0.6; font-size:1rem; line-height:1;">&rsaquo;</span>
-            </button>
-            <div class="sheet-dropdown-divider"></div>
-            <button type="button" class="sheet-dropdown-item" onclick="archiveActiveExercise()">
-              <span class="sheet-dropdown-item-left">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg>
-                <span id="sheetMenuArchiveLabel">Archivia</span>
-              </span>
-            </button>
-            <button type="button" class="sheet-dropdown-item danger" onclick="deleteActiveExercise()">
-              <span class="sheet-dropdown-item-left">
-                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>
-                <span id="sheetMenuDeleteLabel">Elimina</span>
-              </span>
-            </button>
-          </div>
-          <div id="sheetMenuGroups" class="sheet-dropdown-subview" style="display:none;">
-            <button type="button" class="sheet-dropdown-item sheet-dropdown-back" onclick="showMainDropdownMenu(event)">
-              <span id="sheetMenuBackLabel">&lsaquo; Indietro</span>
-            </button>
-            <div class="sheet-dropdown-divider"></div>
-            <div id="sheetMenuGroupsList" style="display:flex; flex-direction:column; gap:2px;"></div>
-          </div>
-        </div>
-      </div>
+      <button type="button" class="sheet-close-x" id="sheetProgressBtn" onclick="openActiveSheetProgress()" title="Vedi grafico e storico" aria-label="Vedi grafico e storico" style="flex-shrink:0;">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <line x1="18" y1="20" x2="18" y2="10"></line>
+          <line x1="12" y1="20" x2="12" y2="4"></line>
+          <line x1="6" y1="20" x2="6" y2="14"></line>
+        </svg>
+      </button>
     </div>
 
     <!-- Stepper Tastoni (Carico SOPRA, Ripetizioni SOTTO con tasti rapidi 6, 9, 12) -->
@@ -5073,6 +5091,63 @@
 
   <div id="sahurOverlay" class="sahur-overlay" onclick="hideSahurEasterEgg()" aria-hidden="true">
     <img src="tung.png?v=12" alt="" class="sahur-img" draggable="false">
+  </div>
+
+  <!-- Menu contestuale opzioni esercizio su card (...) -->
+  <div class="sheet-dropdown-menu card-options-menu" id="cardOptionsMenu" onclick="event.stopPropagation()">
+    <div id="cardMenuMain" class="sheet-dropdown-subview">
+      <button type="button" class="sheet-dropdown-item" onclick="openRenameExerciseModal()">
+        <span class="sheet-dropdown-item-left">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/></svg>
+          <span id="cardMenuRenameLabel">Rinomina</span>
+        </span>
+      </button>
+      <button type="button" class="sheet-dropdown-item" onclick="openCardGroupSubmenu(event)">
+        <span class="sheet-dropdown-item-left">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/></svg>
+          <span id="cardMenuGroupLabel">Cambia gruppo</span>
+        </span>
+        <span style="opacity:0.6; font-size:1rem; line-height:1;">&rsaquo;</span>
+      </button>
+      <div class="sheet-dropdown-divider"></div>
+      <button type="button" class="sheet-dropdown-item" onclick="archiveOptionExercise()">
+        <span class="sheet-dropdown-item-left">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="21 8 21 21 3 21 3 8"/><rect x="1" y="3" width="22" height="5"/><line x1="10" y1="12" x2="14" y2="12"/></svg>
+          <span id="cardMenuArchiveLabel">Archivia</span>
+        </span>
+      </button>
+      <button type="button" class="sheet-dropdown-item danger" onclick="deleteOptionExercise()">
+        <span class="sheet-dropdown-item-left">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/></svg>
+          <span id="cardMenuDeleteLabel">Elimina</span>
+        </span>
+      </button>
+    </div>
+    <div id="cardMenuGroups" class="sheet-dropdown-subview" style="display:none;">
+      <button type="button" class="sheet-dropdown-item sheet-dropdown-back" onclick="showCardMainMenu(event)">
+        <span id="cardMenuBackLabel">&lsaquo; Indietro</span>
+      </button>
+      <div class="sheet-dropdown-divider"></div>
+      <div id="cardMenuGroupsList" style="display:flex; flex-direction:column; gap:2px;"></div>
+    </div>
+  </div>
+
+  <!-- Mini-Modale Rinomina Esercizio (ancorata in alto sopra tastiera iOS) -->
+  <div class="modal-overlay modal-overlay-top" id="renameExerciseModal" style="z-index: 1350;" onclick="if(event.target===this) closeRenameExerciseModal()">
+    <div class="modal-card">
+      <div class="modal-header">
+        <h3 id="renameExModalTitle">Rinomina Esercizio</h3>
+        <button type="button" class="modal-close-btn" onclick="closeRenameExerciseModal()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
+      </div>
+      <div class="modal-field">
+        <label for="renameExerciseInput" id="renameExNameLabel">Nome Esercizio</label>
+        <input type="text" id="renameExerciseInput" autocomplete="off" enterkeyhint="done" onkeydown="handleRenameKeydown(event)">
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="modal-btn-cancel" id="renameExCancelBtn" onclick="closeRenameExerciseModal()">Annulla</button>
+        <button type="button" class="modal-btn-confirm" id="renameExSaveBtn" onclick="saveRenamedExercise()">Salva</button>
+      </div>
+    </div>
   </div>
 
 </body>
