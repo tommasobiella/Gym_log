@@ -1085,6 +1085,60 @@
       white-space: nowrap;
       font-variant-numeric: tabular-nums;
     }
+    .tile-sub.is-today {
+      color: var(--accent);
+      background: var(--accent-soft);
+      padding: 2px 9px;
+      border-radius: 999px;
+      font-weight: 700;
+    }
+    .tile-sub.is-latest {
+      color: #fff;
+      font-weight: 700;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .tile-sub.is-latest::before {
+      content: "";
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 8px var(--accent-glow);
+      flex-shrink: 0;
+    }
+    .group-tile.is-latest-group {
+      border-color: rgba(255, 255, 255, 0.2);
+    }
+    .groups-hub-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      margin-bottom: 10px;
+    }
+    .today-summary-pill {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      background: var(--accent-soft);
+      border: 1px solid var(--accent-glow);
+      color: var(--accent);
+      font-size: 0.76rem;
+      font-weight: 700;
+      padding: 6px 12px;
+      border-radius: 999px;
+      white-space: nowrap;
+      flex-shrink: 0;
+      cursor: pointer;
+      font-family: inherit;
+      font-variant-numeric: tabular-nums;
+      transition: transform 0.12s ease, filter 0.15s ease;
+    }
+    .today-summary-pill:active {
+      transform: scale(0.95);
+    }
     .tile-arrow {
       opacity: 0.5;
       flex-shrink: 0;
@@ -1576,8 +1630,8 @@
       }
     }
   </style>
-  <script src="db.js?v=33"></script>
-  <script src="backup.js?v=33"></script>
+  <script src="db.js?v=34"></script>
+  <script src="backup.js?v=34"></script>
 </head>
 <body>
 
@@ -1685,9 +1739,12 @@
 
   <!-- VISTA 1: HUB DEI GRUPPI MUSCOLARI (Home Gym) -->
   <section id="groupsHubView" style="padding: 8px 16px 6px;">
-    <div style="margin-bottom: 8px;">
-      <h2 style="font-size: 1.15rem; font-weight: 800; color: #fff; letter-spacing: -0.02em;">Gruppi Muscolari</h2>
-      <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 2px;">Seleziona un distretto per aprire gli esercizi</p>
+    <div class="groups-hub-header">
+      <div style="min-width:0;">
+        <h2 style="font-size: 1.15rem; font-weight: 800; color: #fff; letter-spacing: -0.02em;">Gruppi Muscolari</h2>
+        <p style="font-size: 0.75rem; color: var(--text-muted); margin-top: 2px;">Seleziona un distretto per aprire gli esercizi</p>
+      </div>
+      <button type="button" class="today-summary-pill" id="todaySummaryPill" onclick="openTodaySetsModal()" title="Vedi serie completate oggi">Oggi &middot; 0 serie</button>
     </div>
 
     <div class="groups-grid">
@@ -3060,15 +3117,24 @@
       const today = new Date();
       today.setHours(0, 0, 0, 0);
 
+      let maxLastDate = null;
+      const groupLatestDates = {};
       groups.forEach(g => {
         let latestDateStr = null;
         const activeExs = exercises.filter(ex => !ex.archived && ex.group === g);
-
         activeExs.forEach(ex => {
           if (ex.last_date && (!latestDateStr || ex.last_date > latestDateStr)) {
             latestDateStr = ex.last_date;
           }
         });
+        groupLatestDates[g] = { latestDateStr, activeExs };
+        if (latestDateStr && (!maxLastDate || latestDateStr > maxLastDate)) {
+          maxLastDate = latestDateStr;
+        }
+      });
+
+      groups.forEach(g => {
+        const { latestDateStr, activeExs } = groupLatestDates[g];
 
         const todaySetsCount = todayLogs.filter(s => s.group === g).length;
         const safeKey = g.replace(/[^a-zA-Z0-9]+/g, '_');
@@ -3088,20 +3154,32 @@
 
         const elId = 'groupSub_' + safeKey;
         const subEl = document.getElementById(elId);
+        const tileEl = subEl ? subEl.closest('.group-tile') : null;
+        const isLatest = Boolean(latestDateStr && maxLastDate && latestDateStr === maxLastDate);
         if (subEl) {
+          subEl.classList.remove('is-today', 'is-latest');
           if (!latestDateStr) {
             subEl.innerText = 'Nessuna sessione';
           } else {
             const target = new Date(latestDateStr + 'T00:00:00');
             const diffDays = Math.round((today.getTime() - target.getTime()) / (1000 * 60 * 60 * 24));
             if (diffDays <= 0) {
-              subEl.innerText = 'Ultimo: oggi';
-            } else if (diffDays === 1) {
-              subEl.innerText = 'Ultimo: ieri';
+              subEl.innerText = 'Oggi';
+              subEl.classList.add('is-today');
             } else {
-              subEl.innerText = `Ultimo: ${diffDays} gg fa`;
+              if (diffDays === 1) {
+                subEl.innerText = 'Ultimo: ieri';
+              } else {
+                subEl.innerText = `Ultimo: ${diffDays} gg fa`;
+              }
+              if (isLatest) {
+                subEl.classList.add('is-latest');
+              }
             }
           }
+        }
+        if (tileEl) {
+          tileEl.classList.toggle('is-latest-group', isLatest);
         }
       });
     }
@@ -3109,6 +3187,11 @@
     function updateUIState() {
       updateGroupLastDates();
       updateArchivedBadgeCount();
+      const todayPill = document.getElementById('todaySummaryPill');
+      if (todayPill) {
+        const n = todayLogs.length;
+        todayPill.innerText = n === 1 ? 'Oggi · 1 serie' : `Oggi · ${n} serie`;
+      }
       const countEl = document.getElementById('todayCount');
       if (countEl) {
         countEl.innerText = `${todayLogs.length} serie completate oggi`;
@@ -3585,7 +3668,7 @@
     }
 
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('sw.js?v=33', {scope: './'}).then(reg => {
+      navigator.serviceWorker.register('sw.js?v=34', {scope: './'}).then(reg => {
         reg.update();
       }).catch(() => {});
     }
