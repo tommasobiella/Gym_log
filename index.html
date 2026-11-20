@@ -876,15 +876,15 @@
     /* Tiles Distretti Muscolari */
     .groups-grid {
       display: grid;
-      grid-template-columns: repeat(2, 1fr);
+      grid-template-columns: 1fr;
       gap: 12px;
     }
-    @media (max-width: 400px) {
+    @media (min-width: 640px) {
       .groups-grid {
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(2, 1fr);
       }
-      .group-tile[style*="grid-column: span 2"] {
-        grid-column: span 1 !important;
+      .groups-grid .group-tile:last-child {
+        grid-column: span 2;
       }
     }
     .group-tile {
@@ -1458,8 +1458,8 @@
       }
     }
   </style>
-  <script src="db.js?v=21"></script>
-  <script src="backup.js?v=21"></script>
+  <script src="db.js?v=22"></script>
+  <script src="backup.js?v=22"></script>
 </head>
 <body>
 
@@ -1631,7 +1631,7 @@
       </div>
 
       <!-- 7. Core / Addome -->
-      <div class="group-tile" onclick="openMuscleGroup('Core / Addome')" style="grid-column: span 2;">
+      <div class="group-tile" onclick="openMuscleGroup('Core / Addome')">
         <div class="tile-left">
           <div class="tile-icon-wrap"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="5"/><line x1="12" y1="2" x2="12" y2="4"/><line x1="12" y1="20" x2="12" y2="22"/></svg></div>
           <div class="tile-title">Core / Addome</div>
@@ -3474,7 +3474,7 @@
     }
 
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('sw.js?v=21', {scope: './'}).then(reg => {
+      navigator.serviceWorker.register('sw.js?v=22', {scope: './'}).then(reg => {
         reg.update();
       }).catch(() => {});
     }
