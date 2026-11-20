@@ -1672,9 +1672,73 @@
         display: flex;
       }
     }
+
+    /* Reorder Toggle Button & Drag Handle + Long-Press Compression */
+    .btn-reorder-toggle {
+      width: 42px;
+      height: 42px;
+      flex-shrink: 0;
+      border-radius: 16px;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
+      color: var(--text-muted);
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      -webkit-tap-highlight-color: transparent;
+      transition: background 0.15s ease, color 0.15s ease, border-color 0.15s ease, transform 0.12s ease;
+    }
+    .btn-reorder-toggle:active {
+      transform: scale(0.94);
+    }
+    .btn-reorder-toggle.active {
+      background: var(--accent-soft);
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+    .ex-card.is-pressing {
+      transform: scale(0.962) !important;
+      border-color: var(--accent) !important;
+      background: var(--card-hover) !important;
+      transition: transform 0.28s cubic-bezier(0.2, 0.8, 0.2, 1), border-color 0.2s ease !important;
+    }
+    .ex-card.is-reorder {
+      cursor: default;
+    }
+    .ex-card.is-reorder:hover,
+    .ex-card.is-reorder:active {
+      transform: none;
+    }
+    .ex-card.is-dragging {
+      position: relative;
+      z-index: 30;
+      border-color: var(--accent) !important;
+      background: var(--card-hover) !important;
+      box-shadow: 0 12px 28px rgba(0, 0, 0, 0.55);
+      transition: none !important;
+      opacity: 0.96;
+    }
+    .ex-drag-handle {
+      color: var(--text-muted);
+      padding: 8px 2px 8px 14px;
+      margin: -8px -2px -8px 0;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      cursor: grab;
+      touch-action: none;
+      -webkit-user-select: none;
+      user-select: none;
+      flex-shrink: 0;
+    }
+    .ex-drag-handle:active {
+      color: var(--accent);
+      cursor: grabbing;
+    }
   </style>
-  <script src="db.js?v=36"></script>
-  <script src="backup.js?v=36"></script>
+  <script src="db.js?v=37"></script>
+  <script src="backup.js?v=37"></script>
 </head>
 <body>
   <div id="orientationLockOverlay" class="orientation-lock-overlay" aria-live="polite">
@@ -1784,8 +1848,8 @@
         <span id="headerBackGroupsLabel">Gruppi</span>
       </button>
       <div class="current-distretto-indicator" id="activeDistrettoLabel">Petto</div>
-      <button type="button" class="btn-new-exercise" id="headerNewExBtn" onclick="openNewExerciseModal()" aria-label="Nuovo esercizio">
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round">
+      <button type="button" class="btn-new-exercise" id="headerNewExBtn" onclick="handleHeaderPrimaryAction()" aria-label="Nuovo esercizio">
+        <svg id="headerNewExPlusIcon" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" stroke-linecap="round" stroke-linejoin="round">
           <line x1="12" y1="5" x2="12" y2="19"></line>
           <line x1="5" y1="12" x2="19" y2="12"></line>
         </svg>
@@ -1916,6 +1980,14 @@
       </span>
       <input type="text" id="searchInput" placeholder="Cerca esercizio..." oninput="renderExercises()">
     </div>
+    <button type="button" class="btn-reorder-toggle" id="reorderToggleBtn" onclick="toggleReorderMode()" title="Riordina esercizi" aria-label="Riordina esercizi">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <line x1="7" y1="4" x2="7" y2="20"></line>
+        <polyline points="3 8 7 4 11 8"></polyline>
+        <line x1="17" y1="20" x2="17" y2="4"></line>
+        <polyline points="13 16 17 20 21 16"></polyline>
+      </svg>
+    </button>
   </div>
 
   <main class="exercise-list" id="exerciseList">
@@ -2145,7 +2217,10 @@
         enterExNameToast: 'Inserisci il nome dell\'esercizio!',
         exExistsToast: 'Esercizio già presente!',
         addedExToast: (n, g) => `Aggiunto: ${n} (${g})!`,
-        avgPerSetUnit: 'kg/serie'
+        avgPerSetUnit: 'kg/serie',
+        reorderAria: 'Riordina esercizi',
+        doneBtnShort: 'Fine',
+        orderSavedToast: 'Ordine aggiornato!'
       },
       en: {
         portraitTitle: 'Portrait Mode Only',
@@ -2271,7 +2346,10 @@
         enterExNameToast: 'Enter an exercise name!',
         exExistsToast: 'Exercise already exists!',
         addedExToast: (n, g) => `Added: ${n} (${g})!`,
-        avgPerSetUnit: 'kg/set'
+        avgPerSetUnit: 'kg/set',
+        reorderAria: 'Reorder exercises',
+        doneBtnShort: 'Done',
+        orderSavedToast: 'Order updated!'
       }
     };
 
@@ -2308,8 +2386,17 @@
       }
 
       setTxt('headerBackGroupsLabel', 'groups');
-      setTxt('headerNewExLabel', 'newBtn');
-      setAria('headerNewExBtn', 'newExAria');
+      if (typeof syncReorderHeaderButton === 'function') {
+        syncReorderHeaderButton();
+      } else {
+        setTxt('headerNewExLabel', 'newBtn');
+        setAria('headerNewExBtn', 'newExAria');
+      }
+      const reorderBtn = document.getElementById('reorderToggleBtn');
+      if (reorderBtn) {
+        reorderBtn.title = t('reorderAria');
+        reorderBtn.setAttribute('aria-label', t('reorderAria'));
+      }
       setTxt('groupsHubTitle', 'groupsHubTitle');
       setTxt('groupsHubSub', 'groupsHubSub'); // fallback check below
       const hubSubEl = document.getElementById('groupsHubSubtitle');
@@ -2737,6 +2824,7 @@
 
     function switchAppMode(mode) {
       haptic();
+      if (mode === 'history' && isReorderMode) exitReorderMode(false);
       const scrollEl = getAppScrollEl();
       if (scrollEl) tabScrollPos[currentAppMode] = scrollEl.scrollTop || 0;
       currentAppMode = mode;
@@ -3245,6 +3333,7 @@
 
     function backToGroups(fromPopState = false) {
       haptic();
+      if (isReorderMode) exitReorderMode(false);
       currentFilter = 'Tutti';
       document.getElementById('exercisesContainer').style.display = 'none';
       document.getElementById('groupsHubView').style.display = 'block';
@@ -4154,15 +4243,84 @@
         .replace(/'/g, '&#39;');
     }
 
+    let isReorderMode = false;
+    let reorderDirty = false;
+    let suppressNextCardClickUntil = 0;
+
+    function syncReorderHeaderButton() {
+      const btn = document.getElementById('headerNewExBtn');
+      const icon = document.getElementById('headerNewExPlusIcon');
+      const label = document.getElementById('headerNewExLabel');
+      const toggleBtn = document.getElementById('reorderToggleBtn');
+      const searchInput = document.getElementById('searchInput');
+      if (toggleBtn) toggleBtn.classList.toggle('active', isReorderMode);
+      if (searchInput) {
+        searchInput.disabled = isReorderMode;
+        searchInput.style.opacity = isReorderMode ? '0.45' : '1';
+      }
+      if (!btn || !label) return;
+      if (isReorderMode) {
+        if (icon) icon.style.display = 'none';
+        label.innerText = t('doneBtnShort');
+        btn.setAttribute('aria-label', t('doneBtnShort'));
+      } else {
+        if (icon) icon.style.display = 'inline-block';
+        label.innerText = t('newBtn');
+        btn.setAttribute('aria-label', t('newExAria'));
+      }
+    }
+
+    function handleHeaderPrimaryAction() {
+      if (isReorderMode) {
+        exitReorderMode(true);
+      } else {
+        openNewExerciseModal();
+      }
+    }
+
+    function toggleReorderMode() {
+      haptic();
+      if (isReorderMode) {
+        exitReorderMode(true);
+      } else {
+        const searchEl = document.getElementById('searchInput');
+        if (searchEl) searchEl.value = '';
+        isReorderMode = true;
+        reorderDirty = false;
+        syncReorderHeaderButton();
+        renderExercises();
+      }
+    }
+
+    function exitReorderMode(notify = false) {
+      isReorderMode = false;
+      syncReorderHeaderButton();
+      renderExercises();
+      if (notify && reorderDirty) {
+        showToast(t('orderSavedToast'));
+      }
+      reorderDirty = false;
+    }
+
+    function handleExerciseCardClick(exId) {
+      if (isReorderMode) return;
+      if (Date.now() < suppressNextCardClickUntil) return;
+      openExerciseSheet(exId);
+    }
+
     function renderExercises() {
       const list = document.getElementById('exerciseList');
-      const query = (document.getElementById('searchInput').value || '').toLowerCase();
+      const query = isReorderMode ? '' : (document.getElementById('searchInput').value || '').toLowerCase();
 
       const filtered = exercises.filter(ex => {
         if (ex.archived) return false;
         const matchesGroup = (currentFilter === 'Tutti') || (ex.group === currentFilter);
         const matchesQuery = !query || ex.name.toLowerCase().includes(query) || ex.group.toLowerCase().includes(query);
         return matchesGroup && matchesQuery;
+      }).sort((a, b) => {
+        const oa = typeof a.sortOrder === 'number' ? a.sortOrder : Number.MAX_SAFE_INTEGER;
+        const ob = typeof b.sortOrder === 'number' ? b.sortOrder : Number.MAX_SAFE_INTEGER;
+        return oa - ob;
       });
 
       if (filtered.length === 0) {
@@ -4187,14 +4345,23 @@
       list.innerHTML = filtered.map(ex => {
         const lastStr = ex.last_weight !== null ? `${ex.last_weight} kg` : '-';
         const prStr = ex.pr !== null ? `${ex.pr} kg` : '-';
+        const rightActionHtml = isReorderMode
+          ? `<div class="ex-drag-handle" data-exid="${escapeHtml(ex.id)}" aria-label="${t('reorderAria')}">
+               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true">
+                 <line x1="4" y1="7" x2="20" y2="7"></line>
+                 <line x1="4" y1="12" x2="20" y2="12"></line>
+                 <line x1="4" y1="17" x2="20" y2="17"></line>
+               </svg>
+             </div>`
+          : `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="opacity:0.6; flex-shrink:0;">
+               <polyline points="9 18 15 12 9 6"></polyline>
+             </svg>`;
 
         return `
-          <div class="ex-card" id="card-${ex.id}" onclick="openExerciseSheet('${ex.id}')" role="button" tabindex="0" title="${t('tapToLogTitle')}">
+          <div class="ex-card ${isReorderMode ? 'is-reorder' : ''}" id="card-${ex.id}" data-exid="${escapeHtml(ex.id)}" onclick="handleExerciseCardClick('${ex.id}')" role="button" tabindex="0" title="${t('tapToLogTitle')}">
             <div class="ex-header">
               <div class="ex-title">${escapeHtml(ex.name)}</div>
-              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="var(--text-muted)" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="opacity:0.6; flex-shrink:0;">
-                <polyline points="9 18 15 12 9 6"></polyline>
-              </svg>
+              ${rightActionHtml}
             </div>
 
             <div class="ex-stats" id="stats-${ex.id}">
@@ -4206,8 +4373,201 @@
       }).join('');
     }
 
+    async function persistCurrentExerciseOrder() {
+      const list = document.getElementById('exerciseList');
+      if (!list) return;
+      const orderedIds = Array.from(list.querySelectorAll('.ex-card[data-exid]')).map(el => el.dataset.exid);
+      const updates = [];
+      orderedIds.forEach((id, idx) => {
+        const ex = exercises.find(e => e.id === id);
+        if (ex && ex.sortOrder !== idx) {
+          ex.sortOrder = idx;
+          updates.push(GymDB.saveExercise({ ...ex }));
+        }
+      });
+      if (updates.length > 0) {
+        reorderDirty = true;
+        await Promise.all(updates);
+      }
+    }
+
+    (function initExerciseListInteractions() {
+      const list = document.getElementById('exerciseList');
+      if (!list) return;
+
+      // 1. Long-press with compression feedback -> open chart modal
+      let pressTimer = null;
+      let fireTimer = null;
+      let pressingCard = null;
+      let pressStartX = 0;
+      let pressStartY = 0;
+
+      function cancelLongPress() {
+        clearTimeout(pressTimer);
+        clearTimeout(fireTimer);
+        pressTimer = null;
+        fireTimer = null;
+        if (pressingCard) {
+          pressingCard.classList.remove('is-pressing');
+          pressingCard = null;
+        }
+      }
+
+      list.addEventListener('touchstart', (e) => {
+        if (isReorderMode || e.touches.length !== 1) return;
+        if (e.target.closest('.ex-drag-handle')) return;
+        const card = e.target.closest('.ex-card[data-exid]');
+        if (!card) return;
+
+        cancelLongPress();
+        pressingCard = card;
+        pressStartX = e.touches[0].clientX;
+        pressStartY = e.touches[0].clientY;
+        const exId = card.dataset.exid;
+
+        pressTimer = setTimeout(() => {
+          if (pressingCard) pressingCard.classList.add('is-pressing');
+        }, 80);
+
+        fireTimer = setTimeout(() => {
+          if (!pressingCard) return;
+          cancelLongPress();
+          suppressNextCardClickUntil = Date.now() + 500;
+          haptic();
+          const { exSets } = getExKeySetsAndMeta(exId);
+          if (exSets.length === 0) {
+            showToast(t('noSessionsForEx'));
+          } else {
+            openExerciseProgressModal(exId);
+          }
+        }, 420);
+      }, { passive: true });
+
+      list.addEventListener('touchmove', (e) => {
+        if (!pressingCard || e.touches.length !== 1) return;
+        const dx = Math.abs(e.touches[0].clientX - pressStartX);
+        const dy = Math.abs(e.touches[0].clientY - pressStartY);
+        if (dx > 8 || dy > 8) cancelLongPress();
+      }, { passive: true });
+
+      list.addEventListener('touchend', cancelLongPress, { passive: true });
+      list.addEventListener('touchcancel', cancelLongPress, { passive: true });
+
+      // Desktop mouse support for long-press
+      list.addEventListener('mousedown', (e) => {
+        if (isReorderMode || e.button !== 0) return;
+        if (e.target.closest('.ex-drag-handle')) return;
+        const card = e.target.closest('.ex-card[data-exid]');
+        if (!card) return;
+        cancelLongPress();
+        pressingCard = card;
+        pressStartX = e.clientX;
+        pressStartY = e.clientY;
+        const exId = card.dataset.exid;
+        pressTimer = setTimeout(() => {
+          if (pressingCard) pressingCard.classList.add('is-pressing');
+        }, 80);
+        fireTimer = setTimeout(() => {
+          if (!pressingCard) return;
+          cancelLongPress();
+          suppressNextCardClickUntil = Date.now() + 500;
+          const { exSets } = getExKeySetsAndMeta(exId);
+          if (exSets.length === 0) showToast(t('noSessionsForEx'));
+          else openExerciseProgressModal(exId);
+        }, 450);
+      });
+      list.addEventListener('mousemove', (e) => {
+        if (!pressingCard) return;
+        if (Math.abs(e.clientX - pressStartX) > 6 || Math.abs(e.clientY - pressStartY) > 6) cancelLongPress();
+      });
+      list.addEventListener('mouseup', cancelLongPress);
+      list.addEventListener('mouseleave', cancelLongPress);
+
+      // 2. Drag & Drop reordering via .ex-drag-handle (Touch + Mouse)
+      let dragCard = null;
+      let dragLastClientY = 0;
+
+      function startDrag(handle, clientY) {
+        const card = handle.closest('.ex-card');
+        if (!card) return;
+        dragCard = card;
+        dragLastClientY = clientY;
+        dragCard.classList.add('is-dragging');
+        dragCard.style.transform = 'scale(1.02)';
+      }
+
+      function moveDrag(clientY) {
+        if (!dragCard) return;
+        const dy = clientY - dragLastClientY;
+        const rect = dragCard.getBoundingClientRect();
+        const cardCenterY = rect.top + rect.height / 2;
+
+        // Swap with previous sibling if dragged above its midpoint
+        const prev = dragCard.previousElementSibling;
+        if (prev && dy < 0) {
+          const prevRect = prev.getBoundingClientRect();
+          if (cardCenterY < prevRect.top + prevRect.height / 2) {
+            list.insertBefore(dragCard, prev);
+            dragLastClientY = clientY;
+          }
+        }
+
+        // Swap with next sibling if dragged below its midpoint
+        const next = dragCard.nextElementSibling;
+        if (next && dy > 0) {
+          const nextRect = next.getBoundingClientRect();
+          if (cardCenterY > nextRect.top + nextRect.height / 2) {
+            list.insertBefore(next, dragCard);
+            dragLastClientY = clientY;
+          }
+        }
+
+        const offset = Math.max(-28, Math.min(28, clientY - dragLastClientY));
+        dragCard.style.transform = `translateY(${offset}px) scale(1.02)`;
+      }
+
+      function endDrag() {
+        if (!dragCard) return;
+        dragCard.style.transform = '';
+        dragCard.classList.remove('is-dragging');
+        dragCard = null;
+        persistCurrentExerciseOrder();
+      }
+
+      list.addEventListener('touchstart', (e) => {
+        if (!isReorderMode || e.touches.length !== 1) return;
+        const handle = e.target.closest('.ex-drag-handle');
+        if (!handle) return;
+        e.preventDefault();
+        startDrag(handle, e.touches[0].clientY);
+      }, { passive: false });
+
+      list.addEventListener('touchmove', (e) => {
+        if (!dragCard || e.touches.length !== 1) return;
+        e.preventDefault();
+        moveDrag(e.touches[0].clientY);
+      }, { passive: false });
+
+      list.addEventListener('touchend', endDrag);
+      list.addEventListener('touchcancel', endDrag);
+
+      list.addEventListener('mousedown', (e) => {
+        if (!isReorderMode || e.button !== 0) return;
+        const handle = e.target.closest('.ex-drag-handle');
+        if (!handle) return;
+        e.preventDefault();
+        startDrag(handle, e.clientY);
+      });
+      window.addEventListener('mousemove', (e) => {
+        if (dragCard) moveDrag(e.clientY);
+      });
+      window.addEventListener('mouseup', () => {
+        if (dragCard) endDrag();
+      });
+    })();
+
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('sw.js?v=36', {scope: './'}).then(reg => {
+      navigator.serviceWorker.register('sw.js?v=37', {scope: './'}).then(reg => {
         reg.update();
       }).catch(() => {});
     }
