@@ -80,6 +80,22 @@
       overscroll-behavior-y: contain;
       padding-top: calc(env(safe-area-inset-top, 0px) + 78px);
       padding-bottom: calc(58px + env(safe-area-inset-bottom, 0px));
+      scrollbar-width: none;
+    }
+    .app-scroll-container::-webkit-scrollbar {
+      display: none;
+    }
+    .app-scroll-container.show-scrollbar {
+      scrollbar-width: thin;
+      scrollbar-color: rgba(255, 255, 255, 0.22) transparent;
+    }
+    .app-scroll-container.show-scrollbar::-webkit-scrollbar {
+      display: block;
+      width: 4px;
+    }
+    .app-scroll-container.show-scrollbar::-webkit-scrollbar-thumb {
+      background: rgba(255, 255, 255, 0.22);
+      border-radius: 999px;
     }
 
     /* Header (inchiodato in alto, calibrato per Dynamic Island / Notch su iPhone) */
@@ -1812,8 +1828,8 @@
       background: rgba(255, 255, 255, 0.08);
     }
   </style>
-  <script src="db.js?v=42"></script>
-  <script src="backup.js?v=42"></script>
+  <script src="db.js?v=43"></script>
+  <script src="backup.js?v=43"></script>
 </head>
 <body>
   <div id="orientationLockOverlay" class="orientation-lock-overlay" aria-live="polite">
@@ -2928,7 +2944,10 @@
       haptic();
       if (mode === 'history' && isReorderMode) exitReorderMode(false);
       const scrollEl = getAppScrollEl();
-      if (scrollEl) tabScrollPos[currentAppMode] = scrollEl.scrollTop || 0;
+      if (scrollEl) {
+        tabScrollPos[currentAppMode] = scrollEl.scrollTop || 0;
+        scrollEl.classList.toggle('show-scrollbar', mode === 'history');
+      }
       currentAppMode = mode;
       document.getElementById('modeBtnLog').classList.toggle('active', mode === 'log');
       document.getElementById('modeBtnHistory').classList.toggle('active', mode === 'history');
@@ -4748,7 +4767,7 @@
     })();
 
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('sw.js?v=42', {scope: './'}).then(reg => {
+      navigator.serviceWorker.register('sw.js?v=43', {scope: './'}).then(reg => {
         reg.update();
       }).catch(() => {});
     }
