@@ -80,22 +80,6 @@
       overscroll-behavior-y: contain;
       padding-top: calc(env(safe-area-inset-top, 0px) + 78px);
       padding-bottom: calc(58px + env(safe-area-inset-bottom, 0px));
-      scrollbar-width: none;
-    }
-    .app-scroll-container::-webkit-scrollbar {
-      display: none;
-    }
-    .app-scroll-container.show-scrollbar {
-      scrollbar-width: thin;
-      scrollbar-color: rgba(255, 255, 255, 0.22) transparent;
-    }
-    .app-scroll-container.show-scrollbar::-webkit-scrollbar {
-      display: block;
-      width: 4px;
-    }
-    .app-scroll-container.show-scrollbar::-webkit-scrollbar-thumb {
-      background: rgba(255, 255, 255, 0.22);
-      border-radius: 999px;
     }
 
     /* Header (inchiodato in alto, calibrato per Dynamic Island / Notch su iPhone) */
@@ -923,13 +907,8 @@
       max-height: 52vh;
       overflow-y: auto;
       -webkit-overflow-scrolling: touch;
-      scrollbar-width: none;
       padding: 12px 0 14px;
       margin: 0;
-    }
-    .today-sets-list::-webkit-scrollbar,
-    .progress-sessions-scroll::-webkit-scrollbar {
-      display: none;
     }
     .today-set-item {
       display: flex;
@@ -1500,7 +1479,6 @@
       max-height: 40vh;
       overflow-y: auto;
       -webkit-overflow-scrolling: touch;
-      scrollbar-width: none;
       margin-top: 2px;
       padding: 12px 0 14px;
     }
@@ -1573,11 +1551,11 @@
       gap: 2px;
       z-index: 3000;
       transform-origin: top right;
-      animation: popoverIn 0.16s cubic-bezier(0.16, 1, 0.3, 1);
+      animation: popoverIn 0.22s cubic-bezier(0.2, 0.9, 0.25, 1);
     }
     @keyframes popoverIn {
-      from { opacity: 0; transform: scale(0.94) translateY(-4px); }
-      to { opacity: 1; transform: scale(1) translateY(0); }
+      from { opacity: 0; transform: scale(0.65); }
+      to { opacity: 1; transform: scale(1); }
     }
     .sheet-dropdown-menu.open {
       display: flex;
@@ -1837,6 +1815,60 @@
       outline: 2px solid var(--accent);
       outline-offset: 2px;
     }
+    /* iOS Navigation Push/Pop Transitions */
+    .nav-transition-layer {
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      top: var(--nav-header-h, 78px);
+      background: var(--bg);
+      z-index: 25;
+      pointer-events: none;
+      overflow: hidden;
+    }
+    @keyframes iosPushIn {
+      from { transform: translate3d(100%, 0, 0); }
+      to { transform: translate3d(0, 0, 0); }
+    }
+    @keyframes iosPushOutHub {
+      from { transform: translate3d(0, 0, 0); opacity: 1; }
+      to { transform: translate3d(-24%, 0, 0); opacity: 0.35; }
+    }
+    @keyframes iosPopOut {
+      from { transform: translate3d(0, 0, 0); opacity: 1; }
+      to { transform: translate3d(100%, 0, 0); opacity: 0.9; }
+    }
+    @keyframes iosPopInHub {
+      from { transform: translate3d(-24%, 0, 0); opacity: 0.35; }
+      to { transform: translate3d(0, 0, 0); opacity: 1; }
+    }
+    @keyframes iosHeaderIn {
+      from { opacity: 0; transform: translate3d(14px, 0, 0); }
+      to { opacity: 1; transform: translate3d(0, 0, 0); }
+    }
+    @keyframes iosHeaderBack {
+      from { opacity: 0; transform: translate3d(-14px, 0, 0); }
+      to { opacity: 1; transform: translate3d(0, 0, 0); }
+    }
+    .anim-nav-push-in {
+      animation: iosPushIn 0.28s cubic-bezier(0.32, 0.72, 0, 1) both;
+      will-change: transform;
+    }
+    .anim-nav-pop-hub {
+      animation: iosPopInHub 0.26s cubic-bezier(0.32, 0.72, 0, 1) both;
+      will-change: transform, opacity;
+    }
+    .anim-nav-pop-out {
+      animation: iosPopOut 0.26s cubic-bezier(0.32, 0.72, 0, 1) forwards;
+      will-change: transform, opacity;
+    }
+    .anim-header-in {
+      animation: iosHeaderIn 0.22s cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
+    .anim-header-back {
+      animation: iosHeaderBack 0.22s cubic-bezier(0.22, 1, 0.36, 1) both;
+    }
     .today-set-item.is-clickable {
       cursor: pointer;
       transition: transform 0.12s ease, background 0.15s ease, border-color 0.15s ease;
@@ -1846,8 +1878,8 @@
       background: rgba(255, 255, 255, 0.08);
     }
   </style>
-  <script src="db.js?v=44"></script>
-  <script src="backup.js?v=44"></script>
+  <script src="db.js?v=45"></script>
+  <script src="backup.js?v=45"></script>
 </head>
 <body>
   <div id="orientationLockOverlay" class="orientation-lock-overlay" aria-live="polite">
@@ -1920,7 +1952,7 @@
               </span>
               <span style="opacity:0.6; font-size:1rem; line-height:1;">&rsaquo;</span>
             </button>
-            <div style="text-align:center; font-size:0.68rem; color:var(--text-muted); opacity:0.55; padding:4px 0 2px; font-weight:700;">v44</div>
+            <div style="text-align:center; font-size:0.68rem; color:var(--text-muted); opacity:0.55; padding:4px 0 2px; font-weight:700;">v45</div>
           </div>
           <div id="settingsMenuExport" class="sheet-dropdown-subview" style="display:none;">
             <button type="button" class="sheet-dropdown-item sheet-dropdown-back" onclick="showMainSettingsMenu(event)">
@@ -2673,6 +2705,9 @@
       const willOpen = !menu.classList.contains('open');
       if (willOpen) {
         showMainSettingsMenu();
+        menu.style.animation = 'none';
+        menu.offsetHeight;
+        menu.style.animation = '';
         menu.classList.add('open');
       } else {
         menu.classList.remove('open');
@@ -2963,10 +2998,7 @@
       haptic();
       if (mode === 'history' && isReorderMode) exitReorderMode(false);
       const scrollEl = getAppScrollEl();
-      if (scrollEl) {
-        tabScrollPos[currentAppMode] = scrollEl.scrollTop || 0;
-        scrollEl.classList.toggle('show-scrollbar', mode === 'history');
-      }
+      if (scrollEl) tabScrollPos[currentAppMode] = scrollEl.scrollTop || 0;
       currentAppMode = mode;
       document.getElementById('modeBtnLog').classList.toggle('active', mode === 'log');
       document.getElementById('modeBtnHistory').classList.toggle('active', mode === 'history');
@@ -3460,17 +3492,52 @@
       if (typeof syncAppHeaderOffset === 'function') syncAppHeaderOffset();
     }
 
+    let navTransitionGhost = null;
+    let navTransitionTimer = null;
+
+    function clearNavTransitionGhost() {
+      clearTimeout(navTransitionTimer);
+      navTransitionTimer = null;
+      if (navTransitionGhost) {
+        navTransitionGhost.remove();
+        navTransitionGhost = null;
+      }
+      const exCont = document.getElementById('exercisesContainer');
+      const hubView = document.getElementById('groupsHubView');
+      const rootBar = document.getElementById('headerRootBar');
+      const groupBar = document.getElementById('headerGroupBar');
+      if (exCont) exCont.classList.remove('anim-nav-push-in');
+      if (hubView) hubView.classList.remove('anim-nav-pop-hub');
+      if (rootBar) rootBar.classList.remove('anim-header-back');
+      if (groupBar) groupBar.classList.remove('anim-header-in');
+    }
+
     function openMuscleGroup(group, pushHistory = true) {
       haptic();
+      clearNavTransitionGhost();
       currentFilter = group;
       if (currentAppMode !== 'log') switchAppMode('log');
 
-      document.getElementById('groupsHubView').style.display = 'none';
-      document.getElementById('exercisesContainer').style.display = 'block';
+      const hubView = document.getElementById('groupsHubView');
+      const exCont = document.getElementById('exercisesContainer');
+      const groupBar = document.getElementById('headerGroupBar');
+      if (hubView) hubView.style.display = 'none';
+      if (exCont) exCont.style.display = 'block';
       const labelEl = document.getElementById('activeDistrettoLabel');
       if (labelEl) labelEl.innerText = tGroup(group);
       document.getElementById('searchInput').value = '';
       updateTopHeaderView();
+
+      if (exCont) {
+        exCont.classList.remove('anim-nav-push-in');
+        exCont.offsetHeight;
+        exCont.classList.add('anim-nav-push-in');
+      }
+      if (groupBar) {
+        groupBar.classList.remove('anim-header-in');
+        groupBar.offsetHeight;
+        groupBar.classList.add('anim-header-in');
+      }
 
       if (pushHistory && window.history && window.history.pushState) {
         window.history.pushState({ view: 'group', group: group }, '', '#group-' + encodeURIComponent(group));
@@ -3484,11 +3551,40 @@
     function backToGroups(fromPopState = false) {
       haptic();
       if (isReorderMode) exitReorderMode(false);
+      clearNavTransitionGhost();
+
+      const hubView = document.getElementById('groupsHubView');
+      const exCont = document.getElementById('exercisesContainer');
+      const rootBar = document.getElementById('headerRootBar');
+      const headerEl = document.querySelector('header');
+      const headerH = headerEl ? Math.ceil(headerEl.getBoundingClientRect().height) : 78;
+
+      // Clona visivamente la schermata esercizi per farla scivolare via verso destra mentre riappare la Home da sinistra
+      if (exCont && exCont.style.display !== 'none') {
+        const ghost = document.createElement('div');
+        ghost.className = 'nav-transition-layer anim-nav-pop-out';
+        ghost.style.setProperty('--nav-header-h', headerH + 'px');
+        ghost.innerHTML = exCont.innerHTML;
+        document.body.appendChild(ghost);
+        navTransitionGhost = ghost;
+        navTransitionTimer = setTimeout(clearNavTransitionGhost, 270);
+      }
+
       currentFilter = 'Tutti';
-      document.getElementById('exercisesContainer').style.display = 'none';
-      document.getElementById('groupsHubView').style.display = 'block';
+      if (exCont) exCont.style.display = 'none';
+      if (hubView) {
+        hubView.style.display = 'block';
+        hubView.classList.remove('anim-nav-pop-hub');
+        hubView.offsetHeight;
+        hubView.classList.add('anim-nav-pop-hub');
+      }
       document.getElementById('searchInput').value = '';
       updateTopHeaderView();
+      if (rootBar) {
+        rootBar.classList.remove('anim-header-back');
+        rootBar.offsetHeight;
+        rootBar.classList.add('anim-header-back');
+      }
       updateGroupLastDates();
 
       if (!fromPopState && window.location.hash.startsWith('#group-')) {
@@ -4261,19 +4357,24 @@
       activeOptionExId = exId;
       showCardMainMenu();
 
-      // Posiziona vicino al bottone ... cliccato restando dentro lo schermo
+      // Posiziona vicino al bottone ... cliccato restando dentro lo schermo e cresce dal bottone
       const rect = btnEl.getBoundingClientRect();
+      menu.style.animation = 'none';
       menu.classList.add('open');
-      const menuW = menu.offsetWidth || 195;
       const menuH = menu.offsetHeight || 200;
       const right = Math.max(12, window.innerWidth - rect.right);
       let top = rect.bottom + 6;
+      let openUpward = false;
       if (top + menuH > window.innerHeight - 24) {
         top = Math.max(16, rect.top - menuH - 6);
+        openUpward = true;
       }
       menu.style.right = right + 'px';
       menu.style.left = 'auto';
       menu.style.top = top + 'px';
+      menu.style.transformOrigin = openUpward ? 'bottom right' : 'top right';
+      menu.offsetHeight;
+      menu.style.animation = '';
     }
 
     function showCardMainMenu(event) {
@@ -4786,7 +4887,7 @@
     })();
 
     if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('sw.js?v=44', {scope: './'}).then(reg => {
+      navigator.serviceWorker.register('sw.js?v=45', {scope: './'}).then(reg => {
         reg.update();
       }).catch(() => {});
     }
