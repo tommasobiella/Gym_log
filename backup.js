@@ -7,6 +7,14 @@
 const GymBackup = (() => {
   const BACKUP_FILENAME = 'gym-log-backup.json';
 
+  function getDatedBackupFilename() {
+    const d = new Date();
+    const yyyy = d.getFullYear();
+    const mm = String(d.getMonth() + 1).padStart(2, '0');
+    const dd = String(d.getDate()).padStart(2, '0');
+    return `gymlog_${yyyy}-${mm}-${dd}.json`;
+  }
+
   function supportsDirectoryPicker() {
     return typeof window.showDirectoryPicker === 'function';
   }
@@ -75,6 +83,7 @@ const GymBackup = (() => {
     const data = await GymDB.exportAllData();
     const content = JSON.stringify(data, null, 2);
     const mimeType = 'application/json;charset=utf-8';
+    const datedFilename = getDatedBackupFilename();
 
     // 1. Persistent folder handle (Desktop / Android Chromium)
     if (supportsDirectoryPicker()) {
@@ -84,20 +93,20 @@ const GymBackup = (() => {
         dirHandle = picked.handle;
       }
       if (dirHandle) {
-        await writeFileToDirectory(dirHandle, BACKUP_FILENAME, content);
+        await writeFileToDirectory(dirHandle, datedFilename, content);
         await GymDB.setSetting('lastBackupAt', new Date().toISOString());
-        return { method: 'directory', folderName: dirHandle.name, filename: BACKUP_FILENAME };
+        return { method: 'directory', folderName: dirHandle.name, filename: datedFilename };
       }
     }
 
     // 2. iOS / Mobile native Share Sheet (Salva su File -> iCloud Drive)
-    const file = new File([content], BACKUP_FILENAME, { type: mimeType });
+    const file = new File([content], datedFilename, { type: mimeType });
     if (navigator.canShare && navigator.canShare({ files: [file] })) {
       await navigator.share({
         files: [file]
       });
       await GymDB.setSetting('lastBackupAt', new Date().toISOString());
-      return { method: 'share', filename: BACKUP_FILENAME };
+      return { method: 'share', filename: datedFilename };
     }
 
     // 3. Fallback standard browser download
@@ -105,13 +114,13 @@ const GymBackup = (() => {
     const url = URL.createObjectURL(blob);
     const a = document.createElement('a');
     a.href = url;
-    a.download = BACKUP_FILENAME;
+    a.download = datedFilename;
     document.body.appendChild(a);
     a.click();
     a.remove();
     URL.revokeObjectURL(url);
     await GymDB.setSetting('lastBackupAt', new Date().toISOString());
-    return { method: 'download', filename: BACKUP_FILENAME };
+    return { method: 'download', filename: datedFilename };
   }
 
   async function restoreFromFile(file) {
