@@ -1947,14 +1947,14 @@
       background: rgba(255, 255, 255, 0.08);
     }
   </style>
-  <script src="db.js?v=65"></script>
-  <script src="backup.js?v=65"></script>
+  <script src="db.js?v=66"></script>
+  <script src="backup.js?v=66"></script>
 </head>
 <body>
   <header>
     <div class="header-top" id="headerRootBar">
       <div class="title-area">
-        <h1 id="gymLogoTitle" onclick="handleLogoTap(event)">Gym Log <span class="app-version-sub">v65</span></h1>
+        <h1 id="gymLogoTitle" onclick="handleLogoTap(event)">Gym Log <span class="app-version-sub">v66</span></h1>
       </div>
       <div class="settings-menu-wrap">
         <button type="button" class="sheet-close-x" id="settingsBtn" onclick="toggleSettingsMenu(event)" title="Impostazioni" aria-label="Impostazioni">
@@ -2350,6 +2350,10 @@
         changeFolderBtn: 'Cambia Cartella di Destinazione',
         backupRestoreBtn: 'Ripristina da File (.json)',
         welcomeTitle: 'Benvenuto in Gym Log',
+        installPwaTitle: 'Installa Gym Log',
+        installPwaHintIos: 'Aggiungi Gym Log alla schermata Home per usarlo come app (offline e a schermo intero):<br><br>1. Tocca <strong>Condividi</strong> in Safari<br>2. Tocca <strong>Aggiungi alla schermata Home</strong>',
+        installPwaHintOther: 'Installa Gym Log dal menu del browser (<strong>Aggiungi a schermata Home</strong> o <strong>Installa app</strong>) per usarlo offline e a schermo intero.',
+        continueInBrowserBtn: 'Continua comunque nel browser',
         pickFolderBtn: 'Scegli Cartella Backup',
         startTrainingBtn: 'Inizia ad Allenarti',
         restorePromptBtn: 'Hai già un Backup? Ripristinalo',
@@ -2487,6 +2491,10 @@
         changeFolderBtn: 'Change Backup Folder',
         backupRestoreBtn: 'Restore from File (.json)',
         welcomeTitle: 'Welcome to Gym Log',
+        installPwaTitle: 'Install Gym Log',
+        installPwaHintIos: 'Add Gym Log to your Home Screen to use it as a full-screen offline app:<br><br>1. Tap <strong>Share</strong> in Safari<br>2. Tap <strong>Add to Home Screen</strong>',
+        installPwaHintOther: 'Install Gym Log from your browser menu (<strong>Add to Home Screen</strong> or <strong>Install app</strong>) for full-screen offline use.',
+        continueInBrowserBtn: 'Continue in browser anyway',
         pickFolderBtn: 'Choose Backup Folder',
         startTrainingBtn: 'Start Training',
         restorePromptBtn: 'Have a backup? Restore it',
@@ -4534,18 +4542,40 @@
     // =========================================================================
     // BACKUP & RIPRISTINO LOCALE + PRIMA APERTURA
     // =========================================================================
+    function isRunningAsStandalonePwa() {
+      return window.navigator.standalone === true ||
+        (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches);
+    }
+
     async function openFirstLaunchModal() {
+      const isStandalone = isRunningAsStandalonePwa();
+      const titleEl = document.getElementById('firstLaunchTitle');
       const folderBox = document.getElementById('firstLaunchFolderHint');
-      if (folderBox) {
-        if (GymBackup.supportsDirectoryPicker()) {
-          folderBox.innerHTML = t('firstLaunchPickerHint');
-        } else {
-          folderBox.innerHTML = t('firstLaunchIosHint');
-        }
-      }
       const btnPick = document.getElementById('firstLaunchPickFolderBtn');
-      if (btnPick) {
-        btnPick.style.display = GymBackup.supportsDirectoryPicker() ? 'block' : 'none';
+      const btnStart = document.getElementById('firstLaunchStartBtn');
+      const btnRestore = document.getElementById('firstLaunchRestoreBtn');
+
+      if (!isStandalone) {
+        const isIos = /iPad|iPhone|iPod/.test(navigator.userAgent || '');
+        if (titleEl) titleEl.textContent = t('installPwaTitle');
+        if (folderBox) folderBox.innerHTML = isIos ? t('installPwaHintIos') : t('installPwaHintOther');
+        if (btnPick) btnPick.style.display = 'none';
+        if (btnRestore) btnRestore.style.display = 'none';
+        if (btnStart) {
+          btnStart.className = 'modal-btn-cancel';
+          btnStart.textContent = t('continueInBrowserBtn');
+        }
+      } else {
+        if (titleEl) titleEl.textContent = t('welcomeTitle');
+        if (folderBox) {
+          folderBox.innerHTML = GymBackup.supportsDirectoryPicker() ? t('firstLaunchPickerHint') : t('firstLaunchIosHint');
+        }
+        if (btnPick) btnPick.style.display = GymBackup.supportsDirectoryPicker() ? 'block' : 'none';
+        if (btnRestore) btnRestore.style.display = 'block';
+        if (btnStart) {
+          btnStart.className = 'modal-btn-confirm';
+          btnStart.textContent = t('startTrainingBtn');
+        }
       }
       document.getElementById('firstLaunchModal').style.display = 'flex';
     }
@@ -5279,7 +5309,7 @@
         swRefreshing = true;
         window.location.reload();
       });
-      navigator.serviceWorker.register('sw.js?v=65', { scope: './', updateViaCache: 'none' }).then(reg => {
+      navigator.serviceWorker.register('sw.js?v=66', { scope: './', updateViaCache: 'none' }).then(reg => {
         reg.update();
       }).catch(() => {});
     }
