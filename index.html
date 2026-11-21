@@ -1746,49 +1746,6 @@
       }
     }
 
-    /* Portrait-only lock overlay on mobile landscape */
-    .orientation-lock-overlay {
-      display: none;
-      position: fixed;
-      inset: 0;
-      z-index: 99999;
-      background: #000000;
-      color: var(--text);
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      text-align: center;
-      padding: 24px calc(24px + env(safe-area-inset-right, 0px)) 24px calc(24px + env(safe-area-inset-left, 0px));
-      gap: 14px;
-    }
-    .orientation-lock-icon {
-      width: 56px;
-      height: 56px;
-      border-radius: 16px;
-      background: var(--card-bg);
-      border: 1px solid var(--card-border);
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      color: var(--accent);
-    }
-    .orientation-lock-title {
-      font-size: 1.1rem;
-      font-weight: 800;
-      letter-spacing: -0.02em;
-    }
-    .orientation-lock-sub {
-      font-size: 0.88rem;
-      color: var(--text-muted);
-      max-width: 280px;
-      line-height: 1.4;
-    }
-    @media screen and (orientation: landscape) and (max-height: 540px) and (pointer: coarse) {
-      .orientation-lock-overlay {
-        display: flex;
-      }
-    }
-
     /* Reorder Toggle Button & Drag Handle + Long-Press Compression */
     .btn-reorder-toggle {
       width: 42px;
@@ -1961,25 +1918,14 @@
       background: rgba(255, 255, 255, 0.08);
     }
   </style>
-  <script src="db.js?v=61"></script>
-  <script src="backup.js?v=61"></script>
+  <script src="db.js?v=62"></script>
+  <script src="backup.js?v=62"></script>
 </head>
 <body>
-  <div id="orientationLockOverlay" class="orientation-lock-overlay" aria-live="polite">
-    <div class="orientation-lock-icon" aria-hidden="true">
-      <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
-        <rect x="7" y="2" width="10" height="20" rx="2" ry="2"></rect>
-        <line x1="12" y1="18" x2="12.01" y2="18"></line>
-      </svg>
-    </div>
-    <div class="orientation-lock-title" id="orientationLockTitle">Modalità Verticale</div>
-    <div class="orientation-lock-sub" id="orientationLockSub">Ruota il dispositivo in verticale per continuare ad usare Gym Log.</div>
-  </div>
-
   <header>
     <div class="header-top" id="headerRootBar">
       <div class="title-area">
-        <h1 id="gymLogoTitle" onclick="handleLogoTap(event)">Gym Log <span class="app-version-sub">v61</span></h1>
+        <h1 id="gymLogoTitle" onclick="handleLogoTap(event)">Gym Log <span class="app-version-sub">v62</span></h1>
       </div>
       <div class="settings-menu-wrap">
         <button type="button" class="sheet-close-x" id="settingsBtn" onclick="toggleSettingsMenu(event)" title="Impostazioni" aria-label="Impostazioni">
@@ -2608,8 +2554,6 @@
       const setPh = (id, key) => { const el = document.getElementById(id); if (el) el.placeholder = t(key); };
       const setAria = (id, key) => { const el = document.getElementById(id); if (el) el.setAttribute('aria-label', t(key)); };
 
-      setTxt('orientationLockTitle', 'portraitTitle');
-      setTxt('orientationLockSub', 'portraitSub');
       setTxt('settingsLabelTheme', 'theme');
       setTxt('settingsLabelLanguage', 'language');
       setTxt('settingsLangCode', currentLang === 'en' ? 'EN' : 'IT'); // fallback below
@@ -5232,7 +5176,7 @@
         swRefreshing = true;
         window.location.reload();
       });
-      navigator.serviceWorker.register('sw.js?v=61', { scope: './', updateViaCache: 'none' }).then(reg => {
+      navigator.serviceWorker.register('sw.js?v=62', { scope: './', updateViaCache: 'none' }).then(reg => {
         reg.update();
       }).catch(() => {});
     }
