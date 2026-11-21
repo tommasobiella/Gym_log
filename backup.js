@@ -94,9 +94,7 @@ const GymBackup = (() => {
     const file = new File([content], BACKUP_FILENAME, { type: mimeType });
     if (navigator.canShare && navigator.canShare({ files: [file] })) {
       await navigator.share({
-        files: [file],
-        title: 'Gym Log Backup',
-        text: 'Backup JSON Gym Log'
+        files: [file]
       });
       await GymDB.setSetting('lastBackupAt', new Date().toISOString());
       return { method: 'share', filename: BACKUP_FILENAME };
