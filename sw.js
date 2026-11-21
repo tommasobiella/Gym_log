@@ -1,12 +1,12 @@
 /**
  * Service Worker Gym Log Standalone: Offline-First with Pre-Cache & Auto-Claim
  */
-const CACHE_NAME = 'gym-log-standalone-v52';
+const CACHE_NAME = 'gym-log-standalone-v53';
 const PRECACHE_ASSETS = [
   './',
   './index.html',
-  './db.js?v=52',
-  './backup.js?v=52',
+  './db.js?v=53',
+  './backup.js?v=53',
   './default-exercises.json?v=2',
   './manifest.json',
   './icon-192.svg?v=2',
@@ -36,8 +36,11 @@ self.addEventListener('fetch', (event) => {
   const req = event.request;
   if (req.method !== 'GET') return;
 
+  const isHtmlNav = req.mode === 'navigate' || req.url.endsWith('/index.html');
+  const networkFetch = isHtmlNav ? fetch(req, { cache: 'no-store' }) : fetch(req);
+
   event.respondWith(
-    fetch(req)
+    networkFetch
       .then((networkResponse) => {
         if (networkResponse && networkResponse.status === 200) {
           const resClone = networkResponse.clone();
