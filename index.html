@@ -1947,14 +1947,14 @@
       background: rgba(255, 255, 255, 0.08);
     }
   </style>
-  <script src="db.js?v=66"></script>
-  <script src="backup.js?v=66"></script>
+  <script src="db.js?v=67"></script>
+  <script src="backup.js?v=67"></script>
 </head>
 <body>
   <header>
     <div class="header-top" id="headerRootBar">
       <div class="title-area">
-        <h1 id="gymLogoTitle" onclick="handleLogoTap(event)">Gym Log <span class="app-version-sub">v66</span></h1>
+        <h1 id="gymLogoTitle" onclick="handleLogoTap(event)">Gym Log <span class="app-version-sub">v67</span></h1>
       </div>
       <div class="settings-menu-wrap">
         <button type="button" class="sheet-close-x" id="settingsBtn" onclick="toggleSettingsMenu(event)" title="Impostazioni" aria-label="Impostazioni">
@@ -2346,7 +2346,7 @@
         clearBtn: 'Svuota',
         doneBtn: 'Fatto',
         backupModalTitle: 'Backup Locale & Ripristino',
-        backupSaveBtn: 'Salva Backup (gym-log-backup.json)',
+        backupSaveBtn: 'Salva Backup...',
         changeFolderBtn: 'Cambia Cartella di Destinazione',
         backupRestoreBtn: 'Ripristina da File (.json)',
         welcomeTitle: 'Benvenuto in Gym Log',
@@ -2487,7 +2487,7 @@
         clearBtn: 'Clear',
         doneBtn: 'Done',
         backupModalTitle: 'Backup & Restore',
-        backupSaveBtn: 'Save Backup (gym-log-backup.json)',
+        backupSaveBtn: 'Save Backup...',
         changeFolderBtn: 'Change Backup Folder',
         backupRestoreBtn: 'Restore from File (.json)',
         welcomeTitle: 'Welcome to Gym Log',
@@ -5309,7 +5309,7 @@
         swRefreshing = true;
         window.location.reload();
       });
-      navigator.serviceWorker.register('sw.js?v=66', { scope: './', updateViaCache: 'none' }).then(reg => {
+      navigator.serviceWorker.register('sw.js?v=67', { scope: './', updateViaCache: 'none' }).then(reg => {
         reg.update();
       }).catch(() => {});
     }
@@ -5645,7 +5645,7 @@
 
       <div style="display:flex; flex-direction:column; gap:10px; margin-top:4px;">
         <button type="button" class="modal-btn-confirm" id="backupSaveBtn" style="width:100%;" onclick="handleSaveBackup()">
-          Salva Backup (gym-log-backup.json)
+          Salva Backup...
         </button>
         <button type="button" class="modal-btn-cancel" id="changeFolderBtn" style="width:100%; display:none;" onclick="handlePickBackupFolder()">
           Cambia Cartella di Destinazione
