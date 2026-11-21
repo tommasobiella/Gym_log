@@ -873,7 +873,7 @@
       left: 0;
       right: 0;
       background: linear-gradient(to top, rgba(0, 0, 0, 0.9) 55%, rgba(0, 0, 0, 0));
-      padding: 10px 18px max(18px, env(safe-area-inset-bottom, 0px));
+      padding: 10px 18px max(26px, env(safe-area-inset-bottom, 0px));
       display: flex;
       justify-content: center;
       align-items: center;
@@ -1918,14 +1918,14 @@
       background: rgba(255, 255, 255, 0.08);
     }
   </style>
-  <script src="db.js?v=62"></script>
-  <script src="backup.js?v=62"></script>
+  <script src="db.js?v=63"></script>
+  <script src="backup.js?v=63"></script>
 </head>
 <body>
   <header>
     <div class="header-top" id="headerRootBar">
       <div class="title-area">
-        <h1 id="gymLogoTitle" onclick="handleLogoTap(event)">Gym Log <span class="app-version-sub">v62</span></h1>
+        <h1 id="gymLogoTitle" onclick="handleLogoTap(event)">Gym Log <span class="app-version-sub">v63</span></h1>
       </div>
       <div class="settings-menu-wrap">
         <button type="button" class="sheet-close-x" id="settingsBtn" onclick="toggleSettingsMenu(event)" title="Impostazioni" aria-label="Impostazioni">
@@ -5176,7 +5176,7 @@
         swRefreshing = true;
         window.location.reload();
       });
-      navigator.serviceWorker.register('sw.js?v=62', { scope: './', updateViaCache: 'none' }).then(reg => {
+      navigator.serviceWorker.register('sw.js?v=63', { scope: './', updateViaCache: 'none' }).then(reg => {
         reg.update();
       }).catch(() => {});
     }
