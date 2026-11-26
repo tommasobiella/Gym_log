@@ -1149,6 +1149,51 @@
     .group-tile.is-latest-group {
       border-color: rgba(255, 255, 255, 0.2);
     }
+    .group-tile.is-unlogged {
+      background: rgba(28, 28, 30, 0.52);
+      border-color: rgba(255, 255, 255, 0.05);
+    }
+    .group-tile.is-unlogged .tile-title {
+      color: #8E8E93;
+    }
+    .group-tile.is-unlogged .tile-sub {
+      color: var(--text-dim);
+    }
+    .group-tile.is-unlogged .tile-arrow {
+      opacity: 0.28;
+    }
+    .seg-pill-group {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 4px;
+      padding: 4px;
+      border-radius: 12px;
+      background: var(--input-bg);
+      border: 1px solid rgba(255, 255, 255, 0.12);
+    }
+    .seg-pill-group.cols-2 {
+      grid-template-columns: repeat(2, 1fr);
+    }
+    .seg-pill-btn {
+      min-height: 36px;
+      padding: 6px 8px;
+      border: none;
+      border-radius: 9px;
+      background: transparent;
+      color: var(--text-muted);
+      font-family: inherit;
+      font-size: 0.82rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background 0.16s ease, color 0.16s ease;
+    }
+    .seg-pill-btn.active {
+      background: var(--accent);
+      color: var(--cta-text);
+    }
+    @media (prefers-reduced-motion: reduce) {
+      .seg-pill-btn { transition: none; }
+    }
     .groups-hub-header {
       display: flex;
       align-items: center;
@@ -1976,14 +2021,14 @@
       background: rgba(255, 255, 255, 0.08);
     }
   </style>
-  <script src="db.js?v=69"></script>
-  <script src="backup.js?v=69"></script>
+  <script src="db.js?v=70"></script>
+  <script src="backup.js?v=70"></script>
 </head>
 <body>
   <header>
     <div class="header-top" id="headerRootBar">
       <div class="title-area">
-        <h1 id="gymLogoTitle" onclick="handleLogoTap(event)">Gym Log <span class="app-version-sub">v69</span></h1>
+        <h1 id="gymLogoTitle" onclick="handleLogoTap(event)">Gym Log <span class="app-version-sub">v70</span></h1>
       </div>
       <div class="settings-menu-wrap">
         <button type="button" class="sheet-close-x" id="settingsBtn" onclick="toggleSettingsMenu(event)" title="Impostazioni" aria-label="Impostazioni">
@@ -2362,17 +2407,33 @@
         newExNameLabel: 'Nome Esercizio',
         newExNamePlaceholder: 'es. Lat machine presa inversa',
         newExGroupLabel: 'Gruppo Muscolare',
+        newExTypeLabel: 'Modalità Tracciamento',
+        exTypeStandard: 'Carico kg',
+        exTypeAssisted: 'Assistito',
+        exTypeBw: 'Corpo libero',
+        bwUnitLabel: 'Unità Corpo Libero',
+        bwUnitReps: 'Ripetizioni',
+        bwUnitSeconds: 'Secondi',
         newExWeightLabel: 'Peso Iniziale (kg, opzionale)',
+        newExAssistWeightLabel: 'Contrappeso Iniziale (kg, opzionale)',
         newExWeightPlaceholder: 'es. 20',
         cancelBtn: 'Annulla',
         addExBtn: 'Aggiungi Esercizio',
         ultimaLabel: 'Ultima:',
         noneLabel: 'Nessuna',
-        rename: 'Rinomina',
+        rename: 'Modifica',
         changeGroup: 'Cambia gruppo',
         archive: 'Archivia',
         weightBox: 'Carico',
+        assistWeightBox: 'Contrappeso (assistenza)',
+        assistWeightKgLabel: 'Contrappeso (kg)',
         repsBox: 'Ripetizioni',
+        secondsBox: 'Durata (secondi)',
+        secondsLabel: 'Secondi',
+        sparkTitleAssisted: (n) => `Assistenza eff. (↓ meglio · ultime ${n})`,
+        sparkTitleBw: (n) => `Top set score (ultime ${n})`,
+        prMinAssistLabel: 'PR Min. Assistenza',
+        updatedToast: 'Esercizio aggiornato!',
         notesTriggerPlaceholder: 'Note (es. cedimento, drop set, sensazioni)...',
         logSetBtn: 'Salva Serie',
         setNotesTitle: 'Note Serie',
@@ -2463,7 +2524,7 @@
         orderSavedToast: 'Ordine aggiornato!',
         exOptionsAria: 'Opzioni esercizio',
         openProgressAria: 'Vedi grafico e storico',
-        renameExTitle: 'Rinomina Esercizio',
+        renameExTitle: 'Modifica Esercizio',
         setNumberLabel: (n) => `Serie ${n}`,
         confirmDeleteTitle: 'Conferma eliminazione',
         confirmRestoreTitle: 'Ripristina backup',
@@ -2503,17 +2564,33 @@
         newExNameLabel: 'Exercise Name',
         newExNamePlaceholder: 'e.g. Lat Pulldown',
         newExGroupLabel: 'Muscle Group',
+        newExTypeLabel: 'Tracking Mode',
+        exTypeStandard: 'Weight kg',
+        exTypeAssisted: 'Assisted',
+        exTypeBw: 'Bodyweight',
+        bwUnitLabel: 'Bodyweight Unit',
+        bwUnitReps: 'Reps',
+        bwUnitSeconds: 'Seconds',
         newExWeightLabel: 'Starting Weight (kg, optional)',
+        newExAssistWeightLabel: 'Starting Assistance (kg, optional)',
         newExWeightPlaceholder: 'e.g. 20',
         cancelBtn: 'Cancel',
         addExBtn: 'Add Exercise',
         ultimaLabel: 'Last:',
         noneLabel: 'None',
-        rename: 'Rename',
+        rename: 'Edit',
         changeGroup: 'Move to group',
         archive: 'Archive',
         weightBox: 'Weight',
+        assistWeightBox: 'Counterweight (assistance)',
+        assistWeightKgLabel: 'Assistance (kg)',
         repsBox: 'Reps',
+        secondsBox: 'Duration (seconds)',
+        secondsLabel: 'Seconds',
+        sparkTitleAssisted: (n) => `Eff. assistance (↓ better · last ${n})`,
+        sparkTitleBw: (n) => `Top-set score (last ${n})`,
+        prMinAssistLabel: 'Lowest Assistance PR',
+        updatedToast: 'Exercise updated!',
         notesTriggerPlaceholder: 'Notes (e.g. failure, drop set, RPE)...',
         logSetBtn: 'Log Set',
         setNotesTitle: 'Set Notes',
@@ -2604,7 +2681,7 @@
         orderSavedToast: 'Order updated!',
         exOptionsAria: 'Exercise options',
         openProgressAria: 'View progress chart',
-        renameExTitle: 'Rename Exercise',
+        renameExTitle: 'Edit Exercise',
         setNumberLabel: (n) => `Set ${n}`,
         confirmDeleteTitle: 'Confirm Deletion',
         confirmRestoreTitle: 'Restore Backup',
@@ -2684,7 +2761,16 @@
       setTxt('newExNameLabel', 'newExNameLabel');
       setPh('newExNameInput', 'newExNamePlaceholder');
       setTxt('newExGroupLabel', 'newExGroupLabel');
-      setTxt('newExWeightLabel', 'newExWeightLabel');
+      setTxt('newExTypeLabel', 'newExTypeLabel');
+      setTxt('newExBwUnitLabel', 'bwUnitLabel');
+      setTxt('renameExTypeLabel', 'newExTypeLabel');
+      setTxt('renameExBwUnitLabel', 'bwUnitLabel');
+      document.querySelectorAll('#newExModePills [data-mode="standard"], #renameExModePills [data-mode="standard"]').forEach(b => b.textContent = t('exTypeStandard'));
+      document.querySelectorAll('#newExModePills [data-mode="assisted"], #renameExModePills [data-mode="assisted"]').forEach(b => b.textContent = t('exTypeAssisted'));
+      document.querySelectorAll('#newExModePills [data-mode="bw"], #renameExModePills [data-mode="bw"]').forEach(b => b.textContent = t('exTypeBw'));
+      document.querySelectorAll('#newExBwUnitPills [data-unit="bw_reps"], #renameExBwUnitPills [data-unit="bw_reps"]').forEach(b => b.textContent = t('bwUnitReps'));
+      document.querySelectorAll('#newExBwUnitPills [data-unit="bw_seconds"], #renameExBwUnitPills [data-unit="bw_seconds"]').forEach(b => b.textContent = t('bwUnitSeconds'));
+      syncModalExTypeLabels('new');
       setPh('newExWeightInput', 'newExWeightPlaceholder');
       setTxt('newExCancelBtn', 'cancelBtn');
       setTxt('newExSaveBtn', 'addExBtn');
@@ -3003,7 +3089,9 @@
       exercises = GymDB.recomputeStats(rawExercises, allSets);
 
       exercises.forEach(ex => {
-        let defaultReps = 10;
+        const mode = GymDB.getExTrackingMode(ex);
+        const isBw = mode === 'bw_reps' || mode === 'bw_seconds';
+        let defaultReps = mode === 'bw_seconds' ? 45 : 10;
         if (ex.last_reps) {
           const parts = ex.last_reps.split(/[,~]/);
           const lastNum = parseInt(parts[parts.length - 1], 10);
@@ -3012,7 +3100,7 @@
         if (!currentValues[ex.id]) {
           currentValues[ex.id] = {
             reps: defaultReps,
-            weight: ex.last_weight !== null ? ex.last_weight : 20,
+            weight: isBw ? 0 : (ex.last_weight !== null ? ex.last_weight : 20),
             note: ''
           };
         }
@@ -3197,12 +3285,44 @@
       return maxW;
     }
 
+    function getMinSetWeight(setsList) {
+      let minW = null;
+      for (const s of setsList) {
+        const w = parseFloat(s.weight);
+        if (!isNaN(w) && w >= 0 && (minW === null || w < minW)) minW = w;
+      }
+      return minW === null ? 0 : minW;
+    }
+
+    function getMaxSetReps(setsList) {
+      let maxR = 0;
+      for (const s of setsList) {
+        const r = parseInt(s.reps, 10) || 0;
+        if (r > maxR) maxR = r;
+      }
+      return maxR;
+    }
+
+    function getLogTrackingMode(log) {
+      if (!log) return 'standard';
+      const exMeta = exercises.find(e => e.id === log.exerciseId || e.name === log.exerciseName);
+      return GymDB.getExTrackingMode(exMeta);
+    }
+
+    function formatSingleSetPrimary(log, mode) {
+      if (!log) return '';
+      if (mode === 'bw_seconds') return `${escapeHtml(String(log.reps))} sec`;
+      if (mode === 'bw_reps') return `${escapeHtml(String(log.reps))} reps`;
+      return `${log.weight} kg &times; ${escapeHtml(String(log.reps))}`;
+    }
+
     function getExKeySetsAndMeta(exKey) {
       const exMeta = exercises.find(e => e.id === exKey || e.name === exKey);
       const exSets = allSets.filter(s => (s.exerciseId || s.exerciseName) === exKey);
       const name = exMeta ? exMeta.name : (exSets[0] ? exSets[0].exerciseName : exKey);
       const group = exMeta ? exMeta.group : (exSets[0] ? exSets[0].group : '');
-      return { exMeta, exSets, name, group };
+      const trackingMode = GymDB.getExTrackingMode(exMeta);
+      return { exMeta, exSets, name, group, trackingMode };
     }
 
     function openExerciseProgressFromEl(el) {
@@ -3232,12 +3352,40 @@
       return best > 0 ? Number(best.toFixed(1)) : maxReps;
     }
 
-    function renderSparklineSvg(points) {
+    function getAssistedEffLoad(setsList) {
+      if (!setsList || setsList.length === 0) return 0;
+      let bestEff = null;
+      for (const s of setsList) {
+        const w = parseFloat(s.weight);
+        const r = Math.max(1, parseInt(s.reps, 10) || 1);
+        if (isNaN(w) || w < 0) continue;
+        const eff = w === 0 ? 0 : w / (1 + r / 30);
+        if (bestEff === null || eff < bestEff) bestEff = eff;
+      }
+      return bestEff === null ? 0 : Number(bestEff.toFixed(1));
+    }
+
+    function getBodyweightSessionScore(setsList) {
+      if (!setsList || setsList.length === 0) return 0;
+      const vals = setsList
+        .map(s => parseInt(s.reps, 10) || 0)
+        .filter(v => v > 0)
+        .sort((a, b) => b - a);
+      if (vals.length === 0) return 0;
+      const top1 = vals[0];
+      const top2Avg = vals.length >= 2 ? (vals[0] + vals[1]) / 2 : vals[0];
+      return Number((0.7 * top1 + 0.3 * top2Avg).toFixed(1));
+    }
+
+    function renderSparklineSvg(points, opts = {}) {
       if (!points || points.length < 2) return '';
       const w = 320;
       const h = 76;
       const padX = 12;
       const padY = 12;
+      const invertY = Boolean(opts.invertY);
+      const unit = opts.unit !== undefined ? opts.unit : 'kg';
+      const titleHtml = opts.titleHtml || t('sparkTitle', points.length);
       const values = points.map(p => p.value);
       let minV = Math.min(...values);
       let maxV = Math.max(...values);
@@ -3248,7 +3396,10 @@
       const spanV = maxV - minV;
       const coords = points.map((p, idx) => {
         const x = padX + (idx / (points.length - 1)) * (w - padX * 2);
-        const y = (h - padY) - ((p.value - minV) / spanV) * (h - padY * 2);
+        const norm = (p.value - minV) / spanV;
+        const y = invertY
+          ? padY + norm * (h - padY * 2)
+          : (h - padY) - norm * (h - padY * 2);
         return { x: Number(x.toFixed(1)), y: Number(y.toFixed(1)), ...p };
       });
       const polyPoints = coords.map(c => `${c.x},${c.y}`).join(' ');
@@ -3259,12 +3410,16 @@
       const lastDate = formatNaturalDate(points[points.length - 1].dateStr, true);
       const realMin = Math.min(...values);
       const realMax = Math.max(...values);
+      const unitSuffix = unit ? ` ${escapeHtml(unit)}` : '';
+      const rangeHtml = invertY
+        ? `${realMax} &rarr; ${realMin}${unitSuffix}`
+        : `${realMin} &ndash; ${realMax}${unitSuffix}`;
 
       return `
         <div class="progress-spark-card">
           <div class="progress-spark-header">
-            <span>${t('sparkTitle', points.length)}</span>
-            <span>${realMin} &ndash; ${realMax} kg</span>
+            <span>${titleHtml}</span>
+            <span>${rangeHtml}</span>
           </div>
           <svg viewBox="0 0 ${w} ${h}" width="100%" height="76" style="display:block; overflow:visible;">
             <defs>
@@ -3349,10 +3504,12 @@
       const log = allSets.find(l => l.id === setId);
       if (!log) return;
 
+      const mode = getLogTrackingMode(log);
+      const isBw = mode === 'bw_reps' || mode === 'bw_seconds';
       const wEl = document.getElementById(`inlineEditWeight_${ctx}`);
       const rEl = document.getElementById(`inlineEditReps_${ctx}`);
       const nEl = document.getElementById(`inlineEditNotes_${ctx}`);
-      const newWeight = parseFloat(wEl ? wEl.value : '');
+      const newWeight = isBw ? 0 : parseFloat(wEl ? wEl.value : '');
       const newReps = parseInt(rEl ? rEl.value : '', 10);
       const newNotes = nEl ? nEl.value.trim() : '';
 
@@ -3393,6 +3550,10 @@
     }
 
     function buildInlineEditFormHtml(ctx, log) {
+      const mode = getLogTrackingMode(log);
+      const isBw = mode === 'bw_reps' || mode === 'bw_seconds';
+      const weightLabelText = mode === 'assisted' ? t('assistWeightKgLabel') : t('weightKgLabel');
+      const repsLabelText = mode === 'bw_seconds' ? t('secondsLabel') : t('repsLabel');
       const isConfirm = pendingFormDeleteCtx === ctx;
       const actionsHtml = isConfirm
         ? `<button type="button" class="modal-btn-cancel" onclick="cancelInlineFormDelete('${ctx}')">${t('cancelBtn')}</button>
@@ -3400,14 +3561,17 @@
         : `<button type="button" class="modal-btn-cancel" style="color:var(--danger); border-color:rgba(255,69,58,0.35);" onclick="askInlineFormDelete('${ctx}')">${t('deleteBtn')}</button>
            <button type="button" class="modal-btn-confirm" onclick="saveInlineEditedSet('${ctx}')">${t('saveBtn')}</button>`;
 
+      const weightFieldHtml = isBw ? '' : `
+          <div class="modal-field">
+            <label for="inlineEditWeight_${ctx}">${weightLabelText}</label>
+            <input type="number" id="inlineEditWeight_${ctx}" step="0.5" min="0" value="${escapeHtml(String(log.weight))}">
+          </div>`;
+
       return `
         <div class="inline-edit-form">
+          ${weightFieldHtml}
           <div class="modal-field">
-            <label for="inlineEditWeight_${ctx}">${t('weightKgLabel')}</label>
-            <input type="number" id="inlineEditWeight_${ctx}" step="0.5" min="0" value="${escapeHtml(String(log.weight))}">
-          </div>
-          <div class="modal-field">
-            <label for="inlineEditReps_${ctx}">${t('repsLabel')}</label>
+            <label for="inlineEditReps_${ctx}">${repsLabelText}</label>
             <input type="number" id="inlineEditReps_${ctx}" step="1" min="1" value="${escapeHtml(String(log.reps))}">
           </div>
           <div class="modal-field">
@@ -3476,11 +3640,14 @@
 
     function renderExerciseProgressModal() {
       if (!activeHistoryProgressKey) return;
-      const { exMeta, exSets, name, group } = getExKeySetsAndMeta(activeHistoryProgressKey);
+      const { exMeta, exSets, name, group, trackingMode } = getExKeySetsAndMeta(activeHistoryProgressKey);
       if (exSets.length === 0) {
         closeExerciseProgressModal();
         return;
       }
+      const isAssisted = trackingMode === 'assisted';
+      const isBw = trackingMode === 'bw_reps' || trackingMode === 'bw_seconds';
+      const unitLabel = trackingMode === 'bw_seconds' ? 'sec' : (trackingMode === 'bw_reps' ? 'reps' : 'kg');
 
       const backBtn = document.getElementById('histProgBackBtn');
       const titleEl = document.getElementById('histProgTitle');
@@ -3531,7 +3698,7 @@
           if (listEl) {
             listEl.innerHTML = daySets.map((s, idx) => {
               const labelHtml = `<div class="session-ex-label">${escapeHtml(t('setNumberLabel', idx + 1))}</div>`;
-              const primaryHtml = `<div class="session-sets-primary">${s.weight} kg &times; ${escapeHtml(String(s.reps))}</div>`;
+              const primaryHtml = `<div class="session-sets-primary">${formatSingleSetPrimary(s, trackingMode)}</div>`;
               const noteHtml = s.notes ? `<div class="today-set-note">${escapeHtml(s.notes)}</div>` : '';
               return buildClickableSetRowHtml('prog', s, labelHtml, primaryHtml, noteHtml);
             }).join('');
@@ -3560,56 +3727,76 @@
       const datesAsc = [...datesDesc].reverse();
 
       // Calcola PR + data PR
-      let prVal = exMeta && exMeta.pr !== null ? exMeta.pr : 0;
+      let prVal = null;
       let prDate = '';
       for (const d of datesDesc) {
-        const mw = getMaxSetWeight(byDate[d]);
-        if (mw >= prVal) {
-          prVal = mw;
+        const val = isAssisted
+          ? getMinSetWeight(byDate[d])
+          : (isBw ? getMaxSetReps(byDate[d]) : getMaxSetWeight(byDate[d]));
+        if (isAssisted) {
+          if (prVal === null || val <= prVal) {
+            prVal = val;
+            prDate = d;
+          }
+        } else if (prVal === null || val >= prVal) {
+          prVal = val;
           prDate = d;
         }
       }
+      if (prVal === null) prVal = 0;
 
       const lastDate = datesDesc[0];
       const lastSets = byDate[lastDate].sort((a, b) => (a.timestamp || '').localeCompare(b.timestamp || ''));
-      const lastMax = getMaxSetWeight(lastSets);
-      const lastFormatted = GymDB.formatDaySets(lastSets);
+      const lastMetric = isAssisted
+        ? getMinSetWeight(lastSets)
+        : (isBw ? getMaxSetReps(lastSets) : getMaxSetWeight(lastSets));
+      const lastFormatted = GymDB.formatDaySets(lastSets, trackingMode);
 
-      // Delta in kg dell'ultima seduta rispetto al PR massimale
+      // Delta rispetto al PR
       let deltaHtml = '';
-      if (prVal > 0 || lastMax > 0) {
-        const diffFromPr = Number((lastMax - prVal).toFixed(2));
+      if (prVal > 0 || lastMetric > 0 || isAssisted) {
+        const diffFromPr = Number((lastMetric - prVal).toFixed(2));
         if (diffFromPr === 0) {
           deltaHtml = `<span class="progress-delta-badge flat">= PR</span>`;
+        } else if (isAssisted) {
+          deltaHtml = `<span class="progress-delta-badge down">+${diffFromPr} kg</span>`;
         } else if (diffFromPr < 0) {
-          deltaHtml = `<span class="progress-delta-badge down">${diffFromPr} kg</span>`;
+          deltaHtml = `<span class="progress-delta-badge down">${diffFromPr} ${unitLabel}</span>`;
         } else {
-          deltaHtml = `<span class="progress-delta-badge up">+${diffFromPr} kg</span>`;
+          deltaHtml = `<span class="progress-delta-badge up">+${diffFromPr} ${unitLabel}</span>`;
         }
       }
 
+      const prKpiLabel = isAssisted ? t('prMinAssistLabel') : t('prLabel');
       document.getElementById('histProgKpis').innerHTML = `
         <div class="progress-kpi-box">
-          <div class="progress-kpi-label">${t('prLabel')}</div>
-          <div class="progress-kpi-val">${prVal} kg</div>
+          <div class="progress-kpi-label">${prKpiLabel}</div>
+          <div class="progress-kpi-val">${prVal} ${unitLabel}</div>
           <div class="progress-kpi-sub">${prDate ? escapeHtml(formatNaturalDate(prDate)) : '-'}</div>
         </div>
         <div class="progress-kpi-box">
           <div class="progress-kpi-label">${t('lastSessionLabel')}</div>
-          <div class="progress-kpi-val">${lastMax} kg ${deltaHtml}</div>
+          <div class="progress-kpi-val">${lastMetric} ${unitLabel} ${deltaHtml}</div>
           <div class="progress-kpi-sub">${escapeHtml(lastFormatted)}</div>
         </div>
       `;
 
       const sparkPoints = datesAsc.slice(-12).map(d => ({
         dateStr: d,
-        value: getBestSetE1RM(byDate[d])
+        value: isAssisted
+          ? getAssistedEffLoad(byDate[d])
+          : (isBw ? getBodyweightSessionScore(byDate[d]) : getBestSetE1RM(byDate[d]))
       }));
-      document.getElementById('histProgSparkWrap').innerHTML = renderSparklineSvg(sparkPoints);
+      const sparkOpts = isAssisted
+        ? { invertY: true, unit: 'kg', titleHtml: t('sparkTitleAssisted', sparkPoints.length) }
+        : (isBw
+          ? { invertY: false, unit: unitLabel, titleHtml: t('sparkTitleBw', sparkPoints.length) }
+          : { invertY: false, unit: 'kg', titleHtml: t('sparkTitle', sparkPoints.length) });
+      document.getElementById('histProgSparkWrap').innerHTML = renderSparklineSvg(sparkPoints, sparkOpts);
 
       const timelineHtml = datesDesc.map(dateStr => {
         const daySets = byDate[dateStr].sort((a, b) => (a.timestamp || '').localeCompare(b.timestamp || ''));
-        const formatted = GymDB.formatDaySets(daySets);
+        const formatted = GymDB.formatDaySets(daySets, trackingMode);
         return `
           <div class="history-clean-row" data-date="${escapeHtml(dateStr)}" onclick="openProgressDateSets(this)">
             <div class="history-row-left">
@@ -3724,6 +3911,7 @@
           historyModalState.exKey = null;
         } else {
           const exMeta = exercises.find(e => e.id === exKey || e.name === exKey);
+          const exMode = GymDB.getExTrackingMode(exMeta);
           if (backBtn) backBtn.style.display = 'inline-flex';
           if (titleEl) titleEl.innerText = exMeta ? exMeta.name : daySets[0].exerciseName;
           if (dateEl) dateEl.innerText = formatNaturalDate(dateStr, true);
@@ -3732,7 +3920,7 @@
           if (listEl) {
             listEl.innerHTML = daySets.map((s, idx) => {
               const labelHtml = `<div class="session-ex-label">${escapeHtml(t('setNumberLabel', idx + 1))}</div>`;
-              const primaryHtml = `<div class="session-sets-primary">${s.weight} kg &times; ${escapeHtml(String(s.reps))}</div>`;
+              const primaryHtml = `<div class="session-sets-primary">${formatSingleSetPrimary(s, exMode)}</div>`;
               const noteHtml = s.notes ? `<div class="today-set-note">${escapeHtml(s.notes)}</div>` : '';
               return buildClickableSetRowHtml('history', s, labelHtml, primaryHtml, noteHtml);
             }).join('');
@@ -3782,7 +3970,8 @@
         for (const g of orderedGroups) {
           parts.push(`<div class="session-group-heading">${escapeHtml(tGroup(g))}</div>`);
           for (const exObj of Object.values(byGroup[g])) {
-            const formatted = GymDB.formatDaySets(exObj.sets);
+            const exMeta = exercises.find(e => e.id === exObj.key || e.name === exObj.key);
+            const formatted = GymDB.formatDaySets(exObj.sets, GymDB.getExTrackingMode(exMeta));
             parts.push(`
               <div class="today-set-item is-clickable" onclick="selectSessionExercise('${encodeURIComponent(exObj.key)}')" role="button" tabindex="0" style="padding: 11px 14px;">
                 <div class="today-set-info">
@@ -4031,22 +4220,51 @@
 
     function updateActiveSheetMeta(ex) {
       if (!ex) return;
-      const lastStr = ex.last_weight !== null ? `${ex.last_weight} kg` : t('noneLabel');
+      const mode = GymDB.getExTrackingMode(ex);
+      const isBw = mode === 'bw_reps' || mode === 'bw_seconds';
+      const isSec = mode === 'bw_seconds';
       document.getElementById('sheetExTitle').innerText = ex.name;
+
+      const weightBox = document.getElementById('sheetWeightBox');
+      const weightLabel = document.getElementById('sheetWeightBoxLabel');
+      const repsLabel = document.getElementById('sheetRepsBoxLabel');
+      const quickRow = document.getElementById('sheetQuickRepsRow');
+      if (weightBox) weightBox.style.display = isBw ? 'none' : '';
+      if (weightLabel) weightLabel.innerText = mode === 'assisted' ? t('assistWeightBox') : t('weightBox');
+      if (repsLabel) repsLabel.innerText = isSec ? t('secondsBox') : t('repsBox');
+      if (quickRow) {
+        const quickVals = isSec ? [30, 45, 60] : (isBw ? [10, 15, 20] : [6, 9, 12]);
+        quickRow.innerHTML = quickVals
+          .map(v => `<button type="button" class="sheet-sub-btn" onclick="sheetSetReps(${v})">${v}${isSec ? 's' : ''}</button>`)
+          .join('');
+      }
+
       const ultimaWrap = document.getElementById('sheetContextUltima');
       const ultimaWEl = document.getElementById('sheetStatsUltimaWeight');
       const repsEl = document.getElementById('sheetStatsUltimaReps');
-      if (ultimaWEl) ultimaWEl.innerText = lastStr;
-      if (repsEl) {
-        if (ex.last_weight !== null && ex.last_reps) {
-          repsEl.innerText = `(${ex.last_reps})`;
-          repsEl.style.display = 'inline';
-        } else if (ex.last_weight !== null) {
-          repsEl.innerText = '(-)';
-          repsEl.style.display = 'inline';
-        } else {
+      if (isBw) {
+        const bwReps = ex.last_reps
+          ? (isSec ? ex.last_reps.split(',').map(v => `${v}s`).join(',') : ex.last_reps)
+          : t('noneLabel');
+        if (ultimaWEl) ultimaWEl.innerText = bwReps;
+        if (repsEl) {
           repsEl.innerText = '';
           repsEl.style.display = 'none';
+        }
+      } else {
+        const lastStr = ex.last_weight !== null ? `${ex.last_weight} kg` : t('noneLabel');
+        if (ultimaWEl) ultimaWEl.innerText = lastStr;
+        if (repsEl) {
+          if (ex.last_weight !== null && ex.last_reps) {
+            repsEl.innerText = `(${ex.last_reps})`;
+            repsEl.style.display = 'inline';
+          } else if (ex.last_weight !== null) {
+            repsEl.innerText = '(-)';
+            repsEl.style.display = 'inline';
+          } else {
+            repsEl.innerText = '';
+            repsEl.style.display = 'none';
+          }
         }
       }
 
@@ -4055,7 +4273,7 @@
       if (exToday.length > 0) {
         if (ultimaWrap) ultimaWrap.style.display = 'none';
         if (todayPill) {
-          todayPill.innerText = t('todayExercisePill', exToday.length, GymDB.formatDaySets(exToday));
+          todayPill.innerText = t('todayExercisePill', exToday.length, GymDB.formatDaySets(exToday, mode));
           todayPill.style.display = 'inline-block';
         }
       } else {
@@ -4112,17 +4330,29 @@
       closeSheetNoteModal();
     }
 
+    function formatActiveSheetRepsDisplay(valReps) {
+      const ex = exercises.find(e => e.id === activeSheetExId);
+      const mode = GymDB.getExTrackingMode(ex);
+      return mode === 'bw_seconds' ? `${valReps}s` : String(valReps);
+    }
+
     function openExerciseSheet(exId) {
       haptic();
       activeSheetExId = exId;
       const ex = exercises.find(e => e.id === exId);
       if (!ex) return;
-
-      const val = currentValues[exId] || {reps: 10, weight: 20};
+      const mode = GymDB.getExTrackingMode(ex);
+      if (!currentValues[exId]) {
+        currentValues[exId] = {
+          reps: mode === 'bw_seconds' ? 45 : 10,
+          weight: (mode === 'bw_reps' || mode === 'bw_seconds') ? 0 : (ex.last_weight !== null ? ex.last_weight : 20)
+        };
+      }
+      const val = currentValues[exId];
       updateActiveSheetMeta(ex);
 
       cancelInlineValueEdits();
-      document.getElementById('sheetRepsVal').innerText = val.reps;
+      document.getElementById('sheetRepsVal').innerText = formatActiveSheetRepsDisplay(val.reps);
       document.getElementById('sheetWeightVal').innerText = val.weight + ' kg';
       setSheetNote('');
       closeCardOptionsMenu();
@@ -4239,7 +4469,7 @@
           inp.style.display = 'none';
         }
         if (btn) {
-          btn.innerText = currentValues[activeSheetExId].reps;
+          btn.innerText = formatActiveSheetRepsDisplay(currentValues[activeSheetExId].reps);
           btn.style.display = 'inline-block';
         }
       }
@@ -4248,9 +4478,12 @@
     function sheetModReps(delta) {
       haptic();
       if (!activeSheetExId) return;
-      if (!currentValues[activeSheetExId]) currentValues[activeSheetExId] = {reps: 10, weight: 20};
-      currentValues[activeSheetExId].reps = Math.max(1, currentValues[activeSheetExId].reps + delta);
-      document.getElementById('sheetRepsVal').innerText = currentValues[activeSheetExId].reps;
+      const ex = exercises.find(e => e.id === activeSheetExId);
+      const mode = GymDB.getExTrackingMode(ex);
+      const step = mode === 'bw_seconds' ? delta * 5 : delta;
+      if (!currentValues[activeSheetExId]) currentValues[activeSheetExId] = {reps: mode === 'bw_seconds' ? 45 : 10, weight: 20};
+      currentValues[activeSheetExId].reps = Math.max(1, currentValues[activeSheetExId].reps + step);
+      document.getElementById('sheetRepsVal').innerText = formatActiveSheetRepsDisplay(currentValues[activeSheetExId].reps);
     }
 
     function sheetSetReps(targetReps) {
@@ -4258,7 +4491,7 @@
       if (!activeSheetExId) return;
       if (!currentValues[activeSheetExId]) currentValues[activeSheetExId] = {reps: 10, weight: 20};
       currentValues[activeSheetExId].reps = Math.max(1, parseInt(targetReps, 10));
-      document.getElementById('sheetRepsVal').innerText = currentValues[activeSheetExId].reps;
+      document.getElementById('sheetRepsVal').innerText = formatActiveSheetRepsDisplay(currentValues[activeSheetExId].reps);
     }
 
     function sheetModWeight(delta) {
@@ -4282,6 +4515,8 @@
       }
       const exId = activeSheetExId;
       const ex = exercises.find(e => e.id === exId);
+      const exMode = GymDB.getExTrackingMode(ex);
+      const isBw = exMode === 'bw_reps' || exMode === 'bw_seconds';
       const val = currentValues[exId];
       const noteVal = activeSheetNote.trim();
 
@@ -4292,7 +4527,7 @@
         group: ex.group,
         date: getTodayStr(),
         reps: String(val.reps),
-        weight: val.weight,
+        weight: isBw ? 0 : val.weight,
         notes: noteVal,
         timestamp: new Date().toISOString()
       };
@@ -4438,6 +4673,7 @@
         }
         if (tileEl) {
           tileEl.classList.toggle('is-latest-group', isOldest);
+          tileEl.classList.toggle('is-unlogged', !latestDateStr);
         }
       });
     }
@@ -4531,8 +4767,9 @@
       const timeLocale = currentLang === 'en' ? 'en-US' : 'it-IT';
       container.innerHTML = [...todayLogs].reverse().map((log) => {
         const timeStr = log.timestamp ? new Date(log.timestamp).toLocaleTimeString(timeLocale, {hour: '2-digit', minute: '2-digit'}) : '';
+        const logMode = getLogTrackingMode(log);
         const labelHtml = `<div class="session-ex-label">${escapeHtml(log.exerciseName)}${timeStr ? ` &middot; ${timeStr}` : ''}</div>`;
-        const primaryHtml = `<div class="session-sets-primary">${log.weight} kg &times; ${log.reps} reps</div>`;
+        const primaryHtml = `<div class="session-sets-primary">${formatSingleSetPrimary(log, logMode)}</div>`;
         const noteHtml = log.notes ? `<div class="today-set-note">${escapeHtml(log.notes)}</div>` : '';
         return buildClickableSetRowHtml('today', log, labelHtml, primaryHtml, noteHtml);
       }).join('');
@@ -4857,6 +5094,70 @@
       }
     });
 
+    const modalTrackingState = {
+      new: { base: 'standard', bwUnit: 'bw_reps' },
+      edit: { base: 'standard', bwUnit: 'bw_reps' }
+    };
+
+    function syncModalExTypeLabels(prefixKey) {
+      const state = modalTrackingState[prefixKey];
+      const prefix = prefixKey === 'edit' ? 'renameEx' : 'newEx';
+      const modePills = document.getElementById(prefix + 'ModePills');
+      const bwUnitField = document.getElementById(prefix + 'BwUnitField');
+      const bwUnitPills = document.getElementById(prefix + 'BwUnitPills');
+      if (modePills) {
+        modePills.querySelectorAll('.seg-pill-btn').forEach(btn => {
+          btn.classList.toggle('active', btn.dataset.mode === state.base);
+        });
+      }
+      if (bwUnitPills) {
+        bwUnitPills.querySelectorAll('.seg-pill-btn').forEach(btn => {
+          btn.classList.toggle('active', btn.dataset.unit === state.bwUnit);
+        });
+      }
+      if (bwUnitField) {
+        bwUnitField.style.display = state.base === 'bw' ? 'block' : 'none';
+      }
+      if (prefixKey === 'new') {
+        const weightField = document.getElementById('newExWeightField');
+        const weightLabel = document.getElementById('newExWeightLabel');
+        if (weightField) weightField.style.display = state.base === 'bw' ? 'none' : 'block';
+        if (weightLabel) {
+          weightLabel.textContent = state.base === 'assisted' ? t('newExAssistWeightLabel') : t('newExWeightLabel');
+        }
+      }
+    }
+
+    function setModalExType(prefixKey, baseMode) {
+      haptic();
+      modalTrackingState[prefixKey].base = baseMode;
+      syncModalExTypeLabels(prefixKey);
+    }
+
+    function setModalBwUnit(prefixKey, bwUnit) {
+      haptic();
+      modalTrackingState[prefixKey].bwUnit = bwUnit;
+      syncModalExTypeLabels(prefixKey);
+    }
+
+    function applyModalTrackingMode(prefixKey, trackingMode) {
+      if (trackingMode === 'bw_reps' || trackingMode === 'bw_seconds') {
+        modalTrackingState[prefixKey].base = 'bw';
+        modalTrackingState[prefixKey].bwUnit = trackingMode;
+      } else if (trackingMode === 'assisted') {
+        modalTrackingState[prefixKey].base = 'assisted';
+      } else {
+        modalTrackingState[prefixKey].base = 'standard';
+      }
+      syncModalExTypeLabels(prefixKey);
+    }
+
+    function getModalTrackingMode(prefixKey) {
+      const state = modalTrackingState[prefixKey];
+      if (state.base === 'bw') return state.bwUnit;
+      return state.base;
+    }
+
     function openRenameExerciseModal() {
       const targetId = activeOptionExId;
       closeCardOptionsMenu();
@@ -4869,6 +5170,7 @@
       const input = document.getElementById('renameExerciseInput');
       if (!modal || !input) return;
       input.value = ex.name;
+      applyModalTrackingMode('edit', GymDB.getExTrackingMode(ex));
       modal.classList.add('active');
       input.focus();
       try { input.select(); } catch (_) {}
@@ -4904,12 +5206,20 @@
         return;
       }
 
+      const newMode = getModalTrackingMode('edit');
+      const oldMode = GymDB.getExTrackingMode(ex);
+      const nameChanged = newName !== ex.name;
+      const modeChanged = newMode !== oldMode;
+
       closeRenameExerciseModal();
-      if (newName !== ex.name) {
-        await GymDB.updateExerciseAndSets({ ...ex, name: newName });
+      if (nameChanged || modeChanged) {
+        await GymDB.updateExerciseAndSets({ ...ex, name: newName, trackingMode: newMode });
+        if ((newMode === 'bw_reps' || newMode === 'bw_seconds') && currentValues[ex.id]) {
+          currentValues[ex.id].weight = 0;
+        }
         await refreshStateFromDB();
         haptic();
-        showToast(t('renamedToast'));
+        showToast(nameChanged ? t('renamedToast') : t('updatedToast'));
       }
     }
 
@@ -5067,8 +5377,22 @@
       }
 
       list.innerHTML = filtered.map(ex => {
-        const lastStr = ex.last_weight !== null ? `${ex.last_weight} kg` : '-';
-        const prStr = ex.pr !== null ? `${ex.pr} kg` : '-';
+        const mode = GymDB.getExTrackingMode(ex);
+        const isBw = mode === 'bw_reps' || mode === 'bw_seconds';
+        const isSec = mode === 'bw_seconds';
+        let ultimaLineHtml = '';
+        let prStr = '-';
+        if (isBw) {
+          const bwLast = ex.last_reps
+            ? (isSec ? ex.last_reps.split(',').map(v => `${v}s`).join(',') : ex.last_reps)
+            : '-';
+          prStr = ex.pr !== null ? `${ex.pr}${isSec ? ' sec' : ' reps'}` : '-';
+          ultimaLineHtml = `<span>${t('ultimaLabel')} <strong>${escapeHtml(bwLast)}</strong></span>`;
+        } else {
+          const lastStr = ex.last_weight !== null ? `${ex.last_weight} kg` : '-';
+          prStr = ex.pr !== null ? `${ex.pr} kg` : '-';
+          ultimaLineHtml = `<span>${t('ultimaLabel')} <strong>${lastStr}</strong> ${ex.last_reps ? `(${escapeHtml(ex.last_reps)})` : ''}</span>`;
+        }
         const rightActionHtml = isReorderMode
           ? `<div class="ex-drag-handle" data-exid="${escapeHtml(ex.id)}" aria-label="${t('reorderAria')}">
                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true">
@@ -5092,7 +5416,7 @@
                 <div class="ex-title">${escapeHtml(ex.name)}</div>
               </div>
               <div class="ex-stats" id="stats-${ex.id}">
-                <span>${t('ultimaLabel')} <strong>${lastStr}</strong> ${ex.last_reps ? `(${ex.last_reps})` : ''}</span>
+                ${ultimaLineHtml}
                 <span>PR: <strong>${prStr}</strong></span>
               </div>
             </div>
@@ -5379,7 +5703,7 @@
         swRefreshing = true;
         window.location.reload();
       });
-      navigator.serviceWorker.register('sw.js?v=69', { scope: './', updateViaCache: 'none' }).then(reg => {
+      navigator.serviceWorker.register('sw.js?v=70', { scope: './', updateViaCache: 'none' }).then(reg => {
         reg.update();
       }).catch(() => {});
     }
@@ -5458,9 +5782,13 @@
 
       nameInput.value = '';
       weightInput.value = '';
+      applyModalTrackingMode('new', 'standard');
 
       if (currentFilter && currentFilter !== 'Tutti') {
         groupSelect.value = currentFilter;
+        if (currentFilter === 'Core / Addome') {
+          applyModalTrackingMode('new', 'bw_reps');
+        }
       }
 
       modal.classList.add('active');
@@ -5478,7 +5806,10 @@
 
       const name = nameInput.value.trim();
       const group = groupSelect.value;
-      const initialWeight = parseFloat(weightInput.value) || 20;
+      const trackingMode = getModalTrackingMode('new');
+      const isBw = trackingMode === 'bw_reps' || trackingMode === 'bw_seconds';
+      const initialWeight = isBw ? 0 : (parseFloat(weightInput.value) || 20);
+      const initialReps = trackingMode === 'bw_seconds' ? 45 : 10;
 
       if (!name) {
         showToast(t('enterExNameToast'));
@@ -5496,7 +5827,8 @@
         id: newId,
         name: name,
         group: group,
-        equipment: 'Personalizzato',
+        equipment: isBw ? 'Corpo Libero' : 'Personalizzato',
+        trackingMode: trackingMode,
         last_weight: null,
         last_reps: null,
         last_date: null,
@@ -5504,7 +5836,7 @@
       };
 
       await GymDB.saveExercise(newEx);
-      currentValues[newId] = { reps: 10, weight: initialWeight, note: '' };
+      currentValues[newId] = { reps: initialReps, weight: initialWeight, note: '' };
       await refreshStateFromDB();
 
       closeNewExerciseModal();
@@ -5587,6 +5919,23 @@
       </div>
 
       <div class="modal-field">
+        <label id="newExTypeLabel">Modalità Tracciamento</label>
+        <div class="seg-pill-group" id="newExModePills" role="radiogroup" aria-labelledby="newExTypeLabel">
+          <button type="button" class="seg-pill-btn active" data-mode="standard" onclick="setModalExType('new', 'standard')">Carico kg</button>
+          <button type="button" class="seg-pill-btn" data-mode="assisted" onclick="setModalExType('new', 'assisted')">Assistito</button>
+          <button type="button" class="seg-pill-btn" data-mode="bw" onclick="setModalExType('new', 'bw')">Corpo libero</button>
+        </div>
+      </div>
+
+      <div class="modal-field" id="newExBwUnitField" style="display:none;">
+        <label id="newExBwUnitLabel">Unità Corpo Libero</label>
+        <div class="seg-pill-group cols-2" id="newExBwUnitPills" role="radiogroup" aria-labelledby="newExBwUnitLabel">
+          <button type="button" class="seg-pill-btn active" data-unit="bw_reps" onclick="setModalBwUnit('new', 'bw_reps')">Ripetizioni</button>
+          <button type="button" class="seg-pill-btn" data-unit="bw_seconds" onclick="setModalBwUnit('new', 'bw_seconds')">Secondi</button>
+        </div>
+      </div>
+
+      <div class="modal-field" id="newExWeightField">
         <label for="newExWeightInput" id="newExWeightLabel">Peso Iniziale (kg, opzionale)</label>
         <input type="number" id="newExWeightInput" placeholder="es. 20" step="0.5" min="0">
       </div>
@@ -5626,7 +5975,7 @@
     <!-- Stepper Tastoni (Carico SOPRA, Ripetizioni SOTTO con tasti rapidi 6, 9, 12) -->
     <div class="sheet-stepper-grid">
       <!-- Box 1: CARICO (Sopra) -->
-      <div class="sheet-stepper-box">
+      <div class="sheet-stepper-box" id="sheetWeightBox">
         <div class="sheet-box-label" id="sheetWeightBoxLabel">Carico</div>
         <div class="sheet-box-controls">
           <button type="button" class="sheet-big-btn" onclick="sheetModWeight(-1)" aria-label="Meno 1 kg">−</button>
@@ -5650,7 +5999,7 @@
           <input type="number" id="sheetRepsInlineInput" class="sheet-val-inline-input" style="display:none;" inputmode="numeric" step="1" min="1" enterkeyhint="done" onkeydown="handleInlineValueKeydown(event, 'reps')" onblur="commitInlineValueEdit('reps')" aria-label="Ripetizioni">
           <button type="button" class="sheet-big-btn" onclick="sheetModReps(1)" aria-label="Più ripetizioni">+</button>
         </div>
-        <div class="sheet-quick-weights">
+        <div class="sheet-quick-weights" id="sheetQuickRepsRow">
           <button type="button" class="sheet-sub-btn" onclick="sheetSetReps(6)">6</button>
           <button type="button" class="sheet-sub-btn" onclick="sheetSetReps(9)">9</button>
           <button type="button" class="sheet-sub-btn" onclick="sheetSetReps(12)">12</button>
@@ -5868,16 +6217,31 @@
     </div>
   </div>
 
-  <!-- Mini-Modale Rinomina Esercizio (ancorata in alto sopra tastiera iOS) -->
+  <!-- Mini-Modale Modifica Esercizio (ancorata in alto sopra tastiera iOS) -->
   <div class="modal-overlay modal-overlay-top" id="renameExerciseModal" style="z-index: 1350;" onclick="if(event.target===this) closeRenameExerciseModal()">
     <div class="modal-card">
       <div class="modal-header">
-        <h3 id="renameExModalTitle">Rinomina Esercizio</h3>
+        <h3 id="renameExModalTitle">Modifica Esercizio</h3>
         <button type="button" class="modal-close-btn" onclick="closeRenameExerciseModal()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg></button>
       </div>
       <div class="modal-field">
         <label for="renameExerciseInput" id="renameExNameLabel">Nome Esercizio</label>
         <input type="text" id="renameExerciseInput" autocomplete="off" enterkeyhint="done" onkeydown="handleRenameKeydown(event)">
+      </div>
+      <div class="modal-field">
+        <label id="renameExTypeLabel">Modalità Tracciamento</label>
+        <div class="seg-pill-group" id="renameExModePills" role="radiogroup" aria-labelledby="renameExTypeLabel">
+          <button type="button" class="seg-pill-btn active" data-mode="standard" onclick="setModalExType('edit', 'standard')">Carico kg</button>
+          <button type="button" class="seg-pill-btn" data-mode="assisted" onclick="setModalExType('edit', 'assisted')">Assistito</button>
+          <button type="button" class="seg-pill-btn" data-mode="bw" onclick="setModalExType('edit', 'bw')">Corpo libero</button>
+        </div>
+      </div>
+      <div class="modal-field" id="renameExBwUnitField" style="display:none;">
+        <label id="renameExBwUnitLabel">Unità Corpo Libero</label>
+        <div class="seg-pill-group cols-2" id="renameExBwUnitPills" role="radiogroup" aria-labelledby="renameExBwUnitLabel">
+          <button type="button" class="seg-pill-btn active" data-unit="bw_reps" onclick="setModalBwUnit('edit', 'bw_reps')">Ripetizioni</button>
+          <button type="button" class="seg-pill-btn" data-unit="bw_seconds" onclick="setModalBwUnit('edit', 'bw_seconds')">Secondi</button>
+        </div>
       </div>
       <div class="modal-actions">
         <button type="button" class="modal-btn-cancel" id="renameExCancelBtn" onclick="closeRenameExerciseModal()">Annulla</button>

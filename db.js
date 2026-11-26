@@ -147,11 +147,28 @@ const GymDB = (() => {
     return txPromise('settings', 'readwrite', (s) => s.put({ key, value }));
   }
 
+  function getExTrackingMode(ex) {
+    if (ex && (ex.trackingMode === 'standard' || ex.trackingMode === 'assisted' || ex.trackingMode === 'bw_reps' || ex.trackingMode === 'bw_seconds')) {
+      return ex.trackingMode;
+    }
+    if (ex && String(ex.equipment || '').toLowerCase() === 'corpo libero') {
+      return 'bw_reps';
+    }
+    return 'standard';
+  }
+
   /**
-   * Format consecutive sets with same weight into "10,8,6 @ 30kg" or "10,8 @ 30kg; 6 @ 35kg"
+   * Format consecutive sets with same weight into "10,8,6 @ 30kg", or bodyweight "15,12,10" / "45s,40s,35s"
    */
-  function formatDaySets(setsList) {
+  function formatDaySets(setsList, trackingMode = 'standard') {
     if (!setsList || setsList.length === 0) return '';
+    if (trackingMode === 'bw_reps') {
+      return setsList.map((s) => String(s.reps)).join(',');
+    }
+    if (trackingMode === 'bw_seconds') {
+      return setsList.map((s) => `${s.reps}s`).join(',');
+    }
+
     const groups = [];
     let currWeight = null;
     let currReps = [];
@@ -195,13 +212,25 @@ const GymDB = (() => {
         return (a.timestamp || '').localeCompare(b.timestamp || '');
       });
 
-      let maxPR = null;
+      const mode = getExTrackingMode(ex);
+      let bestPR = null;
       let latestDate = null;
 
       for (const s of exSets) {
         const w = Number(s.weight);
-        if (!isNaN(w) && w > 0 && (maxPR === null || w > maxPR)) {
-          maxPR = w;
+        const r = parseInt(s.reps, 10);
+        if (mode === 'assisted') {
+          if (!isNaN(w) && w >= 0 && (bestPR === null || w < bestPR)) {
+            bestPR = w;
+          }
+        } else if (mode === 'bw_reps' || mode === 'bw_seconds') {
+          if (!isNaN(r) && r > 0 && (bestPR === null || r > bestPR)) {
+            bestPR = r;
+          }
+        } else {
+          if (!isNaN(w) && w > 0 && (bestPR === null || w > bestPR)) {
+            bestPR = w;
+          }
         }
         if (!latestDate || s.date > latestDate) {
           latestDate = s.date;
@@ -214,7 +243,7 @@ const GymDB = (() => {
 
       return {
         ...ex,
-        pr: maxPR,
+        pr: bestPR,
         last_date: latestDate,
         last_weight: lastWeight,
         last_reps: lastReps
@@ -272,6 +301,7 @@ const GymDB = (() => {
     deleteSet,
     getSetting,
     setSetting,
+    getExTrackingMode,
     formatDaySets,
     recomputeStats,
     exportAllData,
