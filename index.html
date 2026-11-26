@@ -1167,7 +1167,7 @@
       grid-template-columns: repeat(3, 1fr);
       gap: 4px;
       padding: 4px;
-      border-radius: 12px;
+      border-radius: 18px;
       background: var(--input-bg);
       border: 1px solid rgba(255, 255, 255, 0.12);
     }
@@ -1175,21 +1175,23 @@
       grid-template-columns: repeat(2, 1fr);
     }
     .seg-pill-btn {
-      min-height: 36px;
+      min-height: 38px;
       padding: 6px 8px;
       border: none;
-      border-radius: 9px;
+      border-radius: 14px;
       background: transparent;
       color: var(--text-muted);
       font-family: inherit;
       font-size: 0.82rem;
       font-weight: 700;
+      white-space: nowrap;
       cursor: pointer;
-      transition: background 0.16s ease, color 0.16s ease;
+      transition: background 0.16s ease, color 0.16s ease, box-shadow 0.16s ease;
     }
     .seg-pill-btn.active {
-      background: var(--accent);
-      color: var(--cta-text);
+      background: rgba(255, 255, 255, 0.14);
+      color: #FFFFFF;
+      box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.16);
     }
     @media (prefers-reduced-motion: reduce) {
       .seg-pill-btn { transition: none; }
@@ -2021,14 +2023,14 @@
       background: rgba(255, 255, 255, 0.08);
     }
   </style>
-  <script src="db.js?v=70"></script>
-  <script src="backup.js?v=70"></script>
+  <script src="db.js?v=71"></script>
+  <script src="backup.js?v=71"></script>
 </head>
 <body>
   <header>
     <div class="header-top" id="headerRootBar">
       <div class="title-area">
-        <h1 id="gymLogoTitle" onclick="handleLogoTap(event)">Gym Log <span class="app-version-sub">v70</span></h1>
+        <h1 id="gymLogoTitle" onclick="handleLogoTap(event)">Gym Log <span class="app-version-sub">v71</span></h1>
       </div>
       <div class="settings-menu-wrap">
         <button type="button" class="sheet-close-x" id="settingsBtn" onclick="toggleSettingsMenu(event)" title="Impostazioni" aria-label="Impostazioni">
@@ -2434,6 +2436,9 @@
         sparkTitleBw: (n) => `Top set score (ultime ${n})`,
         prMinAssistLabel: 'PR Min. Assistenza',
         updatedToast: 'Esercizio aggiornato!',
+        bwSwitchWarnTitle: 'Passare a Corpo Libero?',
+        bwSwitchWarnMsg: (n) => `Questo esercizio ha già ${n} serie con carico salvato. Passando a Corpo libero tutti i dati relativi al peso (kg) verranno cancellati (le ripetizioni restano). Continuare?`,
+        bwSwitchConfirmBtn: 'Cancella pesi e cambia',
         notesTriggerPlaceholder: 'Note (es. cedimento, drop set, sensazioni)...',
         logSetBtn: 'Salva Serie',
         setNotesTitle: 'Note Serie',
@@ -2591,6 +2596,9 @@
         sparkTitleBw: (n) => `Top-set score (last ${n})`,
         prMinAssistLabel: 'Lowest Assistance PR',
         updatedToast: 'Exercise updated!',
+        bwSwitchWarnTitle: 'Switch to Bodyweight?',
+        bwSwitchWarnMsg: (n) => `This exercise already has ${n} sets with saved weight. Switching to Bodyweight will permanently delete all weight (kg) data for those sets (reps stay intact). Continue?`,
+        bwSwitchConfirmBtn: 'Delete weights & switch',
         notesTriggerPlaceholder: 'Notes (e.g. failure, drop set, RPE)...',
         logSetBtn: 'Log Set',
         setNotesTitle: 'Set Notes',
@@ -5210,11 +5218,32 @@
       const oldMode = GymDB.getExTrackingMode(ex);
       const nameChanged = newName !== ex.name;
       const modeChanged = newMode !== oldMode;
+      const wasWeighted = oldMode === 'standard' || oldMode === 'assisted';
+      const becomingBw = newMode === 'bw_reps' || newMode === 'bw_seconds';
 
-      closeRenameExerciseModal();
+      if (wasWeighted && becomingBw) {
+        const weightedSets = allSets.filter(s => s.exerciseId === ex.id && (parseFloat(s.weight) || 0) > 0);
+        if (weightedSets.length > 0) {
+          const ok = await showAppConfirm({
+            title: t('bwSwitchWarnTitle'),
+            message: t('bwSwitchWarnMsg', weightedSets.length),
+            confirmLabel: t('bwSwitchConfirmBtn'),
+            danger: true
+          });
+          if (!ok) return;
+          closeRenameExerciseModal();
+          await Promise.all(weightedSets.map(s => GymDB.updateSet({ ...s, weight: 0 })));
+        } else {
+          closeRenameExerciseModal();
+        }
+      } else {
+        closeRenameExerciseModal();
+      }
+
       if (nameChanged || modeChanged) {
-        await GymDB.updateExerciseAndSets({ ...ex, name: newName, trackingMode: newMode });
-        if ((newMode === 'bw_reps' || newMode === 'bw_seconds') && currentValues[ex.id]) {
+        const nextEquipment = becomingBw ? 'Corpo Libero' : (ex.equipment === 'Corpo Libero' ? 'Personalizzato' : ex.equipment);
+        await GymDB.updateExerciseAndSets({ ...ex, name: newName, equipment: nextEquipment, trackingMode: newMode });
+        if (becomingBw && currentValues[ex.id]) {
           currentValues[ex.id].weight = 0;
         }
         await refreshStateFromDB();
@@ -5703,7 +5732,7 @@
         swRefreshing = true;
         window.location.reload();
       });
-      navigator.serviceWorker.register('sw.js?v=70', { scope: './', updateViaCache: 'none' }).then(reg => {
+      navigator.serviceWorker.register('sw.js?v=71', { scope: './', updateViaCache: 'none' }).then(reg => {
         reg.update();
       }).catch(() => {});
     }
