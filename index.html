@@ -1298,6 +1298,35 @@
       position: relative;
       flex-shrink: 0;
     }
+    #settingsBtn {
+      position: relative;
+    }
+    .settings-reminder-dot {
+      position: absolute;
+      top: 2px;
+      right: 2px;
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--warning);
+      border: 1.5px solid #000000;
+      display: none;
+      pointer-events: none;
+    }
+    .settings-backup-badge {
+      display: none;
+      align-items: center;
+      justify-content: center;
+      min-width: 18px;
+      height: 18px;
+      padding: 0 5px;
+      border-radius: 999px;
+      background: rgba(255, 159, 10, 0.18);
+      color: var(--warning);
+      font-size: 0.72rem;
+      font-weight: 800;
+      line-height: 1;
+    }
     .theme-color-dot {
       width: 12px;
       height: 12px;
@@ -1947,14 +1976,14 @@
       background: rgba(255, 255, 255, 0.08);
     }
   </style>
-  <script src="db.js?v=67"></script>
-  <script src="backup.js?v=67"></script>
+  <script src="db.js?v=68"></script>
+  <script src="backup.js?v=68"></script>
 </head>
 <body>
   <header>
     <div class="header-top" id="headerRootBar">
       <div class="title-area">
-        <h1 id="gymLogoTitle" onclick="handleLogoTap(event)">Gym Log <span class="app-version-sub">v67</span></h1>
+        <h1 id="gymLogoTitle" onclick="handleLogoTap(event)">Gym Log <span class="app-version-sub">v68</span></h1>
       </div>
       <div class="settings-menu-wrap">
         <button type="button" class="sheet-close-x" id="settingsBtn" onclick="toggleSettingsMenu(event)" title="Impostazioni" aria-label="Impostazioni">
@@ -1962,6 +1991,7 @@
             <circle cx="12" cy="12" r="3"></circle>
             <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
           </svg>
+          <span id="settingsReminderDot" class="settings-reminder-dot" aria-hidden="true"></span>
         </button>
         <div class="sheet-dropdown-menu" id="settingsDropdownMenu" style="min-width: 225px;" onclick="event.stopPropagation()">
           <div id="settingsMenuMain" class="sheet-dropdown-subview">
@@ -2001,7 +2031,10 @@
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><polyline points="17 21 17 13 7 13 7 21"/><polyline points="7 3 7 8 15 8"/></svg>
                 <span id="settingsLabelBackup">Backup</span>
               </span>
-              <span style="opacity:0.6; font-size:1rem; line-height:1;">&rsaquo;</span>
+              <span style="display:inline-flex; align-items:center; gap:6px;">
+                <span id="settingsBackupBadge" class="settings-backup-badge" aria-hidden="true"></span>
+                <span style="opacity:0.6; font-size:1rem; line-height:1;">&rsaquo;</span>
+              </span>
             </button>
             <button type="button" class="sheet-dropdown-item" onclick="openExportSubmenu(event)">
               <span class="sheet-dropdown-item-left">
@@ -2390,7 +2423,7 @@
         mdDone: 'Esportazione Markdown completata!',
         exportErr: (m) => 'Errore esportazione: ' + m,
         noSessionsForEx: 'Nessuna seduta registrata per questo esercizio',
-        sparkTitle: (n) => `Media/serie (kg &times; reps, ultime ${n})`,
+        sparkTitle: (n) => `1RM stimato (best set, ultime ${n})`,
         setSavedToast: (n, w, r) => `Serie #${n} salvata (${w} kg × ${r})`,
         deleteSetConfirm: 'Vuoi davvero eliminare questa serie registrata?',
         setDeletedToast: 'Serie eliminata',
@@ -2404,7 +2437,7 @@
         selectedFolder: (f) => `Cartella selezionata: <strong>${f}</strong>`,
         noFolderSelected: 'Nessuna cartella selezionata',
         iosDest: 'Destinazione iOS: <strong>Salva su File (iCloud Drive)</strong>',
-        backupInfoHtml: (folderStr, lastStr, setsCount) => `${folderStr}<br>Ultimo backup: <strong>${lastStr}</strong><br>Totale serie salvate: <strong>${setsCount}</strong>`,
+        backupInfoHtml: (folderStr, lastStr, setsCount, sinceCount) => `${folderStr}<br>Ultimo backup: <strong>${lastStr}</strong><br>Allenamenti dal backup: <strong>${sinceCount}</strong> &middot; Serie totali: <strong>${setsCount}</strong>`,
         folderUpdatedToast: (n) => `Cartella aggiornata: ${n}`,
         folderErrToast: 'Errore selezione cartella',
         savedInToast: (f, fn) => `Salvato in "${f}/${fn}"`,
@@ -2531,7 +2564,7 @@
         mdDone: 'Markdown exported!',
         exportErr: (m) => 'Export error: ' + m,
         noSessionsForEx: 'No sessions logged for this exercise',
-        sparkTitle: (n) => `Avg/set (kg &times; reps, last ${n})`,
+        sparkTitle: (n) => `Est. 1RM (best set, last ${n})`,
         setSavedToast: (n, w, r) => `Set #${n} logged (${w} kg × ${r})`,
         deleteSetConfirm: 'Delete this logged set?',
         setDeletedToast: 'Set deleted',
@@ -2545,7 +2578,7 @@
         selectedFolder: (f) => `Selected folder: <strong>${f}</strong>`,
         noFolderSelected: 'No folder selected',
         iosDest: 'iOS destination: <strong>Save to Files (iCloud Drive)</strong>',
-        backupInfoHtml: (folderStr, lastStr, setsCount) => `${folderStr}<br>Last backup: <strong>${lastStr}</strong><br>Total logged sets: <strong>${setsCount}</strong>`,
+        backupInfoHtml: (folderStr, lastStr, setsCount, sinceCount) => `${folderStr}<br>Last backup: <strong>${lastStr}</strong><br>Workouts since backup: <strong>${sinceCount}</strong> &middot; Total sets: <strong>${setsCount}</strong>`,
         folderUpdatedToast: (n) => `Folder updated: ${n}`,
         folderErrToast: 'Folder selection failed',
         savedInToast: (f, fn) => `Saved to "${f}/${fn}"`,
@@ -2990,6 +3023,7 @@
       if (currentAppMode === 'history') {
         renderHistoryView();
       }
+      refreshBackupReminderBadge();
     }
 
     function syncHeaderOffset() {
@@ -3182,15 +3216,20 @@
       if (dateStr && exKey) openHistoryDetailModal(dateStr, exKey);
     }
 
-    function getAvgSetVolume(setsList) {
+    function getBestSetE1RM(setsList) {
       if (!setsList || setsList.length === 0) return 0;
-      let total = 0;
+      let best = 0;
+      let maxReps = 0;
       for (const s of setsList) {
         const w = parseFloat(s.weight) || 0;
         const r = parseInt(s.reps, 10) || 0;
-        total += w * r;
+        if (r > maxReps) maxReps = r;
+        if (w > 0 && r > 0) {
+          const e1rm = r === 1 ? w : w * (1 + r / 30);
+          if (e1rm > best) best = e1rm;
+        }
       }
-      return Number((total / setsList.length).toFixed(1));
+      return best > 0 ? Number(best.toFixed(1)) : maxReps;
     }
 
     function renderSparklineSvg(points) {
@@ -3203,8 +3242,8 @@
       let minV = Math.min(...values);
       let maxV = Math.max(...values);
       if (maxV === minV) {
-        minV = Math.max(0, minV - 10);
-        maxV = maxV + 10;
+        minV = Math.max(0, minV - 2);
+        maxV = maxV + 2;
       }
       const spanV = maxV - minV;
       const coords = points.map((p, idx) => {
@@ -3225,7 +3264,7 @@
         <div class="progress-spark-card">
           <div class="progress-spark-header">
             <span>${t('sparkTitle', points.length)}</span>
-            <span>${realMin} &ndash; ${realMax} vol</span>
+            <span>${realMin} &ndash; ${realMax} kg</span>
           </div>
           <svg viewBox="0 0 ${w} ${h}" width="100%" height="76" style="display:block; overflow:visible;">
             <defs>
@@ -3534,7 +3573,6 @@
       const lastDate = datesDesc[0];
       const lastSets = byDate[lastDate].sort((a, b) => (a.timestamp || '').localeCompare(b.timestamp || ''));
       const lastMax = getMaxSetWeight(lastSets);
-      const lastAvg = getAvgSetVolume(lastSets);
       const lastFormatted = GymDB.formatDaySets(lastSets);
 
       // Delta in kg dell'ultima seduta rispetto al PR massimale
@@ -3565,7 +3603,7 @@
 
       const sparkPoints = datesAsc.slice(-12).map(d => ({
         dateStr: d,
-        value: getAvgSetVolume(byDate[d])
+        value: getBestSetE1RM(byDate[d])
       }));
       document.getElementById('histProgSparkWrap').innerHTML = renderSparklineSvg(sparkPoints);
 
@@ -4597,10 +4635,40 @@
       document.getElementById('firstLaunchModal').style.display = 'none';
     }
 
+    const BACKUP_REMINDER_THRESHOLD = 5;
+
+    async function getWorkoutsSinceLastBackup() {
+      const lastBackup = await GymDB.getSetting('lastBackupAt');
+      const dates = new Set();
+      const lastDateStr = lastBackup ? String(lastBackup).slice(0, 10) : null;
+      for (const s of allSets) {
+        if (!s || !s.date) continue;
+        if (!lastBackup) {
+          dates.add(s.date);
+        } else if (s.timestamp ? (s.timestamp > lastBackup) : (s.date > lastDateStr)) {
+          dates.add(s.date);
+        }
+      }
+      return dates.size;
+    }
+
+    async function refreshBackupReminderBadge() {
+      const count = await getWorkoutsSinceLastBackup();
+      const show = count >= BACKUP_REMINDER_THRESHOLD;
+      const dot = document.getElementById('settingsReminderDot');
+      const badge = document.getElementById('settingsBackupBadge');
+      if (dot) dot.style.display = show ? 'block' : 'none';
+      if (badge) {
+        badge.style.display = show ? 'inline-flex' : 'none';
+        badge.textContent = show ? String(count) : '';
+      }
+    }
+
     async function openBackupModal() {
       haptic();
       const lastBackup = await GymDB.getSetting('lastBackupAt');
       const folderName = await GymDB.getSetting('backupFolderName');
+      const sinceCount = await getWorkoutsSinceLastBackup();
       const infoEl = document.getElementById('backupStatusDetail');
       const dateLocale = currentLang === 'en' ? 'en-US' : 'it-IT';
       if (infoEl) {
@@ -4608,7 +4676,7 @@
         const folderStr = GymBackup.supportsDirectoryPicker()
           ? (folderName ? t('selectedFolder', escapeHtml(folderName)) : t('noFolderSelected'))
           : t('iosDest');
-        infoEl.innerHTML = t('backupInfoHtml', folderStr, lastStr, allSets.length);
+        infoEl.innerHTML = t('backupInfoHtml', folderStr, lastStr, allSets.length, sinceCount);
       }
       const pickBtn = document.getElementById('changeFolderBtn');
       if (pickBtn) {
@@ -4626,7 +4694,8 @@
         const res = await GymBackup.pickBackupFolder(currentLang);
         if (res.supported) {
           showToast(t('folderUpdatedToast', res.name));
-          openBackupModal();
+          refreshBackupReminderBadge();
+        openBackupModal();
         }
       } catch (e) {
         if (e.name !== 'AbortError') showToast(t('folderErrToast'));
@@ -4642,6 +4711,7 @@
         } else {
           showToast(t('backupReadyToast', res.filename));
         }
+        refreshBackupReminderBadge();
         openBackupModal();
       } catch (e) {
         if (e.name !== 'AbortError') {
@@ -5309,7 +5379,7 @@
         swRefreshing = true;
         window.location.reload();
       });
-      navigator.serviceWorker.register('sw.js?v=67', { scope: './', updateViaCache: 'none' }).then(reg => {
+      navigator.serviceWorker.register('sw.js?v=68', { scope: './', updateViaCache: 'none' }).then(reg => {
         reg.update();
       }).catch(() => {});
     }
