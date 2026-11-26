@@ -1308,7 +1308,7 @@
       width: 8px;
       height: 8px;
       border-radius: 50%;
-      background: var(--warning);
+      background: var(--accent);
       border: 1.5px solid #000000;
       display: none;
       pointer-events: none;
@@ -1321,8 +1321,8 @@
       height: 18px;
       padding: 0 5px;
       border-radius: 999px;
-      background: rgba(255, 159, 10, 0.18);
-      color: var(--warning);
+      background: var(--accent-soft);
+      color: var(--accent);
       font-size: 0.72rem;
       font-weight: 800;
       line-height: 1;
@@ -1976,14 +1976,14 @@
       background: rgba(255, 255, 255, 0.08);
     }
   </style>
-  <script src="db.js?v=68"></script>
-  <script src="backup.js?v=68"></script>
+  <script src="db.js?v=69"></script>
+  <script src="backup.js?v=69"></script>
 </head>
 <body>
   <header>
     <div class="header-top" id="headerRootBar">
       <div class="title-area">
-        <h1 id="gymLogoTitle" onclick="handleLogoTap(event)">Gym Log <span class="app-version-sub">v68</span></h1>
+        <h1 id="gymLogoTitle" onclick="handleLogoTap(event)">Gym Log <span class="app-version-sub">v69</span></h1>
       </div>
       <div class="settings-menu-wrap">
         <button type="button" class="sheet-close-x" id="settingsBtn" onclick="toggleSettingsMenu(event)" title="Impostazioni" aria-label="Impostazioni">
@@ -5379,7 +5379,7 @@
         swRefreshing = true;
         window.location.reload();
       });
-      navigator.serviceWorker.register('sw.js?v=68', { scope: './', updateViaCache: 'none' }).then(reg => {
+      navigator.serviceWorker.register('sw.js?v=69', { scope: './', updateViaCache: 'none' }).then(reg => {
         reg.update();
       }).catch(() => {});
     }
